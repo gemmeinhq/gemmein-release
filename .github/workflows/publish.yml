@@ -22,10 +22,14 @@ jobs:
       - name: upload engine artifact
         if: startsWith(github.ref_name, 'engine-v')
         run: |
-          echo "engine upload pending CDN configuration"
-          exit 1
+          VERSION="${GITHUB_REF_NAME#engine-v}"
+          test -d "staging/engine/$VERSION" || { echo "no staged artifact for $VERSION"; exit 1; }
+          for f in staging/engine/"$VERSION"/*; do
+            npx --yes wrangler r2 object put "gemmein-downloads/engine/$VERSION/$(basename "$f")" --file "$f" --remote
+          done
         env:
-          CLOUDFLARE_DOWNLOADS_TOKEN: ${{ secrets.CLOUDFLARE_DOWNLOADS_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_DOWNLOADS_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       - name: publish shim to npm
         if: startsWith(github.ref_name, 'shim-v')
         run: cd shim && npm publish
