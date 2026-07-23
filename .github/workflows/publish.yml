@@ -25,6 +25,7 @@ jobs:
           VERSION="${GITHUB_REF_NAME#engine-v}"
           test -d "staging/engine/$VERSION" || { echo "no staged artifact for $VERSION"; exit 1; }
           aws s3 cp "staging/engine/$VERSION/" "s3://gemmein-downloads/engine/$VERSION/"             --recursive --endpoint-url "https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com"
+          aws s3 cp LICENSE-ENGINE.md "s3://gemmein-downloads/engine/LICENSE"             --content-type "text/markdown; charset=utf-8"             --endpoint-url "https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}

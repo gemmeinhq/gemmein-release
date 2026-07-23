@@ -22,6 +22,17 @@ ever fails verification, the launcher refuses to run it.
 - `shim/` — the `gemmein` npm package (plain JS, no build step)
 - `manifest/releases.json` — every engine release and its file hashes
 
+## Licensing
+
+Two licenses, on purpose:
+
+- The npm launcher (`shim/`) is **MIT** — read it, audit it, it's yours.
+- The downloaded engine is proprietary, under the
+  [Gemmein Engine License](LICENSE-ENGINE.md) — you can run and cache it
+  freely for building against Gemmein (offline once cached, even if a
+  version is retired), but not redistribute or extract it. It's also served
+  at [downloads.gemmein.com/engine/LICENSE](https://downloads.gemmein.com/engine/LICENSE).
+
 ## Using it
 
 ```bash
