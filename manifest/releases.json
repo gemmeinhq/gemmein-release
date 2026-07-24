@@ -1,0 +1,4 @@
+{
+  "_doc": "Engine release history — the source of truth for what users can fetch. Each entry: version, date, files (name -> sha256), artifactFormat (v1 = carved minified js; v2 = sealed binary), notes. Hashes here must match shim/lib/versions.mjs for the pinned version.",
+  "releases": []
+}
