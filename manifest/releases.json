@@ -1,4 +1,15 @@
 {
-  "_doc": "Engine release history — the source of truth for what users can fetch. Each entry: version, date, files (name -> sha256), artifactFormat (v1 = carved minified js; v2 = sealed binary), notes. Hashes here must match shim/lib/versions.mjs for the pinned version.",
-  "releases": []
+  "_doc": "Engine release history \u2014 the source of truth for what users can fetch. Each entry: version, date, files (name -> sha256), artifactFormat (v1 = carved minified js; v2 = sealed binary), notes. Hashes here must match shim/lib/versions.mjs for the pinned version.",
+  "releases": [
+    {
+      "version": "0.1.0",
+      "date": "2026-07-24",
+      "files": {
+        "gemmein.js": "6dc0ad751f0f2023039d58f1f44a80824ec4b44d67bca57b44c097729a65936f",
+        "llms.txt": "1aa0989dd1624e93014122a451e22043659caa02e32a5b096da90d2b1cff6217"
+      },
+      "artifactFormat": "v1",
+      "notes": "First real engine release. Local runtime + guided init + sync/go-live cloud handshake + additive promote ceremony + feedback command. Carved: internal plane, platform billing, prod adapters absent (CARVE-BOUNDARY marker-scan green at dev repo d3bf317)."
+    }
+  ]
 }
