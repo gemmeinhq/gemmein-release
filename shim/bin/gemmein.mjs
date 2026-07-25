@@ -6,6 +6,13 @@
 import { ENGINE_VERSION, ENGINE_FILES, DOWNLOAD_BASE } from "../lib/versions.mjs";
 import { engineCached, fetchEngine, runEngine } from "../lib/engine.mjs";
 
+const major = Number(process.versions.node.split(".")[0]);
+if (major < 18) {
+  console.error(`\ngemmein needs Node 18 or newer (you're on ${process.versions.node}).`);
+  console.error(`Upgrade at nodejs.org, then run this again.\n`);
+  process.exit(1);
+}
+
 const args = process.argv.slice(2);
 
 try {
