@@ -1,5 +1,5 @@
 {
-  "_doc": "Engine release history \u2014 the source of truth for what users can fetch. Each entry: version, date, files (name -> sha256), artifactFormat (v1 = carved minified js; v2 = sealed binary), notes. Hashes here must match shim/lib/versions.mjs for the pinned version.",
+  "_doc": "Engine release history — the source of truth for what users can fetch. Each entry: version, date, files (name -> sha256), artifactFormat (v1 = carved minified js; v2 = sealed binary), notes. Hashes here must match shim/lib/versions.mjs for the pinned version.",
   "releases": [
     {
       "version": "0.1.0",
@@ -20,6 +20,16 @@
       },
       "artifactFormat": "v1",
       "notes": "AGENT-EOF wave: init on a pipe hands off to a human (exit 0) instead of crashing; every interview prompt EOF-safe; unknown commands exit 1; project-less collections says init-first. Shim 0.1.1 alongside: Node>=18 guard + ESM cache marker (kills the reparse warning). Built from dev repo 9f82d94, gate 226+31+12 green."
+    },
+    {
+      "version": "0.1.2",
+      "date": "2026-07-25",
+      "files": {
+        "gemmein.js": "c0594178518eea5b20401312396982cee351afde4454132b638d58ead884d47a",
+        "llms.txt": "1aa0989dd1624e93014122a451e22043659caa02e32a5b096da90d2b1cff6217"
+      },
+      "artifactFormat": "v1",
+      "notes": "Message-truth wave. 0.1.1's agent handoff named gemmein/llms.txt — a path nothing creates, in an order that couldn't work; it now points at `gemmein dev` then http://127.0.0.1:4545/llms.txt. One project gate at dispatch, so `rules` and `check` stop answering as if a project existed. SHAPE-1 learning accepts pk_local_ as well as pk_test — local dev never learned shapes at all (ledger #72, cause corrected). init requires a real owner email; a busy port says so instead of dying silently. Built from dev repo 1f743f8, gate 227+31+15 green."
     }
   ]
 }
