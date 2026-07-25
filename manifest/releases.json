@@ -10,6 +10,16 @@
       },
       "artifactFormat": "v1",
       "notes": "First real engine release. Local runtime + guided init + sync/go-live cloud handshake + additive promote ceremony + feedback command. Carved: internal plane, platform billing, prod adapters absent (CARVE-BOUNDARY marker-scan green at dev repo d3bf317)."
+    },
+    {
+      "version": "0.1.1",
+      "date": "2026-07-25",
+      "files": {
+        "gemmein.js": "e47f4032b62df38016f62ae1c022628647ddc7cad9f4397abeec3a607eb8918b",
+        "llms.txt": "1aa0989dd1624e93014122a451e22043659caa02e32a5b096da90d2b1cff6217"
+      },
+      "artifactFormat": "v1",
+      "notes": "AGENT-EOF wave: init on a pipe hands off to a human (exit 0) instead of crashing; every interview prompt EOF-safe; unknown commands exit 1; project-less collections says init-first. Shim 0.1.1 alongside: Node>=18 guard + ESM cache marker (kills the reparse warning). Built from dev repo 9f82d94, gate 226+31+12 green."
     }
   ]
 }

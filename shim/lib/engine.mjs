@@ -41,6 +41,10 @@ export async function fetchEngine(version, files, downloadBase, base) {
   }
   const dir = engineDir(version, base);
   mkdirSync(dir, { recursive: true });
+  // The engine is ESM; without a type marker Node reparses it every run and
+  // prints a MODULE_TYPELESS warning at the stranger. Not part of the hash
+  // set on purpose: it's cache furniture, not the artifact.
+  writeFileSync(join(dir, "package.json"), JSON.stringify({ type: "module" }) + "\n");
   for (const [name, expected] of Object.entries(files)) {
     const url = `${downloadBase}/${version}/${name}`;
     const res = await fetch(url);
