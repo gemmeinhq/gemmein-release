@@ -30,6 +30,16 @@
       },
       "artifactFormat": "v1",
       "notes": "Message-truth wave. 0.1.1's agent handoff named gemmein/llms.txt — a path nothing creates, in an order that couldn't work; it now points at `gemmein dev` then http://127.0.0.1:4545/llms.txt. One project gate at dispatch, so `rules` and `check` stop answering as if a project existed. SHAPE-1 learning accepts pk_local_ as well as pk_test — local dev never learned shapes at all (ledger #72, cause corrected). init requires a real owner email; a busy port says so instead of dying silently. Built from dev repo 1f743f8, gate 227+31+15 green."
+    },
+    {
+      "version": "0.2.0",
+      "date": "2026-07-29",
+      "files": {
+        "gemmein.js": "86d04f50f9d158832cba0e4022e34d905172f5878bb21445f780fb0af4ce739b",
+        "llms.txt": "61ba69af983b90c0e5a61ad03574b333235d59f494d2c882e4fd49a8f4e83aeb"
+      },
+      "artifactFormat": "v1",
+      "notes": "W3.1 sealed files — the local runtime speaks the ref contract prod ships: upload() returns ref not url, /files/{ref}/link mints delivery, the local DevKeySigner signs sealed links with the same canned-policy bytes as CloudFront (parity law, no if(isDev) in the gate). BREAKING with sdk<0.3.0 teaching; pairs with @gemmein/sdk 0.3.0. llms.txt guide updated to the ref contract AND gains the entitlements teaching: Paid ACCESS bullet (requires/grants/union/entitlement_required/purchases.mine) + Selling THINGS rewritten to the W2.5b commercial record, optional receipts, sealed-file delivery and the digital-only scope (first llms change since 0.1.0). Built from dev repo a8c477b, verify gate green (security:static + tests + apps + package), ledger 92 affirmed 0 drift."
     }
   ]
 }
