@@ -185,28 +185,43 @@
   arriving out of order resolve to the newest. The app reads
   `await g.subscriptions.mine()` → `{ plan, status }` or null, and gates features
   with `sub?.plan === "pro"`.
-- Selling THINGS (one-off purchases — a poster, a beat, an ebook): plans are
-  for subscriptions; products are for things. The builder adds products
-  (name + Stripe Payment Link) on the same Payments page and picks a
-  receipts collection (rule `addressed`). The app calls
-  `await g.payments.buy("poster")` — or, when one product covers many items (license
+- Paid ACCESS (entitlements): a collection can require a key — your human
+  sets `requires: "access:pro"` in its settings — and the engine refuses
+  anyone without it, on every operation, under all seven rules. Keys are
+  granted by money: a plan or product lists what it unlocks (e.g.
+  `access:pro, access:exports`), the paid webhook grants those keys, and a
+  refund or cancellation revokes exactly what it granted — nothing else.
+  Owners also grant and revoke by hand (trials, comps, support). Effective
+  access is the UNION of a customer's live grants. A signed-in customer
+  without the key gets `403 entitlement_required` naming it — show your
+  upgrade screen and send them to checkout; never retry. Proof surfaces:
+  `await g.purchases.mine()` (everything they paid for, refunds applied,
+  with the `grants` each purchase carries) and `await g.subscriptions.mine()`.
+  NO credits, NO usage limits, NO seats — access is yes-or-no by design.
+- Selling THINGS (one-off purchases — a beat, an ebook, a course; DIGITAL
+  access only — physical goods, shipping, inventory and carts are out of
+  scope, said out loud): plans are for subscriptions; products are for
+  things. The builder adds products (name + Stripe Payment Link) on the
+  same Payments page. The app calls
+  `await g.payments.buy("beat")` — or, when one product covers many items (license
   tiers over a catalog), names the item:
-  `await g.payments.buy("premium license", { item: "beat_37" })` (display text on
-  the receipt; the PRICE always comes from the product's Payment Link, so
-  the item note can never change what's paid). The completed payment writes
-  a receipt record ADDRESSED to the buyer: only they and the owner read it.
-  Gate downloads/fulfilment on the receipt, never on the redirect coming
-  back — redirects can be faked, receipts come from Stripe's signed
-  webhook. Receipts carry
-  { product, item?, status: "paid"|"refunded", amountTotal (minor units,
-  as Stripe said), currency, paidAt, deliveryUrl?, paymentRef } — deliveryUrl appears
-  when the builder attached a delivery link to the product (that's how
-  digital goods deliver themselves; never put a secret download URL in a
-  public collection). Fulfilment status changes ("shipped") are the owner
-  editing the receipt in their dashboard; your app just re-reads it.
-  NO carts, NO quantities — one product per checkout by design; a cart is
-  N checkouts or one bundled product. 404 unknown_product lists what the
-  app actually sells — use those names.
+  `await g.payments.buy("premium license", { item: "beat_37" })` (display text
+  only; the PRICE always comes from the product's Payment Link, so the
+  item note can never change what's paid). Gemmein records every completed
+  payment itself — `await g.purchases.mine()` is the buyer's proof:
+  { item, kind, status: "paid"|"part_refunded"|"refunded", amountMinor,
+  currency, refundedMinor, grants, paidAt }. A receipts collection (rule
+  `addressed`) is OPTIONAL — add one when you want receipts as records the
+  app renders; only the buyer and the owner read them. Delivery: attach
+  the thing to the product — a sealed Gemmein file (the receipt carries a
+  `file:` ref; resolve it per reader with `g.files.link`, which re-checks
+  access on every mint) or an external `deliveryUrl` (a plain handover:
+  Gemmein controls who is TOLD, not who can use it). Gate fulfilment on
+  the purchase or the entitlement it granted, never on the redirect coming
+  back — redirects can be faked; the record comes from Stripe's signed
+  webhook. NO carts, NO quantities — one product per checkout by design; a
+  cart is N checkouts or one bundled product. 404 unknown_product lists
+  what the app actually sells — use those names.
 - Drafts on PUBLIC collections (public_read, community): create with the
   OPTION `{ published: false }` → hidden from every reader except its
   author and the owner, server-enforced; publish with
