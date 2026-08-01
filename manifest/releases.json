@@ -50,6 +50,16 @@
       },
       "artifactFormat": "v1",
       "notes": "W4 wave into the local runtime: purchases.mine() carries delivery for downloadable products (the __product_files system collection, purchase-authorized short-lived links, wider product MIME profile, 100MB cap); the byte meter with per-person ceilings and floors; the dev file sink answers browsers from any origin and refuses oversize loudly (413) instead of truncating silently. llms.txt teaching: banded v4 pricing (five thresholds spelled out) + delivery. Pairs with @gemmein/sdk 0.4.0. Built from dev repo 4590a88, verify gate green (350 security / 31 apps / package gates / boundaries), ledger 110 entries 0 drift."
+    },
+    {
+      "version": "0.4.0",
+      "date": "2026-08-01",
+      "files": {
+        "gemmein.js": "0ecb346f290c5305d15c95f3c74a63587b8c6145658010af11a4512a0e86b6f5",
+        "llms.txt": "6ad4b1e69c2e58d50975babd3f7c13248025f7b1cbae9b98851b771d79b7d8ac"
+      },
+      "artifactFormat": "v1",
+      "notes": "THE AI-FIRST FUNNEL (docs/DIRECTION-AI-FIRST.md, sealed 1 Aug): the founder's AI is the customer. init is RETIRED to a signpost (exit 0, points at dev + llms.txt; the terminal interview is gone — the business questions move to the founder's own AI chat). `gemmein dev` boots in an EMPTY directory: setup mode teaches the config shape on the boot card, the reconcile loop notices gemmein/gemmein.config.json appearing and says the app is ready on restart. Every printed instruction is npx-true (29 sites + static gate). GET / on the local API orients humans instead of refusing them. llms.txt is rewritten as the front door: FIT protocol first (fits / fits-except / doesn't, idea- and built-stage, verdict before any install or account), then Getting started (AI-run, human-answered); hardened by a blind-agent run (payouts/revenue-splits named out-of-scope, keyed-create scope documented collection-wide, unpaid-claim expiry honesty, config key list with the sells union). Pairs with the landing paste-prompt. Built from dev repo e686b74, verify gate green (357 security / 31 apps / 16 package incl. carve-boundary scan on this bundle), ledger 112 entries 0 drift."
     }
   ]
 }
