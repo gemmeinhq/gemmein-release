@@ -70,6 +70,16 @@
       },
       "artifactFormat": "v1",
       "notes": "Parity catch-up after the console overhaul (18-22 Aug). ENGINE: the CORS fix the 0.4.0 artifact missed \u2014 browser writes carrying x-collection-intent no longer die in preflight locally (57f2de8, shipped to prod 2 Aug, never promoted); plans and products unlock collections by NAME (keys minted at create as access:<slug>, stable through rename, Unlocked-by is an OR set, 403 entitlement_required narrows to ONE `requires` key, d25b967/0f24620); support inbox + replies on the local twin with the same words and ceilings as the cloud (W5.2 core + 20 review fixes); email domain ownership + verified-origin law + go-live gate (W8, e4ef61c); one envelope for every send \u2014 From word@apex, Reply-To on the receiving host only while receiving is verified, reply+ never in a header (21-22 Aug rulings). LLMS.TXT: rewritten for plans-by-name \u2014 teaches err.requires as one string, offers plans by name through checkout never a key list; byte-identical to @gemmein/sdk 0.4.1 (published 22 Aug). Built from dev repo 77168c2 (code = prod train 06fe853, tag v20260822-06fe853); verify gate green, ledger 117 entries 0 drift 0 stale, two adversarial review passes (entitlements, email arc) fixed before this build. Shim 0.4.1 alongside: version pin + hashes only."
+    },
+    {
+      "version": "0.4.2",
+      "date": "2026-08-22",
+      "files": {
+        "gemmein.js": "006f4ec539bd6816576ca6e22c9ef11951b3837fc40a80acb0d9549d697bae3f",
+        "llms.txt": "6d7bd30169eca6832cfa730157610d87aeae58d8c34559f19f48fa8acb8d049f"
+      },
+      "artifactFormat": "v1",
+      "notes": "The queue release (22 Aug 2026, Adil's ruling: sort the queue before anything new). ENGINE: locks can now be SET locally \u2014 a collection declaration gains `unlockedBy: [plan/product names]` (never keys), resolved through the same key ladder as the cloud; gemmein dev applies it on create and on file change, refuses an unknown name out loud, and re-applies once payments.json catches up; `gemmein check` signs in a free test member and checks that each lock holds (403 entitlement_required with the plan's key), fires for product-only apps, and never prints 'All boundaries hold' over an open paywall; sync carries Unlocked by as names and reports a cloud/local lock mismatch. Pay-sim fix: a simulated PLAN purchase never granted the plan's key (the sim event carried no customer) \u2014 now a stable per-buyer sim customer derived from the ref's email. Zero-field seal: a shape-enforced collection with nothing learned (or every field removed) is never sealed shut \u2014 skipped at both promotion doors and named in the result with the reason. Terms stamp: first consent wins on both planes (parity with the 22 Aug cloud fix). LLMS.TXT: teaches unlockedBy in the console's words; byte-identical to @gemmein/sdk's. Built from dev repo 408164a (prod train v20260822-408164a); verify gate green (432 security / 31 apps / 17 package incl. carve-boundary scan), ledger 121 entries 0 drift 0 stale, two adversarial review passes fixed before this build, cold boot in an empty dir proven. Shim 0.4.2: version pin + hashes only."
     }
   ]
 }
