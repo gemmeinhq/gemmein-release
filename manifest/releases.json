@@ -1,5 +1,5 @@
 {
-  "_doc": "Engine release history — the source of truth for what users can fetch. Each entry: version, date, files (name -> sha256), artifactFormat (v1 = carved minified js; v2 = sealed binary), notes. Hashes here must match shim/lib/versions.mjs for the pinned version.",
+  "_doc": "Engine release history \u2014 the source of truth for what users can fetch. Each entry: version, date, files (name -> sha256), artifactFormat (v1 = carved minified js; v2 = sealed binary), notes. Hashes here must match shim/lib/versions.mjs for the pinned version.",
   "releases": [
     {
       "version": "0.1.0",
@@ -29,7 +29,7 @@
         "llms.txt": "1aa0989dd1624e93014122a451e22043659caa02e32a5b096da90d2b1cff6217"
       },
       "artifactFormat": "v1",
-      "notes": "Message-truth wave. 0.1.1's agent handoff named gemmein/llms.txt — a path nothing creates, in an order that couldn't work; it now points at `gemmein dev` then http://127.0.0.1:4545/llms.txt. One project gate at dispatch, so `rules` and `check` stop answering as if a project existed. SHAPE-1 learning accepts pk_local_ as well as pk_test — local dev never learned shapes at all (ledger #72, cause corrected). init requires a real owner email; a busy port says so instead of dying silently. Built from dev repo 1f743f8, gate 227+31+15 green."
+      "notes": "Message-truth wave. 0.1.1's agent handoff named gemmein/llms.txt \u2014 a path nothing creates, in an order that couldn't work; it now points at `gemmein dev` then http://127.0.0.1:4545/llms.txt. One project gate at dispatch, so `rules` and `check` stop answering as if a project existed. SHAPE-1 learning accepts pk_local_ as well as pk_test \u2014 local dev never learned shapes at all (ledger #72, cause corrected). init requires a real owner email; a busy port says so instead of dying silently. Built from dev repo 1f743f8, gate 227+31+15 green."
     },
     {
       "version": "0.2.0",
@@ -39,7 +39,7 @@
         "llms.txt": "61ba69af983b90c0e5a61ad03574b333235d59f494d2c882e4fd49a8f4e83aeb"
       },
       "artifactFormat": "v1",
-      "notes": "W3.1 sealed files — the local runtime speaks the ref contract prod ships: upload() returns ref not url, /files/{ref}/link mints delivery, the local DevKeySigner signs sealed links with the same canned-policy bytes as CloudFront (parity law, no if(isDev) in the gate). BREAKING with sdk<0.3.0 teaching; pairs with @gemmein/sdk 0.3.0. llms.txt guide updated to the ref contract AND gains the entitlements teaching: Paid ACCESS bullet (requires/grants/union/entitlement_required/purchases.mine) + Selling THINGS rewritten to the W2.5b commercial record, optional receipts, sealed-file delivery and the digital-only scope (first llms change since 0.1.0). Built from dev repo a8c477b, verify gate green (security:static + tests + apps + package), ledger 92 affirmed 0 drift."
+      "notes": "W3.1 sealed files \u2014 the local runtime speaks the ref contract prod ships: upload() returns ref not url, /files/{ref}/link mints delivery, the local DevKeySigner signs sealed links with the same canned-policy bytes as CloudFront (parity law, no if(isDev) in the gate). BREAKING with sdk<0.3.0 teaching; pairs with @gemmein/sdk 0.3.0. llms.txt guide updated to the ref contract AND gains the entitlements teaching: Paid ACCESS bullet (requires/grants/union/entitlement_required/purchases.mine) + Selling THINGS rewritten to the W2.5b commercial record, optional receipts, sealed-file delivery and the digital-only scope (first llms change since 0.1.0). Built from dev repo a8c477b, verify gate green (security:static + tests + apps + package), ledger 92 affirmed 0 drift."
     },
     {
       "version": "0.3.0",
@@ -59,7 +59,17 @@
         "llms.txt": "6ad4b1e69c2e58d50975babd3f7c13248025f7b1cbae9b98851b771d79b7d8ac"
       },
       "artifactFormat": "v1",
-      "notes": "THE AI-FIRST FUNNEL (docs/DIRECTION-AI-FIRST.md, sealed 1 Aug): the founder's AI is the customer. init is RETIRED to a signpost (exit 0, points at dev + llms.txt; the terminal interview is gone — the business questions move to the founder's own AI chat). `gemmein dev` boots in an EMPTY directory: setup mode teaches the config shape on the boot card, the reconcile loop notices gemmein/gemmein.config.json appearing and says the app is ready on restart. Every printed instruction is npx-true (29 sites + static gate). GET / on the local API orients humans instead of refusing them. llms.txt is rewritten as the front door: FIT protocol first (fits / fits-except / doesn't, idea- and built-stage, verdict before any install or account), then Getting started (AI-run, human-answered); hardened by a blind-agent run (payouts/revenue-splits named out-of-scope, keyed-create scope documented collection-wide, unpaid-claim expiry honesty, config key list with the sells union). Pairs with the landing paste-prompt. Built from dev repo e686b74, verify gate green (357 security / 31 apps / 16 package incl. carve-boundary scan on this bundle), ledger 112 entries 0 drift."
+      "notes": "THE AI-FIRST FUNNEL (docs/DIRECTION-AI-FIRST.md, sealed 1 Aug): the founder's AI is the customer. init is RETIRED to a signpost (exit 0, points at dev + llms.txt; the terminal interview is gone \u2014 the business questions move to the founder's own AI chat). `gemmein dev` boots in an EMPTY directory: setup mode teaches the config shape on the boot card, the reconcile loop notices gemmein/gemmein.config.json appearing and says the app is ready on restart. Every printed instruction is npx-true (29 sites + static gate). GET / on the local API orients humans instead of refusing them. llms.txt is rewritten as the front door: FIT protocol first (fits / fits-except / doesn't, idea- and built-stage, verdict before any install or account), then Getting started (AI-run, human-answered); hardened by a blind-agent run (payouts/revenue-splits named out-of-scope, keyed-create scope documented collection-wide, unpaid-claim expiry honesty, config key list with the sells union). Pairs with the landing paste-prompt. Built from dev repo e686b74, verify gate green (357 security / 31 apps / 16 package incl. carve-boundary scan on this bundle), ledger 112 entries 0 drift."
+    },
+    {
+      "version": "0.4.1",
+      "date": "2026-08-22",
+      "files": {
+        "gemmein.js": "dcc1ba00f8306b759d529c47608d3b6fa063fa4b6b934ba09efc63c9fe16fd3c",
+        "llms.txt": "7ce2465c992b1c62ce939ce5eb05a0ebe9ca946387fb300d3868bedbb0fb3031"
+      },
+      "artifactFormat": "v1",
+      "notes": "Parity catch-up after the console overhaul (18-22 Aug). ENGINE: the CORS fix the 0.4.0 artifact missed \u2014 browser writes carrying x-collection-intent no longer die in preflight locally (57f2de8, shipped to prod 2 Aug, never promoted); plans and products unlock collections by NAME (keys minted at create as access:<slug>, stable through rename, Unlocked-by is an OR set, 403 entitlement_required narrows to ONE `requires` key, d25b967/0f24620); support inbox + replies on the local twin with the same words and ceilings as the cloud (W5.2 core + 20 review fixes); email domain ownership + verified-origin law + go-live gate (W8, e4ef61c); one envelope for every send \u2014 From word@apex, Reply-To on the receiving host only while receiving is verified, reply+ never in a header (21-22 Aug rulings). LLMS.TXT: rewritten for plans-by-name \u2014 teaches err.requires as one string, offers plans by name through checkout never a key list; byte-identical to @gemmein/sdk 0.4.1 (published 22 Aug). Built from dev repo 77168c2 (code = prod train 06fe853, tag v20260822-06fe853); verify gate green, ledger 117 entries 0 drift 0 stale, two adversarial review passes (entitlements, email arc) fixed before this build. Shim 0.4.1 alongside: version pin + hashes only."
     }
   ]
 }
