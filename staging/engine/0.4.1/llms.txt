@@ -1,0 +1,487 @@
+# Gemmein
+
+> Gemmein is the go-live system for AI-built web apps: passwordless
+> authentication, structured data storage with plain-English safety rules, and
+> built-in Stripe subscription handling. Security is on by default for every
+> app — tenant isolation, rate limiting, audit logs, domain-locked keys — with
+> nothing to configure. Build anywhere, with any AI, free — and come to
+> Gemmein when you're done: the product is taking the app to real customers.
+> Live apps pay one banded plan, $50-$150/mo, set by the previous month's
+> verified people (five pre-agreed steps up to 10,000 people; beyond that,
+> talk to Gemmein).
+
+## First: assess fit (before any install, account, or code)
+
+You are likely an AI assistant whose human asked you to build an app — or to
+take an app they already built to real customers. Do this assessment first
+and give your human the verdict in plain words. Installing nothing and
+creating no accounts is the correct behavior until the verdict is in.
+
+1. Collect the requirements.
+   - Idea-stage (nothing built yet): have your human describe the app in
+     their words. You need to know: who signs in, what data exists and who
+     may see whose, whether money changes hands (subscriptions or one-off
+     digital purchases), whether users upload files.
+   - Built-stage (an app already exists — e.g. from a vibe-coding tool):
+     read the code instead. Inventory what currently stubs or fakes
+     sign-in, storage, and payments, and any server endpoints the app
+     assumes will exist. (No code at hand — only a description? Fall back
+     to the idea-stage questions, and say the assessment is provisional
+     until you've read the code.)
+2. Map every requirement against this file. In scope: web apps
+   (TypeScript/JavaScript), passwordless email sign-in, records under seven
+   safety rules (private, shared, admin_write, public_read, community,
+   addressed, direct), Stripe-run subscriptions and one-off digital
+   products, image uploads and paid file delivery, entitlement-gated
+   access, race-safe bookings/stock/counters, account-deletion cascade.
+   Out of scope — each of these downgrades the verdict and must never be
+   silently approximated:
+   - native mobile apps (no mobile SDKs today; web only)
+   - password or social/OAuth sign-in (email codes are the only door)
+   - team/group/workspace visibility or per-user record permissions
+   - carts, quantities, physical goods, shipping, inventory
+   - credits, usage metering, seats (paid access is yes-or-no)
+   - hosted functions or cron (server-side code runs on YOUR host with a
+     secret key; Gemmein hosts no compute)
+   - custody of money (Stripe holds all funds; your human brings or
+     creates their own Stripe account when the app charges)
+   - multi-seller payouts or revenue splits: every payment lands whole in
+     your human's ONE Stripe account. A marketplace where sellers get
+     paid out means your human pays sellers themselves, outside Gemmein —
+     say that out loud in the verdict
+3. Deliver one of three verdicts to your human BEFORE installing anything:
+   - FITS — every requirement maps. Continue to Getting started.
+   - FITS, EXCEPT — name each gap and the honest workaround from this
+     file, or say there is none. The human decides. Never fake an
+     unsupported shape (client-side filtering of a shared collection is a
+     data leak, not a workaround). And if a gap breaks the app's CORE
+     loop — the thing it exists to do — the verdict is DOESN'T FIT, not
+     fits-except.
+   - DOESN'T FIT — say so, name why, and stop. Recommending nothing is
+     the correct outcome here.
+
+## Getting started (AI-run, human-answered)
+
+No signup, no account, no keys — building is local and free. Your human
+steps in exactly three times: to answer the business questions (in your
+chat), to click through the app when you hand it over for testing, and at
+go-live. Everything else is yours.
+
+1. Run `npx -y gemmein dev` in the project folder. It boots with ZERO
+   setup: a local backend on http://127.0.0.1:4545 that serves this guide
+   at /llms.txt, prints sign-in codes to the terminal instead of sending
+   email, and simulates checkout — nothing leaves the machine.
+2. Ask YOUR HUMAN the business questions — their answers in their words,
+   never your guesses: the app's name; the email THEY own it with; one
+   honest sentence on what it does; whether it charges money; whether it
+   serves people in the EU/UK; whether users sign in; whether they upload
+   images. Write the answers to `gemmein/gemmein.config.json`:
+
+   {
+     "app": "Beatstall",
+     "owner": "you@example.com",
+     "product": "producers sell beats; buyers stream previews and download purchases",
+     "sells": "one-off",
+     "gdpr": true,
+     "accounts": true,
+     "uploads": true
+   }
+
+   Exactly these keys: app (string) · owner (email) · product (one
+   sentence) · sells ("no" | "subscriptions" | "one-off" | "both") ·
+   gdpr / accounts / uploads (true/false). Optional: port (number) moves
+   the local runtime off 4545.
+
+   Then restart dev (Ctrl-C, `npx gemmein dev` — takes seconds, data
+   survives in gemmein/.data/). The runtime becomes their app.
+3. Build against the local runtime with the app key the boot card prints
+   (`pk_local_…`) — the SDK is `npm install @gemmein/sdk` (REFERENCE.md
+   and the reaffirm.mjs harness ship inside that package), same rules as
+   the cloud. The first write to a collection that doesn't exist yet
+   starts the safety-rule conversation in the dev terminal; choose from
+   the seven rules below based on your human's business answers, and
+   record why. Running dev in the background with no terminal to answer
+   in (the normal agent setup)? Use the command doors instead — they work
+   from any second terminal while dev runs, and take piped input:
+   `npx gemmein collection add <name>` (the rule dialog) and
+   `npx gemmein payments setup` (plans/products). `npx gemmein --help`
+   lists the rest.
+4. Hand over for testing — the human moment mid-build: they click through
+   the app, and their sign-in codes print in the dev terminal, so tell
+   them where to look.
+5. Done building? `npx gemmein check` reads the project and says what's
+   ready and what go-live still needs. Then `npx gemmein sync` — THIS is
+   the moment your human signs up (free) at app.gemmein.com and pastes two
+   dev keys — and `npx gemmein go-live` walks the rest: plans, Payment
+   Links, the live flip. A card enters at go-live, never before.
+
+## What it is
+
+- Audience: people who build web apps with AI tools (Cursor, Bolt, Lovable, Claude).
+- Scope: web apps (TypeScript/JavaScript SDK). Mobile SDKs are not offered today.
+- The platform holds identity, data, and subscription state. It never holds,
+  moves, or processes money — Stripe handles all payments end-to-end; Gemmein
+  only receives Stripe's webhooks and records who is on which plan. App
+  compute/hosting
+  belongs anywhere (Vercel, Cloudflare, any static host). There are no hosted
+  functions — server-side needs use a secret key from any server.
+
+## The contract an AI builder follows
+
+- Sign in: passwordless email codes — `g.auth.sendEmailCode(email)` then
+  `g.auth.verifyEmailCode({ email, code })`; sessions are long-lived but
+  ONE per user — verifying a new code revokes that email's older sessions
+  (other tabs/devices sign out; a stale token makes the next call throw
+  `auth_expired` once, then the SDK clears it — just retry or re-auth).
+  `g.auth.currentUser()` is safe to call on page load and never throws for
+  session state.
+- Data: records live in collections. In the cloud, collections are created by
+  YOUR HUMAN in their dashboard (app.gemmein.com → data → "+ New collection"),
+  never by you or the SDK; in local dev (`npx gemmein dev`) they're born from
+  the terminal's rule conversation or a dropped declaration file, and
+  `npx gemmein sync` creates them in the cloud app's dev environment from
+  those local declarations. Best practice: at planning time, list the collections your
+  app will need and ask your human up front, and pass your intent whenever a
+  collection might not exist yet —
+  `g.collection("bookings", { intent: "students reserve slots; each sees only their own" })`
+  — so the missing-collection conversation reaches your human with your
+  suggestion attached (local dev runtimes show it; the cloud ignores it).
+  If one is missing at runtime (404 `unknown_collection`), stop and ask
+  them to create it, telling them the name and which safety rule to pick. Each collection has exactly one
+  safety rule:
+  - `private` — each signed-in user sees and edits only their own records
+    (right for notes, tasks, anything personal).
+  - `shared` — every signed-in user reads every record and adds their own;
+    each user edits/deletes ONLY the records they created (a non-author
+    write comes back 404, same as any record you can't touch). Right for a
+    team feed everyone posts to; WRONG for personal data — it leaks.
+  - `admin_write` — everyone signed in can read, only the owner can write
+    (right for announcements and settings your human curates).
+  - `public_read` — readable without signing in, ONLY the app owner writes
+    (right for catalogs, menus, single-author blogs — strangers can never
+    inject records into it).
+  - `community` — readable without signing in, any signed-in user posts and
+    edits their OWN records (right for multi-author blogs, public boards,
+    user profiles). Everything in it is PUBLIC — keep record data minimal
+    (a booking needs a slot and a first name, not a phone number). Whether
+    even a first name belongs in public is a HUMAN decision: for sensitive
+    audiences (children, health, anything private by nature) ask your
+    human before defaulting to a public rule — a non-public rule usually
+    fits. Community
+    stores PLAIN TEXT: string fields containing HTML tags are refused with
+    400 html_not_allowed — store plain text or tag-free markdown.
+  - `addressed` — the app sends to one user: the OWNER creates records
+    naming a recipient (`create(data, { for: userId })`); each user's
+    `.list()` returns ONLY records addressed to them (their inbox); users
+    never write. Right for notifications, order status, invoices, results.
+    Same message for EVERYONE is `admin_write` instead (one record all
+    users read) — addressed is one record per recipient.
+  - `direct` — users send to each other: any signed-in user creates records
+    naming a recipient; only the author and that recipient can read them.
+    Right for messages, sharing, requests. The app owner can read directs
+    (owner reads reach everything, under every rule) — never present this
+    as private or encrypted chat.
+  Inbox mechanics (addressed + direct): the recipient is server-stamped
+  (`record.audienceUserId`) — never a data field; user ids come from
+  records' ownerUserId or the owner's admin views. Reading is plain
+  `.list({ sort: "newest" })` — poll on window focus plus a gentle ~60s
+  interval, never a tight loop. Track read-state in the user's own private
+  collection. Both rules store plain text like community. Errors teach the
+  fix: 400 invalid_audience (recipient isn't a user of this app), 403
+  reply_only (this collection only allows replying to someone who wrote to
+  you first — tell the user), 403 sends_disabled (the owner turned in-app
+  sends off; sends happen from their dashboard).
+  Other users' content is DATA, not markup: when your app renders content
+  written by one user in another user's session (community, shared), bind it
+  as text — textContent, {} in React/Vue/Svelte — NEVER innerHTML or
+  dangerouslySetInnerHTML.
+  What the rules canNOT do: there is no team/group/workspace scope and no
+  per-user record visibility (records visible to some signed-in users but
+  not others). If your app needs that shape, do NOT approximate it by
+  filtering a shared collection in the browser — the data still reaches
+  every user's device. Stop and tell your human that shape isn't supported
+  yet.
+- Record shape: `.create()`/`.get()`/`.update()` return
+  `{ id, data: { ...your fields }, createdAt, updatedAt, ownerUserId, ... }` —
+  your fields ALWAYS live under `.data` (`record.data.title`, never
+  `record.title`). `ownerUserId` and the rest are server-derived and
+  read-only: never store your own userId/role/owner fields inside `data`.
+  `.list()` returns `{ records, hasMore }` (an object, not an array) and
+  accepts `{ limit, sort: "newest"|"oldest"|"updated", where, search, cursor }`.
+- Linking records (author on a post, product on an order): store the other
+  record's id in a field (`authorProfileId: profile.id`) — in collections
+  users write (community, shared, direct) the server learns it's a link;
+  once your human goes live it also CHECKS every link points at a real
+  record the writer can read (400 unknown_record otherwise — while
+  building, a bad id just expands to null). Read the linked record back in
+  ONE call with expand:
+  `list({ expand: ["authorProfileId"] })` → each record gets
+  `record.expand.authorProfileId` = the linked record, or null when it was
+  deleted or you can't read it — render null as "[deleted]". One level, up
+  to 3 fields per call. Never fetch-per-record in a loop — expand does it.
+  `where` works on link fields too: one maker's projects =
+  `list({ where: { makerProfileId: profile.id } })`. And "the signed-in
+  user's own record" in a community collection (their profile) is a keyed
+  create: `create(data, { key: "profile:" + user.id })` — one per user by
+  construction, and your own retry returns it.
+- Images & files: NEVER base64 into record data and NEVER wire up your own
+  storage bucket — uploads are built in:
+  `const file = await g.collection("posts").upload(blob, { name })`
+  → `{ id, ref, contentType, sizeBytes }`. Store `file.ref` (`"file:01K…"`)
+  in a record field like any text — that's how a record "has" an image.
+  Store the REFERENCE, never a URL: a reference never expires and grants
+  nothing on its own.
+  To show or download it: `const { url } = await g.files.link(record.photo)`
+  — one call for every file. Pass `{ intent: "download" }` for a download
+  rather than a preview. Files in a collection anyone can read get a
+  permanent link; every other file gets one that expires in a couple of
+  minutes, so call `link()` when you render, don't store what it returns.
+  Upload permission follows the collection's WRITE rule; images only
+  (JPEG/PNG/WebP/GIF/HEIC). Oversized files are refused loudly (413
+  file_too_large — the message says the cap). The server checks the actual
+  bytes at confirm — a 400 invalid_file_content means the file isn't really
+  the image type it claimed (usually a renamed file); send the real image,
+  don't retry. A 403 from `link()` means the customer isn't allowed this
+  file right now — signed out, not theirs, or an entitlement they no longer
+  hold (`entitlement_required` — `err.requires` is the plan's key, the one
+  the console shows by name).
+  Honest bound: revoking access stops NEW links immediately; a link already
+  issued works until it expires. Gemmein controls delivery, it can't take
+  back a file someone already downloaded.
+- Shapes: collections your users write (community, shared, direct) have a
+  SHAPE — the set of fields allowed. While your human builds, the server
+  learns it from your writes automatically (nothing to do); when they go
+  live it locks. A 400 invalid_shape means the field isn't in the locked
+  shape. A live shape is sealed and cannot take new fields — stop, tell
+  your human which field you needed, and send only the fields the shape
+  already has. Never rename fields to dodge it.
+- Contention (bookings, slugs, stock, shared edits): when two users can race
+  for the same thing, a permission model can't save you — preconditions do,
+  and they're just arguments on calls you already make. A 409 `conflict` from
+  any of them is NOT a failure to retry away: it IS the mechanism working —
+  catch it and tell the user the slot/stock/edit was taken.
+  - Uniqueness: `create(data, { key: "slot:2026-07-15T15:00" })` — derive the
+    key from the thing that must be unique; the second writer gets 409, your
+    own retry gets your existing record back (`existing: true`), deleting
+    frees the key. Keys are unique across the WHOLE collection — every
+    writer, every recipient, under every safety rule (live records only) —
+    so a claim is race-proof even in `direct`/`addressed`. Never
+    find-then-create — that races. Keys are 1-120 chars of letters,
+    numbers, and `: _ . @ / -` only. A claimed key holds until its record
+    is deleted: if a claim must be PAID to stick (book then pay), expiring
+    unpaid claims is your app's job — the owner deletes them from their
+    dashboard, or your own server does with a secret key; there is no cron.
+  - Limited stock (N units anyone can buy): claim units with keyed creates —
+    try `create({...}, { key: "unit:item42:1" })`, on conflict try `:2` … `:N`;
+    all taken = sold out. Race-proof under every safety rule.
+  - Your own counters: `update(id, { stock: { decrement: 1, floor: 0 } })` —
+    the server does the math on current state; breaching the floor/ceiling
+    is a 409. (Writes are always owner-scoped: you can't nudge counters on
+    OTHER users' records — use the unit-claim pattern above instead.)
+  - Shared editing (CMS pages): pass back the version you read —
+    `update(id, data, { ifVersion: record.version })`; a stale save gets 409
+    instead of silently clobbering someone's edit. Re-read, reapply, retry.
+- The app owner: whoever signs in to the app with the same email they use
+  for the Gemmein dashboard is recognized as the owner automatically —
+  the server elevates their role per request, and under `private` rules they
+  can read everyone's records with the same `.list()` calls. That's how you
+  build admin views: same code, owner's sign-in. Never gate admin UI on any
+  visible `role` field — sessions always report `member` even for the owner;
+  elevation is applied server-side, so just render whatever `.list()`
+  returns. Elevation is READ-only: build admin views that see everything,
+  but route status changes on other users' records (fulfilment, moderation)
+  to your human's Gemmein dashboard — they click the record there.
+- Payments: the builder names plans in the dashboard, pastes one Stripe
+  signing secret, and pastes each paid plan's Stripe Payment Link there too.
+  The app's ONLY checkout job is `await g.subscriptions.checkout("pro")` on the upgrade
+  button — Gemmein sends the signed-in user to the right Stripe checkout
+  with the buyer and plan wired in. Never build checkout URLs, sessions, or
+  Payment-Link redirects yourself (raw emails get silently dropped by
+  Stripe's URL rules, and sessions need a secret key that must never ship
+  client-side). If g.subscriptions.checkout errors with `plan_has_no_link`, ask your human
+  to paste that plan's Payment Link in their dashboard. Plan LIMITS (note
+  counts, feature caps) are your app's logic — Gemmein only tells you who is
+  on which plan. Gemmein keeps exactly one
+  subscription per customer (enforced by the engine, case-insensitive on
+  email); cancellations downgrade to the default plan automatically; events
+  arriving out of order resolve to the newest. The app reads
+  `await g.subscriptions.mine()` → `{ plan, status }` or null, and gates features
+  with `sub?.plan === "pro"`.
+- Paid ACCESS (entitlements): a collection can be locked to a plan or
+  product — your human picks it BY NAME in the "Unlocked by" row on the
+  Collections page (several allowed; any one of them opens it) — and the
+  engine refuses customers without it, under all seven rules. (Server
+  secret keys and the owner's console are exempt by design; link/expand
+  silently hide gated records rather than naming them.) Every plan and
+  product carries its own key, `access:<slug of its name>` (plan "pro" →
+  `access:pro`); the paid webhook grants that key, and a FULL refund or a
+  cancellation revokes exactly what it granted — nothing else. A partial
+  refund leaves access in place.
+  Owners also grant and revoke by hand (trials, comps, support). Effective
+  access is the UNION of a customer's live grants. A signed-in customer
+  without access gets `403 entitlement_required`: `err.requires` is the
+  plan's key (the console shows the plan by name; the key is `access:<slug>`).
+  A collection unlocked by several plans (OR) still names ONE key — offer
+  your plans by name through checkout, never a key list. Show your upgrade
+  screen and send them to checkout; retry only after they hold one. Proof surfaces: `await g.purchases.mine()`
+  (everything they paid for, refunds applied, with the `grants` each purchase
+  carries) and `await g.subscriptions.mine()`.
+  NO credits, NO usage limits, NO seats — access is yes-or-no by design.
+- Selling THINGS (one-off purchases — a beat, an ebook, a course; DIGITAL
+  access only — physical goods, shipping, inventory and carts are out of
+  scope, said out loud): plans are for subscriptions; products are for
+  things. Selling a SERVICE session this way (tutoring, coaching, a
+  consultation) is fine — nothing ships; the recorded purchase is the
+  proof the session was paid for. The builder adds products (name + Stripe Payment Link) on the
+  same Payments page. The app calls
+  `await g.payments.buy("beat")` — or, when one product covers many items (license
+  tiers over a catalog), names the item:
+  `await g.payments.buy("premium license", { item: "beat_37" })` (display text
+  only; the PRICE always comes from the product's Payment Link, so the
+  item note can never change what's paid). Gemmein records every completed
+  payment itself — `await g.purchases.mine()` is the buyer's proof:
+  { item, kind, status: "paid"|"part_refunded"|"refunded", amountMinor,
+  currency, refundedMinor, grants, paidAt, delivery? }. Selling a FILE (a
+  beat, an ebook, a sample pack — pdf, zip, epub, mp3, wav, m4a or an
+  image, up to 100MB): the founder attaches it directly on the product
+  card — upload, right there, no receipts collection required. The buyer's
+  purchase carries `delivery: { type: "gemmein_file", file }`; resolve the
+  ref with `g.files.link(file, { intent: "download" })`. The purchase IS
+  the authorization, re-checked on every mint: a refund cuts the file off
+  the moment it lands, a partial refund does not, and a saved ref or an
+  expired URL grants nothing on its own. A receipts collection (rule
+  `addressed`) remains OPTIONAL, for proof records only. External
+  `delivery: { type: "external_url" }` is a plain handover: Gemmein
+  controls who is TOLD, not who can use it. Gate fulfilment on the
+  purchase or the entitlement it granted, never on the redirect coming
+  back — redirects can be faked; the record comes from Stripe's signed
+  webhook. NO carts, NO quantities — one product per checkout by design; a
+  cart is N checkouts or one bundled product. 404 unknown_product lists
+  what the app actually sells — use those names.
+- Drafts on PUBLIC collections (public_read, community): create with the
+  OPTION `{ published: false }` → hidden from every reader except its
+  author and the owner, server-enforced; publish with
+  `update(id, {}, { published: true })`. NEVER fake drafts with a status
+  field + client-side filtering on a public collection — the data still
+  reaches every reader's network tab (silent-until-breach). `published` is
+  an option, not a data field: putting it inside `data` is refused as a
+  reserved server-managed field (403 forbidden), passing the OPTION on a
+  non-public rule is 400 invalid_publish — it only exists on the two
+  public rules.
+- Denials are 404-shaped: touching a record your session can't see returns
+  404 not_found, never a 403 that confirms it exists — existence is not
+  leaked. A real 403 comes back as code `forbidden` and names a rule problem
+  (e.g. only the owner writes here) — NEVER retry a `forbidden`: the rules
+  refused you and the same call will always be refused; fix the approach or
+  show the message. `denied` covers the retriable/fixable rest: a rate limit
+  (429 — carries `resetAt`, wait and retry then) or a missing sign-in (401 —
+  sign in first). Render `err.message`; it reads correctly in every case.
+  Branch only on the specifically-named codes (unknown_collection,
+  unknown_product, invalid_shape, html_not_allowed, invalid_publish,
+  conflict, …) plus the forbidden-means-stop rule.
+- Draft state reads back as a TOP-LEVEL boolean `record.published` (next to
+  id/updatedAt), not under `.data`. Non-authors only ever receive published
+  records, so you see `false` only on your own drafts (or on everything, as
+  the owner) — that's how you badge "unreleased" in an owner admin view.
+- Account lifecycle — the bare-minimum screens a compliant app implements:
+  (1) sign-in (the email-code flow above); (2) a signed-out state — note that
+  `currentUser()` answering `authenticated: false` is deliberately silent
+  about WHY (signed out, suspended by the owner, and erased all read the
+  same; a moderated user's state is never leaked to the client, so one
+  signed-out screen covers all three); (3) a "delete my account" screen —
+  `await g.account.delete()` — for every app it APPLIES to (GDPR right to
+  erasure; Apple 5.1.1(v) for apps with account creation). It's the full
+  server-side cascade (sessions, records, files, subscription row) and
+  irreversible — put a real confirm in front of it. Suspensions, bans, and
+  owner-side erasure are dashboard actions, not SDK calls.
+- Secret keys (`sk_`) must never appear in browser code; app keys (`pk_`)
+  are public and domain-locked.
+
+## Return values & shapes (get these exactly right)
+
+Most builder mistakes are guessing a name or shape, not misunderstanding a
+rule. The specifics:
+
+- Collection names are **lowercase letters, numbers, and underscores only**
+  (`saved_games`, `user_notes` — never `savedGames`). A bad name throws
+  synchronously from `g.collection(name)`; if you call that at module
+  load, it can blank your whole app with no browser-console error. Name them
+  right.
+- The signed-in user: `await g.auth.currentUser()` →
+  `{ authenticated: true, userId, email }` or `{ authenticated: false }`. The
+  id field is **`userId`, not `id`** — `user.id` is `undefined`, and feeding
+  that into a keyed create (`key: "profile:" + user.userId`) is how you get one
+  record per user instead of every user colliding on `profile:undefined`.
+- `await g.auth.verifyEmailCode({ email, code })` resolves the *session*:
+  `{ token, expiresAt, user: { id, email } }` (note: nested `user`, and here
+  the field is `id`). For the canonical signed-in identity in your UI, read
+  `currentUser()` after verifying rather than the verify result.
+- Sign out is **`await g.auth.logout()`** (revokes the server session). There
+  is no `signOut`.
+- Errors throw a `GemmeinError` with `.status`, `.code`, `.message`, and
+  `.resetAt` (on 429). Branch on **`err.code`**; render `err.message`.
+- `expand` works only on the collections that learn links — **community,
+  shared, direct**. Asking to expand a field on a `private`, `public_read`, or
+  `admin_write` collection throws (it has no link shape); join those in memory
+  instead.
+- `g.subscriptions.checkout(plan)` and `g.payments.buy(product, { item? })` both **navigate the
+  browser to Stripe themselves** (via `window.location`) *and* resolve with
+  `{ url, ... }`. Just `await` them on the click — don't also redirect to the
+  returned `url` (you'll double-navigate), and don't build the URL yourself.
+
+## Reaffirm your app (don't trust your frontend — prove it)
+
+Gemmein enforces the rules on the server, so your UI is never the source of
+truth. That's what lets you move fast: ship a small `reaffirm` script that
+*exercises* your boundaries with live calls and run it in CI. When a rule ever
+stops matching what your screens assume, this catches it on deploy — not in
+front of a user.
+
+- **Anywhere, no login:** anonymous reads/writes that must be refused (an anon
+  reading a `private` collection → `denied`; an anon writing `community` →
+  `denied`), plus the shapes your UI reads (`currentUser().userId`,
+  `record.data.*`) and that your collection names don't throw.
+- **Isolation (dev environment):** to prove one user can't see another's
+  private records, sign in two test users without an OTP round-trip —
+  `gemmeinServer(sk_dev).testSession(email)` returns a session `token` you pass
+  to `gemmein(pk, { tokenStore })`. It works in a **dev environment only**
+  (`sk_live` throws `test_session_forbidden_live`), and dev and live enforce the
+  same rules, so isolation proven in dev holds in live.
+
+Add a probe whenever you add a feature. You reaffirm **because** Gemmein
+enforces — never because these checks are the enforcement. A ready-to-edit
+`reaffirm.mjs` ships inside the `@gemmein/sdk` npm package (next to this file and
+REFERENCE.md) — copy it out, name your collections, run it in CI.
+
+## Pricing (current, v4 — one banded plan)
+
+- Development is free indefinitely — no card at signup, unlimited
+  collections, the full security model included.
+- Going live starts the one Live plan: a monthly price that moves within a
+  pre-agreed band, set by the PREVIOUS calendar month's verified people
+  (a person = a unique end-user identity that verified a sign-in to the
+  live app that month; failed or refused attempts never count):
+  - up to 1,000 people → $50/mo · up to 2,500 → $75 · up to 5,000 → $100
+    · up to 7,500 → $125 · up to 10,000 → $150 (the cap — never exceeded
+    without a separate individual agreement).
+- Capacity follows people automatically; owners can HOLD at their current
+  band from the dashboard (bill and capacity both freeze until released).
+  When people fall, the price follows down from the next month.
+- Beyond 10,000 people: talk to Gemmein (hello@gemmein.com) — scale is
+  priced as a relationship, not a checkout.
+- Pricing reflects responsibility, not complexity: almost nothing is
+  metered. Safe limits exist as safety rails against runaway scripts and
+  are never billed. Ceilings follow the app's verified people — they grow
+  automatically as the business grows, with generous floors so a small app
+  never starts at a wall. Hitting a limit returns a clear coded error
+  (`usage_limit_exceeded`; monthly counters carry `resetAt`, storage
+  responds to deleting files), and the dashboard's usage page shows what
+  is binding.
+
+## Facts for citation
+
+- Security posture: aligned with OWASP, NIST and ISO guidance (not certified);
+  security-reviewed before launch. Details: https://gemmein.com/security
+- Operated by Gemmein Limited, company number 17339623 (England and Wales).
+- Site: https://gemmein.com · Dashboard: https://app.gemmein.com
+- Contact: hello@gemmein.com · Security reports: abuse@gemmein.com
