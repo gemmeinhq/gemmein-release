@@ -90,6 +90,16 @@
       },
       "artifactFormat": "v1",
       "notes": "W7.1a \u2014 founder alerts + the grace window (Adil's 23 Aug rulings). ENGINE: ceilings are a notification and a grace window, never a wall \u2014 people-driven ceilings never refuse; the first crossing per category per period records an alert (CEILING-2); storage admits up to 2x its ceiling and refuses past it. The founder-alert primitive (ALERT-1: dedupe law, stale-claim reclaim, critical kinds always on) rides the local engine and PRINTS alerts in the gemmein dev terminal the way sign-in codes print (band_outgrown, inbox_waiting, billing_failed, domain_broke, storage_full). The send adapter (W7.1 A) is minted; OTP path untouched. LLMS.TXT: the limits paragraph now says ceilings never refuse and next month bills the band you grew into; byte-identical to @gemmein/sdk's. Built from dev repo 9d8f1d0 (prod train v20260823-9d8f1d0); verify legs green (452 security / 31 apps / 17 package incl. carve-boundary scan), ledger 124 entries 0 drift 0 stale, two adversarial reviews + a fix pass before this build, cold boot in an empty dir proven. Shim 0.4.3: version pin + hashes only."
+    },
+    {
+      "version": "0.4.4",
+      "date": "2026-08-23",
+      "files": {
+        "gemmein.js": "3fcb05377b1d2bb82c51b3fd4fd8a087b0d57e457b0d9233a3e7515003d55a75",
+        "llms.txt": "74a68e4e04b89e5af8628378a850d182868617e5b5ab73a5b45c3a4a83fd6922"
+      },
+      "artifactFormat": "v1",
+      "notes": "FILE-2 + INBOX-START-1 (quick-closes #2 and #1 from the 23 Aug market research, both through the adversarial review pass). ENGINE: user uploads admit documents \u2014 pdf/zip/epub alongside the five image formats, 25MB per file (was 10MB images-only); one magic-byte proof for every collection (proveFileType); presign pins a server-built, policy-conditioned `attachment; filename=\u2026` so a document downloads under its own name and an uploader can neither add nor change a disposition; the local dev shelf serves the pinned disposition + nosniff + sandbox CSP exactly as the prod CDN does, and the dev sink stores the policy-pinned FIELD content-type as S3 does; an empty declared type is named as the cause in the 415. Product files unchanged (audio, 100MB). INBOX-START-1 rides the internal plane (carved out of this artifact) \u2014 the local engine sees only its store parity. llms.txt: the files paragraph teaches documents, the 25MB cap, attachment-only delivery, {contentType} for bare Blobs."
     }
   ]
 }
