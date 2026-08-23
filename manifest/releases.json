@@ -80,6 +80,16 @@
       },
       "artifactFormat": "v1",
       "notes": "The queue release (22 Aug 2026, Adil's ruling: sort the queue before anything new). ENGINE: locks can now be SET locally \u2014 a collection declaration gains `unlockedBy: [plan/product names]` (never keys), resolved through the same key ladder as the cloud; gemmein dev applies it on create and on file change, refuses an unknown name out loud, and re-applies once payments.json catches up; `gemmein check` signs in a free test member and checks that each lock holds (403 entitlement_required with the plan's key), fires for product-only apps, and never prints 'All boundaries hold' over an open paywall; sync carries Unlocked by as names and reports a cloud/local lock mismatch. Pay-sim fix: a simulated PLAN purchase never granted the plan's key (the sim event carried no customer) \u2014 now a stable per-buyer sim customer derived from the ref's email. Zero-field seal: a shape-enforced collection with nothing learned (or every field removed) is never sealed shut \u2014 skipped at both promotion doors and named in the result with the reason. Terms stamp: first consent wins on both planes (parity with the 22 Aug cloud fix). LLMS.TXT: teaches unlockedBy in the console's words; byte-identical to @gemmein/sdk's. Built from dev repo 408164a (prod train v20260822-408164a); verify gate green (432 security / 31 apps / 17 package incl. carve-boundary scan), ledger 121 entries 0 drift 0 stale, two adversarial review passes fixed before this build, cold boot in an empty dir proven. Shim 0.4.2: version pin + hashes only."
+    },
+    {
+      "version": "0.4.3",
+      "date": "2026-08-23",
+      "files": {
+        "gemmein.js": "9bdba431ca038e2afe18a990ee55a47d5a890f1a23711d512c839d355b4d98e2",
+        "llms.txt": "c2327295821276ccd18b98f566147af3ebccdcaabaf8f85312e79d8fa9c9c8bb"
+      },
+      "artifactFormat": "v1",
+      "notes": "W7.1a \u2014 founder alerts + the grace window (Adil's 23 Aug rulings). ENGINE: ceilings are a notification and a grace window, never a wall \u2014 people-driven ceilings never refuse; the first crossing per category per period records an alert (CEILING-2); storage admits up to 2x its ceiling and refuses past it. The founder-alert primitive (ALERT-1: dedupe law, stale-claim reclaim, critical kinds always on) rides the local engine and PRINTS alerts in the gemmein dev terminal the way sign-in codes print (band_outgrown, inbox_waiting, billing_failed, domain_broke, storage_full). The send adapter (W7.1 A) is minted; OTP path untouched. LLMS.TXT: the limits paragraph now says ceilings never refuse and next month bills the band you grew into; byte-identical to @gemmein/sdk's. Built from dev repo 9d8f1d0 (prod train v20260823-9d8f1d0); verify legs green (452 security / 31 apps / 17 package incl. carve-boundary scan), ledger 124 entries 0 drift 0 stale, two adversarial reviews + a fix pass before this build, cold boot in an empty dir proven. Shim 0.4.3: version pin + hashes only."
     }
   ]
 }
