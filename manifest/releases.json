@@ -1,105 +1,115 @@
 {
-  "_doc": "Engine release history \u2014 the source of truth for what users can fetch. Each entry: version, date, files (name -> sha256), artifactFormat (v1 = carved minified js; v2 = sealed binary), notes. Hashes here must match shim/lib/versions.mjs for the pinned version.",
-  "releases": [
-    {
-      "version": "0.1.0",
-      "date": "2026-07-24",
-      "files": {
-        "gemmein.js": "6dc0ad751f0f2023039d58f1f44a80824ec4b44d67bca57b44c097729a65936f",
-        "llms.txt": "1aa0989dd1624e93014122a451e22043659caa02e32a5b096da90d2b1cff6217"
-      },
-      "artifactFormat": "v1",
-      "notes": "First real engine release. Local runtime + guided init + sync/go-live cloud handshake + additive promote ceremony + feedback command. Carved: internal plane, platform billing, prod adapters absent (CARVE-BOUNDARY marker-scan green at dev repo d3bf317)."
-    },
-    {
-      "version": "0.1.1",
-      "date": "2026-07-25",
-      "files": {
-        "gemmein.js": "e47f4032b62df38016f62ae1c022628647ddc7cad9f4397abeec3a607eb8918b",
-        "llms.txt": "1aa0989dd1624e93014122a451e22043659caa02e32a5b096da90d2b1cff6217"
-      },
-      "artifactFormat": "v1",
-      "notes": "AGENT-EOF wave: init on a pipe hands off to a human (exit 0) instead of crashing; every interview prompt EOF-safe; unknown commands exit 1; project-less collections says init-first. Shim 0.1.1 alongside: Node>=18 guard + ESM cache marker (kills the reparse warning). Built from dev repo 9f82d94, gate 226+31+12 green."
-    },
-    {
-      "version": "0.1.2",
-      "date": "2026-07-25",
-      "files": {
-        "gemmein.js": "c0594178518eea5b20401312396982cee351afde4454132b638d58ead884d47a",
-        "llms.txt": "1aa0989dd1624e93014122a451e22043659caa02e32a5b096da90d2b1cff6217"
-      },
-      "artifactFormat": "v1",
-      "notes": "Message-truth wave. 0.1.1's agent handoff named gemmein/llms.txt \u2014 a path nothing creates, in an order that couldn't work; it now points at `gemmein dev` then http://127.0.0.1:4545/llms.txt. One project gate at dispatch, so `rules` and `check` stop answering as if a project existed. SHAPE-1 learning accepts pk_local_ as well as pk_test \u2014 local dev never learned shapes at all (ledger #72, cause corrected). init requires a real owner email; a busy port says so instead of dying silently. Built from dev repo 1f743f8, gate 227+31+15 green."
-    },
-    {
-      "version": "0.2.0",
-      "date": "2026-07-29",
-      "files": {
-        "gemmein.js": "86d04f50f9d158832cba0e4022e34d905172f5878bb21445f780fb0af4ce739b",
-        "llms.txt": "61ba69af983b90c0e5a61ad03574b333235d59f494d2c882e4fd49a8f4e83aeb"
-      },
-      "artifactFormat": "v1",
-      "notes": "W3.1 sealed files \u2014 the local runtime speaks the ref contract prod ships: upload() returns ref not url, /files/{ref}/link mints delivery, the local DevKeySigner signs sealed links with the same canned-policy bytes as CloudFront (parity law, no if(isDev) in the gate). BREAKING with sdk<0.3.0 teaching; pairs with @gemmein/sdk 0.3.0. llms.txt guide updated to the ref contract AND gains the entitlements teaching: Paid ACCESS bullet (requires/grants/union/entitlement_required/purchases.mine) + Selling THINGS rewritten to the W2.5b commercial record, optional receipts, sealed-file delivery and the digital-only scope (first llms change since 0.1.0). Built from dev repo a8c477b, verify gate green (security:static + tests + apps + package), ledger 92 affirmed 0 drift."
-    },
-    {
-      "version": "0.3.0",
-      "date": "2026-07-30",
-      "files": {
-        "gemmein.js": "bd58ca3a82bce5d06ac3c1321d83bf522a92a116780e017daa7348c0e8f26429",
-        "llms.txt": "a6c6cb07ecca71a8ac60be961e933725a621dcd53aee3170a41cc65fc099de04"
-      },
-      "artifactFormat": "v1",
-      "notes": "W4 wave into the local runtime: purchases.mine() carries delivery for downloadable products (the __product_files system collection, purchase-authorized short-lived links, wider product MIME profile, 100MB cap); the byte meter with per-person ceilings and floors; the dev file sink answers browsers from any origin and refuses oversize loudly (413) instead of truncating silently. llms.txt teaching: banded v4 pricing (five thresholds spelled out) + delivery. Pairs with @gemmein/sdk 0.4.0. Built from dev repo 4590a88, verify gate green (350 security / 31 apps / package gates / boundaries), ledger 110 entries 0 drift."
-    },
-    {
-      "version": "0.4.0",
-      "date": "2026-08-01",
-      "files": {
-        "gemmein.js": "0ecb346f290c5305d15c95f3c74a63587b8c6145658010af11a4512a0e86b6f5",
-        "llms.txt": "6ad4b1e69c2e58d50975babd3f7c13248025f7b1cbae9b98851b771d79b7d8ac"
-      },
-      "artifactFormat": "v1",
-      "notes": "THE AI-FIRST FUNNEL (docs/DIRECTION-AI-FIRST.md, sealed 1 Aug): the founder's AI is the customer. init is RETIRED to a signpost (exit 0, points at dev + llms.txt; the terminal interview is gone \u2014 the business questions move to the founder's own AI chat). `gemmein dev` boots in an EMPTY directory: setup mode teaches the config shape on the boot card, the reconcile loop notices gemmein/gemmein.config.json appearing and says the app is ready on restart. Every printed instruction is npx-true (29 sites + static gate). GET / on the local API orients humans instead of refusing them. llms.txt is rewritten as the front door: FIT protocol first (fits / fits-except / doesn't, idea- and built-stage, verdict before any install or account), then Getting started (AI-run, human-answered); hardened by a blind-agent run (payouts/revenue-splits named out-of-scope, keyed-create scope documented collection-wide, unpaid-claim expiry honesty, config key list with the sells union). Pairs with the landing paste-prompt. Built from dev repo e686b74, verify gate green (357 security / 31 apps / 16 package incl. carve-boundary scan on this bundle), ledger 112 entries 0 drift."
-    },
-    {
-      "version": "0.4.1",
-      "date": "2026-08-22",
-      "files": {
-        "gemmein.js": "dcc1ba00f8306b759d529c47608d3b6fa063fa4b6b934ba09efc63c9fe16fd3c",
-        "llms.txt": "7ce2465c992b1c62ce939ce5eb05a0ebe9ca946387fb300d3868bedbb0fb3031"
-      },
-      "artifactFormat": "v1",
-      "notes": "Parity catch-up after the console overhaul (18-22 Aug). ENGINE: the CORS fix the 0.4.0 artifact missed \u2014 browser writes carrying x-collection-intent no longer die in preflight locally (57f2de8, shipped to prod 2 Aug, never promoted); plans and products unlock collections by NAME (keys minted at create as access:<slug>, stable through rename, Unlocked-by is an OR set, 403 entitlement_required narrows to ONE `requires` key, d25b967/0f24620); support inbox + replies on the local twin with the same words and ceilings as the cloud (W5.2 core + 20 review fixes); email domain ownership + verified-origin law + go-live gate (W8, e4ef61c); one envelope for every send \u2014 From word@apex, Reply-To on the receiving host only while receiving is verified, reply+ never in a header (21-22 Aug rulings). LLMS.TXT: rewritten for plans-by-name \u2014 teaches err.requires as one string, offers plans by name through checkout never a key list; byte-identical to @gemmein/sdk 0.4.1 (published 22 Aug). Built from dev repo 77168c2 (code = prod train 06fe853, tag v20260822-06fe853); verify gate green, ledger 117 entries 0 drift 0 stale, two adversarial review passes (entitlements, email arc) fixed before this build. Shim 0.4.1 alongside: version pin + hashes only."
-    },
-    {
-      "version": "0.4.2",
-      "date": "2026-08-22",
-      "files": {
-        "gemmein.js": "006f4ec539bd6816576ca6e22c9ef11951b3837fc40a80acb0d9549d697bae3f",
-        "llms.txt": "6d7bd30169eca6832cfa730157610d87aeae58d8c34559f19f48fa8acb8d049f"
-      },
-      "artifactFormat": "v1",
-      "notes": "The queue release (22 Aug 2026, Adil's ruling: sort the queue before anything new). ENGINE: locks can now be SET locally \u2014 a collection declaration gains `unlockedBy: [plan/product names]` (never keys), resolved through the same key ladder as the cloud; gemmein dev applies it on create and on file change, refuses an unknown name out loud, and re-applies once payments.json catches up; `gemmein check` signs in a free test member and checks that each lock holds (403 entitlement_required with the plan's key), fires for product-only apps, and never prints 'All boundaries hold' over an open paywall; sync carries Unlocked by as names and reports a cloud/local lock mismatch. Pay-sim fix: a simulated PLAN purchase never granted the plan's key (the sim event carried no customer) \u2014 now a stable per-buyer sim customer derived from the ref's email. Zero-field seal: a shape-enforced collection with nothing learned (or every field removed) is never sealed shut \u2014 skipped at both promotion doors and named in the result with the reason. Terms stamp: first consent wins on both planes (parity with the 22 Aug cloud fix). LLMS.TXT: teaches unlockedBy in the console's words; byte-identical to @gemmein/sdk's. Built from dev repo 408164a (prod train v20260822-408164a); verify gate green (432 security / 31 apps / 17 package incl. carve-boundary scan), ledger 121 entries 0 drift 0 stale, two adversarial review passes fixed before this build, cold boot in an empty dir proven. Shim 0.4.2: version pin + hashes only."
-    },
-    {
-      "version": "0.4.3",
-      "date": "2026-08-23",
-      "files": {
-        "gemmein.js": "9bdba431ca038e2afe18a990ee55a47d5a890f1a23711d512c839d355b4d98e2",
-        "llms.txt": "c2327295821276ccd18b98f566147af3ebccdcaabaf8f85312e79d8fa9c9c8bb"
-      },
-      "artifactFormat": "v1",
-      "notes": "W7.1a \u2014 founder alerts + the grace window (Adil's 23 Aug rulings). ENGINE: ceilings are a notification and a grace window, never a wall \u2014 people-driven ceilings never refuse; the first crossing per category per period records an alert (CEILING-2); storage admits up to 2x its ceiling and refuses past it. The founder-alert primitive (ALERT-1: dedupe law, stale-claim reclaim, critical kinds always on) rides the local engine and PRINTS alerts in the gemmein dev terminal the way sign-in codes print (band_outgrown, inbox_waiting, billing_failed, domain_broke, storage_full). The send adapter (W7.1 A) is minted; OTP path untouched. LLMS.TXT: the limits paragraph now says ceilings never refuse and next month bills the band you grew into; byte-identical to @gemmein/sdk's. Built from dev repo 9d8f1d0 (prod train v20260823-9d8f1d0); verify legs green (452 security / 31 apps / 17 package incl. carve-boundary scan), ledger 124 entries 0 drift 0 stale, two adversarial reviews + a fix pass before this build, cold boot in an empty dir proven. Shim 0.4.3: version pin + hashes only."
-    },
-    {
-      "version": "0.4.4",
-      "date": "2026-08-23",
-      "files": {
-        "gemmein.js": "3fcb05377b1d2bb82c51b3fd4fd8a087b0d57e457b0d9233a3e7515003d55a75",
-        "llms.txt": "74a68e4e04b89e5af8628378a850d182868617e5b5ab73a5b45c3a4a83fd6922"
-      },
-      "artifactFormat": "v1",
-      "notes": "FILE-2 + INBOX-START-1 (quick-closes #2 and #1 from the 23 Aug market research, both through the adversarial review pass). ENGINE: user uploads admit documents \u2014 pdf/zip/epub alongside the five image formats, 25MB per file (was 10MB images-only); one magic-byte proof for every collection (proveFileType); presign pins a server-built, policy-conditioned `attachment; filename=\u2026` so a document downloads under its own name and an uploader can neither add nor change a disposition; the local dev shelf serves the pinned disposition + nosniff + sandbox CSP exactly as the prod CDN does, and the dev sink stores the policy-pinned FIELD content-type as S3 does; an empty declared type is named as the cause in the 415. Product files unchanged (audio, 100MB). INBOX-START-1 rides the internal plane (carved out of this artifact) \u2014 the local engine sees only its store parity. llms.txt: the files paragraph teaches documents, the 25MB cap, attachment-only delivery, {contentType} for bare Blobs."
-    }
-  ]
+ "_doc": "Engine release history \u2014 the source of truth for what users can fetch. Each entry: version, date, files (name -> sha256), artifactFormat (v1 = carved minified js; v2 = sealed binary), notes. Hashes here must match shim/lib/versions.mjs for the pinned version.",
+ "releases": [
+  {
+   "version": "0.1.0",
+   "date": "2026-07-24",
+   "files": {
+    "gemmein.js": "6dc0ad751f0f2023039d58f1f44a80824ec4b44d67bca57b44c097729a65936f",
+    "llms.txt": "1aa0989dd1624e93014122a451e22043659caa02e32a5b096da90d2b1cff6217"
+   },
+   "artifactFormat": "v1",
+   "notes": "First real engine release. Local runtime + guided init + sync/go-live cloud handshake + additive promote ceremony + feedback command. Carved: internal plane, platform billing, prod adapters absent (CARVE-BOUNDARY marker-scan green at dev repo d3bf317)."
+  },
+  {
+   "version": "0.1.1",
+   "date": "2026-07-25",
+   "files": {
+    "gemmein.js": "e47f4032b62df38016f62ae1c022628647ddc7cad9f4397abeec3a607eb8918b",
+    "llms.txt": "1aa0989dd1624e93014122a451e22043659caa02e32a5b096da90d2b1cff6217"
+   },
+   "artifactFormat": "v1",
+   "notes": "AGENT-EOF wave: init on a pipe hands off to a human (exit 0) instead of crashing; every interview prompt EOF-safe; unknown commands exit 1; project-less collections says init-first. Shim 0.1.1 alongside: Node>=18 guard + ESM cache marker (kills the reparse warning). Built from dev repo 9f82d94, gate 226+31+12 green."
+  },
+  {
+   "version": "0.1.2",
+   "date": "2026-07-25",
+   "files": {
+    "gemmein.js": "c0594178518eea5b20401312396982cee351afde4454132b638d58ead884d47a",
+    "llms.txt": "1aa0989dd1624e93014122a451e22043659caa02e32a5b096da90d2b1cff6217"
+   },
+   "artifactFormat": "v1",
+   "notes": "Message-truth wave. 0.1.1's agent handoff named gemmein/llms.txt \u2014 a path nothing creates, in an order that couldn't work; it now points at `gemmein dev` then http://127.0.0.1:4545/llms.txt. One project gate at dispatch, so `rules` and `check` stop answering as if a project existed. SHAPE-1 learning accepts pk_local_ as well as pk_test \u2014 local dev never learned shapes at all (ledger #72, cause corrected). init requires a real owner email; a busy port says so instead of dying silently. Built from dev repo 1f743f8, gate 227+31+15 green."
+  },
+  {
+   "version": "0.2.0",
+   "date": "2026-07-29",
+   "files": {
+    "gemmein.js": "86d04f50f9d158832cba0e4022e34d905172f5878bb21445f780fb0af4ce739b",
+    "llms.txt": "61ba69af983b90c0e5a61ad03574b333235d59f494d2c882e4fd49a8f4e83aeb"
+   },
+   "artifactFormat": "v1",
+   "notes": "W3.1 sealed files \u2014 the local runtime speaks the ref contract prod ships: upload() returns ref not url, /files/{ref}/link mints delivery, the local DevKeySigner signs sealed links with the same canned-policy bytes as CloudFront (parity law, no if(isDev) in the gate). BREAKING with sdk<0.3.0 teaching; pairs with @gemmein/sdk 0.3.0. llms.txt guide updated to the ref contract AND gains the entitlements teaching: Paid ACCESS bullet (requires/grants/union/entitlement_required/purchases.mine) + Selling THINGS rewritten to the W2.5b commercial record, optional receipts, sealed-file delivery and the digital-only scope (first llms change since 0.1.0). Built from dev repo a8c477b, verify gate green (security:static + tests + apps + package), ledger 92 affirmed 0 drift."
+  },
+  {
+   "version": "0.3.0",
+   "date": "2026-07-30",
+   "files": {
+    "gemmein.js": "bd58ca3a82bce5d06ac3c1321d83bf522a92a116780e017daa7348c0e8f26429",
+    "llms.txt": "a6c6cb07ecca71a8ac60be961e933725a621dcd53aee3170a41cc65fc099de04"
+   },
+   "artifactFormat": "v1",
+   "notes": "W4 wave into the local runtime: purchases.mine() carries delivery for downloadable products (the __product_files system collection, purchase-authorized short-lived links, wider product MIME profile, 100MB cap); the byte meter with per-person ceilings and floors; the dev file sink answers browsers from any origin and refuses oversize loudly (413) instead of truncating silently. llms.txt teaching: banded v4 pricing (five thresholds spelled out) + delivery. Pairs with @gemmein/sdk 0.4.0. Built from dev repo 4590a88, verify gate green (350 security / 31 apps / package gates / boundaries), ledger 110 entries 0 drift."
+  },
+  {
+   "version": "0.4.0",
+   "date": "2026-08-01",
+   "files": {
+    "gemmein.js": "0ecb346f290c5305d15c95f3c74a63587b8c6145658010af11a4512a0e86b6f5",
+    "llms.txt": "6ad4b1e69c2e58d50975babd3f7c13248025f7b1cbae9b98851b771d79b7d8ac"
+   },
+   "artifactFormat": "v1",
+   "notes": "THE AI-FIRST FUNNEL (docs/DIRECTION-AI-FIRST.md, sealed 1 Aug): the founder's AI is the customer. init is RETIRED to a signpost (exit 0, points at dev + llms.txt; the terminal interview is gone \u2014 the business questions move to the founder's own AI chat). `gemmein dev` boots in an EMPTY directory: setup mode teaches the config shape on the boot card, the reconcile loop notices gemmein/gemmein.config.json appearing and says the app is ready on restart. Every printed instruction is npx-true (29 sites + static gate). GET / on the local API orients humans instead of refusing them. llms.txt is rewritten as the front door: FIT protocol first (fits / fits-except / doesn't, idea- and built-stage, verdict before any install or account), then Getting started (AI-run, human-answered); hardened by a blind-agent run (payouts/revenue-splits named out-of-scope, keyed-create scope documented collection-wide, unpaid-claim expiry honesty, config key list with the sells union). Pairs with the landing paste-prompt. Built from dev repo e686b74, verify gate green (357 security / 31 apps / 16 package incl. carve-boundary scan on this bundle), ledger 112 entries 0 drift."
+  },
+  {
+   "version": "0.4.1",
+   "date": "2026-08-22",
+   "files": {
+    "gemmein.js": "dcc1ba00f8306b759d529c47608d3b6fa063fa4b6b934ba09efc63c9fe16fd3c",
+    "llms.txt": "7ce2465c992b1c62ce939ce5eb05a0ebe9ca946387fb300d3868bedbb0fb3031"
+   },
+   "artifactFormat": "v1",
+   "notes": "Parity catch-up after the console overhaul (18-22 Aug). ENGINE: the CORS fix the 0.4.0 artifact missed \u2014 browser writes carrying x-collection-intent no longer die in preflight locally (57f2de8, shipped to prod 2 Aug, never promoted); plans and products unlock collections by NAME (keys minted at create as access:<slug>, stable through rename, Unlocked-by is an OR set, 403 entitlement_required narrows to ONE `requires` key, d25b967/0f24620); support inbox + replies on the local twin with the same words and ceilings as the cloud (W5.2 core + 20 review fixes); email domain ownership + verified-origin law + go-live gate (W8, e4ef61c); one envelope for every send \u2014 From word@apex, Reply-To on the receiving host only while receiving is verified, reply+ never in a header (21-22 Aug rulings). LLMS.TXT: rewritten for plans-by-name \u2014 teaches err.requires as one string, offers plans by name through checkout never a key list; byte-identical to @gemmein/sdk 0.4.1 (published 22 Aug). Built from dev repo 77168c2 (code = prod train 06fe853, tag v20260822-06fe853); verify gate green, ledger 117 entries 0 drift 0 stale, two adversarial review passes (entitlements, email arc) fixed before this build. Shim 0.4.1 alongside: version pin + hashes only."
+  },
+  {
+   "version": "0.4.2",
+   "date": "2026-08-22",
+   "files": {
+    "gemmein.js": "006f4ec539bd6816576ca6e22c9ef11951b3837fc40a80acb0d9549d697bae3f",
+    "llms.txt": "6d7bd30169eca6832cfa730157610d87aeae58d8c34559f19f48fa8acb8d049f"
+   },
+   "artifactFormat": "v1",
+   "notes": "The queue release (22 Aug 2026, Adil's ruling: sort the queue before anything new). ENGINE: locks can now be SET locally \u2014 a collection declaration gains `unlockedBy: [plan/product names]` (never keys), resolved through the same key ladder as the cloud; gemmein dev applies it on create and on file change, refuses an unknown name out loud, and re-applies once payments.json catches up; `gemmein check` signs in a free test member and checks that each lock holds (403 entitlement_required with the plan's key), fires for product-only apps, and never prints 'All boundaries hold' over an open paywall; sync carries Unlocked by as names and reports a cloud/local lock mismatch. Pay-sim fix: a simulated PLAN purchase never granted the plan's key (the sim event carried no customer) \u2014 now a stable per-buyer sim customer derived from the ref's email. Zero-field seal: a shape-enforced collection with nothing learned (or every field removed) is never sealed shut \u2014 skipped at both promotion doors and named in the result with the reason. Terms stamp: first consent wins on both planes (parity with the 22 Aug cloud fix). LLMS.TXT: teaches unlockedBy in the console's words; byte-identical to @gemmein/sdk's. Built from dev repo 408164a (prod train v20260822-408164a); verify gate green (432 security / 31 apps / 17 package incl. carve-boundary scan), ledger 121 entries 0 drift 0 stale, two adversarial review passes fixed before this build, cold boot in an empty dir proven. Shim 0.4.2: version pin + hashes only."
+  },
+  {
+   "version": "0.4.3",
+   "date": "2026-08-23",
+   "files": {
+    "gemmein.js": "9bdba431ca038e2afe18a990ee55a47d5a890f1a23711d512c839d355b4d98e2",
+    "llms.txt": "c2327295821276ccd18b98f566147af3ebccdcaabaf8f85312e79d8fa9c9c8bb"
+   },
+   "artifactFormat": "v1",
+   "notes": "W7.1a \u2014 founder alerts + the grace window (Adil's 23 Aug rulings). ENGINE: ceilings are a notification and a grace window, never a wall \u2014 people-driven ceilings never refuse; the first crossing per category per period records an alert (CEILING-2); storage admits up to 2x its ceiling and refuses past it. The founder-alert primitive (ALERT-1: dedupe law, stale-claim reclaim, critical kinds always on) rides the local engine and PRINTS alerts in the gemmein dev terminal the way sign-in codes print (band_outgrown, inbox_waiting, billing_failed, domain_broke, storage_full). The send adapter (W7.1 A) is minted; OTP path untouched. LLMS.TXT: the limits paragraph now says ceilings never refuse and next month bills the band you grew into; byte-identical to @gemmein/sdk's. Built from dev repo 9d8f1d0 (prod train v20260823-9d8f1d0); verify legs green (452 security / 31 apps / 17 package incl. carve-boundary scan), ledger 124 entries 0 drift 0 stale, two adversarial reviews + a fix pass before this build, cold boot in an empty dir proven. Shim 0.4.3: version pin + hashes only."
+  },
+  {
+   "version": "0.4.4",
+   "date": "2026-08-23",
+   "files": {
+    "gemmein.js": "3fcb05377b1d2bb82c51b3fd4fd8a087b0d57e457b0d9233a3e7515003d55a75",
+    "llms.txt": "74a68e4e04b89e5af8628378a850d182868617e5b5ab73a5b45c3a4a83fd6922"
+   },
+   "artifactFormat": "v1",
+   "notes": "FILE-2 + INBOX-START-1 (quick-closes #2 and #1 from the 23 Aug market research, both through the adversarial review pass). ENGINE: user uploads admit documents \u2014 pdf/zip/epub alongside the five image formats, 25MB per file (was 10MB images-only); one magic-byte proof for every collection (proveFileType); presign pins a server-built, policy-conditioned `attachment; filename=\u2026` so a document downloads under its own name and an uploader can neither add nor change a disposition; the local dev shelf serves the pinned disposition + nosniff + sandbox CSP exactly as the prod CDN does, and the dev sink stores the policy-pinned FIELD content-type as S3 does; an empty declared type is named as the cause in the 415. Product files unchanged (audio, 100MB). INBOX-START-1 rides the internal plane (carved out of this artifact) \u2014 the local engine sees only its store parity. llms.txt: the files paragraph teaches documents, the 25MB cap, attachment-only delivery, {contentType} for bare Blobs."
+  },
+  {
+   "version": "0.4.5",
+   "date": "2026-08-25",
+   "files": {
+    "gemmein.js": "6469fdef2a61ba85a9eafc746e6c4ac925a0dfd72a12a05ad767c018183339b3",
+    "llms.txt": "1a1acbafacf5c5ea0eb5fd8aeaee93e92f597554574ef6b3651ef37510619ff3"
+   },
+   "artifactFormat": "v1",
+   "notes": "W7.2 since-polling + watch() (research CLOSE #5, POLL-1) through two adversarial review passes. ENGINE: list gains ?since=<ISO 8601> \u2014 everything changed OR deleted after that instant, oldest change first, through the same rule switch and query scope as any read; tombstones cross as bare ids inside the caller's scope only; watermark minted from the store clock, lagged 2s (at-least-once: apply by id), rides every plain page and the final delta page; since+sort refused (400 invalid_since, strict ISO shape); tombstones exempt from where/search on deltas so a deletion reaches a filtered watcher; new records updated-at index. Request log gains delta traceability (delta/since/changed/deleted) and refusal codes. SDK: list({since}), ListResult.deleted/watermark, and watch(cb,{every}) \u2014 explicit polling, 10s default 5s floor, hidden-tab sleep with full resync on focus, backoff honouring resetAt, single in-flight tick. llms.txt: the Live data section (REPLACE on initial, filtered-watch caveat, never a tight loop)."
+  }
+ ]
 }
