@@ -110,6 +110,16 @@
    },
    "artifactFormat": "v1",
    "notes": "W7.2 since-polling + watch() (research CLOSE #5, POLL-1) through two adversarial review passes. ENGINE: list gains ?since=<ISO 8601> \u2014 everything changed OR deleted after that instant, oldest change first, through the same rule switch and query scope as any read; tombstones cross as bare ids inside the caller's scope only; watermark minted from the store clock, lagged 2s (at-least-once: apply by id), rides every plain page and the final delta page; since+sort refused (400 invalid_since, strict ISO shape); tombstones exempt from where/search on deltas so a deletion reaches a filtered watcher; new records updated-at index. Request log gains delta traceability (delta/since/changed/deleted) and refusal codes. SDK: list({since}), ListResult.deleted/watermark, and watch(cb,{every}) \u2014 explicit polling, 10s default 5s floor, hidden-tab sleep with full resync on focus, backoff honouring resetAt, single in-flight tick. llms.txt: the Live data section (REPLACE on initial, filtered-watch caveat, never a tight loop)."
+  },
+  {
+   "version": "0.4.6",
+   "date": "2026-08-25",
+   "files": {
+    "gemmein.js": "ce9c3c3cc1527dcaec8c07a37d36ccf5569623142060fa1689b3984cab79f205",
+    "llms.txt": "ea87514a1a6adc3d416f2810146268f11a81cb2388051cf9d97d2d4b6d421dd0"
+   },
+   "artifactFormat": "v1",
+   "notes": "W7.3 notify (NOTIFY-1) through two adversarial lenses, a whole-diff final review, and an end-to-end audit-traceability pass. ENGINE: POST /server/notify \u2014 an app's SERVER emails one of ITS OWN verified people (secret key only; person id, never an address; one 404 for missing/cross-env/suspended). Classified: event-class capped 5/person/day, account-class exempt (a security notice never loses to order emails), both under 200/app/hour with resetAt; failed sends and lost dedupe races refund their cap units. Person-scoped dedupe key = at-most-once through retries (idempotent answer before caps; in-flight twin answers 409 in_flight). The ruled footer sentence rides every send; no unsubscribe link BY RULING (receipts-class). Sends land as Inbox threads; replyRail in the response states whether replies actually land there. Every send attributable to its secret key (row + audit + log). Local engine prints NOTIFY \u00b7 \u2026 instead of mailing. watch() now stops on 401/403 (a denied watcher polled and audited forever). SDK: gemmeinServer().notify(personId, {subject, text, kind?, key?}). llms.txt teaches the verb, the caps, the account-class deal, events-not-campaigns."
   }
  ]
 }
