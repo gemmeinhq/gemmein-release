@@ -120,6 +120,16 @@
    },
    "artifactFormat": "v1",
    "notes": "W7.3 notify (NOTIFY-1) through two adversarial lenses, a whole-diff final review, and an end-to-end audit-traceability pass. ENGINE: POST /server/notify \u2014 an app's SERVER emails one of ITS OWN verified people (secret key only; person id, never an address; one 404 for missing/cross-env/suspended). Classified: event-class capped 5/person/day, account-class exempt (a security notice never loses to order emails), both under 200/app/hour with resetAt; failed sends and lost dedupe races refund their cap units. Person-scoped dedupe key = at-most-once through retries (idempotent answer before caps; in-flight twin answers 409 in_flight). The ruled footer sentence rides every send; no unsubscribe link BY RULING (receipts-class). Sends land as Inbox threads; replyRail in the response states whether replies actually land there. Every send attributable to its secret key (row + audit + log). Local engine prints NOTIFY \u00b7 \u2026 instead of mailing. watch() now stops on 401/403 (a denied watcher polled and audited forever). SDK: gemmeinServer().notify(personId, {subject, text, kind?, key?}). llms.txt teaches the verb, the caps, the account-class deal, events-not-campaigns."
+  },
+  {
+   "version": "0.4.7",
+   "date": "2026-08-26",
+   "files": {
+    "gemmein.js": "d3c6d496c7a45f6ef026c3ca97a3d2961884c482225dd21d48c1ab8232f4b0b2",
+    "llms.txt": "ac87d3d87d1126e27ec3fb00f47b7d09031304e472838eb64955f05b726fe37a"
+   },
+   "artifactFormat": "v1",
+   "notes": "W7.4 FILE-AUDIENCE + W7.5/W7.5b file kind & class, each through the full gate chain (two adversarial lenses, whole-diff final reviews, walked proofs on both rails). ENGINE: a file may name ONE person besides its owner who may read it \u2014 upload(blob, {for: userId}) on addressed/direct collections stamps the recipient at birth, immutable; the direct message's attachment works; erasing the audience clears the grant, never the file; every sealed mint logs WHICH authority admitted it (owner|audience|back_office|purchase|rule). Shapes learn FILE as a first-class kind (strict-ref promotion, junk never demotes, NO maxLength \u2014 kills the 41-char ref vs text-40 seal landmine) AND its CLASS (image|document, resolved from the real upload; seen-both is sticky 'any'); locked file fields verify the ref names a CONFIRMED, readable file of the right class \u2014 one no-leak 'file not found' (400 unknown_file) for missing/foreign/unconfirmed/unreadable, and the class teach ('takes an image, not a document') as 400 invalid_shape. SDK: upload({for}); llms teaches the file kind, the class law, and the client-portal + direct-attachment recipes."
   }
  ]
 }
