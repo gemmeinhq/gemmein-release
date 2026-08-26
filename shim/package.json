@@ -1,6 +1,6 @@
 {
   "name": "gemmein",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "description": "gemmein \u2014 declare your business boundaries, prove them locally, ship. Thin launcher: downloads the Gemmein local engine, verifies it, runs it. What you read here is what runs.",
   "license": "MIT",
   "type": "module",
