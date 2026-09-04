@@ -160,6 +160,16 @@
    },
    "artifactFormat": "v1",
    "notes": "The compute gate: verifySession / holdings / grantAccess / revokeAccess on the server plane, per-key capabilities, secret-key usage ledger; session refusals name the reason; the local key holds both capabilities."
+  },
+  {
+   "version": "0.7.0",
+   "date": "2026-09-04",
+   "files": {
+    "gemmein.js": "25fc57dc094c18863f6cad4c858cae48b2d03380a05ab965964d603ec413aa23",
+    "llms.txt": "049e2a8b6ac081b08b461c75d42f7228dd11f9497b48c35eddc4f5d3d94f06b6"
+   },
+   "artifactFormat": "v1",
+   "notes": "Relays: receiver (any provider that signs its webhooks), schedule and record-change triggers running Gemmein's own verbs \u2014 write a record, grant or revoke access, email the person, call your URL \u2014 durable, retried, replayable; the invite door (POST /server/people); loud list limits (invalid_limit); x-client-info on every SDK call; the seventh grant source, relay."
   }
  ]
 }
