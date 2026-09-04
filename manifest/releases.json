@@ -170,6 +170,16 @@
    },
    "artifactFormat": "v1",
    "notes": "Relays: receiver (any provider that signs its webhooks), schedule and record-change triggers running Gemmein's own verbs \u2014 write a record, grant or revoke access, email the person, call your URL \u2014 durable, retried, replayable; the invite door (POST /server/people); loud list limits (invalid_limit); x-client-info on every SDK call; the seventh grant source, relay."
+  },
+  {
+   "version": "0.8.0",
+   "date": "2026-09-04",
+   "files": {
+    "gemmein.js": "33fec411999a2ed8174f0c31deb2cfe1591b52284d4a83f3ee5fd7b45fda4ac1",
+    "llms.txt": "f4cb6738f7a10f7b841e4e5760353ed0c5af99bb9a28c4c55877ce004e7af9dc"
+   },
+   "artifactFormat": "v1",
+   "notes": "Credits: a general consumable balance \u2014 grantsCredits on the product, credited on confirmed purchase, clawed back on a full refund, floor zero; g.credits.balance() in the browser; gemmeinServer(sk).spendCredits(personId, { amount, reason, key }) behind the fourth key capability, at-most-once on key, 402 credits_exhausted; Holdings.credits filled ({ balance }). The AI route: g.ai.chat() and g.ai.text() call OpenAI, Anthropic or Google through Gemmein on the owner's own provider key, one credit per call, refunded only on a pre-first-byte provider failure; secret keys refused. Relays gain grant_credits."
   }
  ]
 }
