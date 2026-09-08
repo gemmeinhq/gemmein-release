@@ -200,6 +200,16 @@
    },
    "artifactFormat": "v1",
    "notes": "Keys that know what they are: server keys run an app and nothing else (no link, no sync, no owner sign-in); the CLI key (sk_cli_) is minted with the app, shown on Setup, and is what sync and go-live act with — linking is one paste; a production sync key (sk_sync_) lives one hour and carries relays and AI tools into production with `gemmein sync --live` (typed `live`, never deletes, asks before replacing a dashboard-edited row, --overwrite). Every relay and AI tool remembers where its definition came from; a relay's name is fixed once created. AI tools are defined on the server — instructions, prompt template, typed inputs, model, caps — and the app calls them by name with inputs (g.ai.run / runText); raw provider calls from the browser are off until switched on per key (403 raw_calls_off); every AI call is recorded per person (g.ai.calls), prompt and answer only where the tool keeps them. SDK 0.9.0, MCP 0.6.0."
+  },
+  {
+   "version": "0.11.0",
+   "date": "2026-09-08",
+   "files": {
+    "gemmein.js": "0bb749d4fbedee13a5b46c4421b638d54b986d688e0419e3ed6f001aa04cf02b",
+    "llms.txt": "3d2fa60d6b2766523969aa8ca69466fcb69919dd7cc48dd022464aefb71e4745"
+   },
+   "artifactFormat": "v1",
+   "notes": "Mobile on the same contract: @gemmein/sdk 0.10.0 gains the ./expo entry (createExpoGemmein, SecureStoreTokenStore, AppState visibility, expo/fetch), fetch/visibility/platform options and a store account token on currentUser(); GemmeinSwift 0.10.0 is the Swift surface, pinned to the JS registry. A relay names a person by email, id or store token, and RevenueCat has purchase, expiration and cancellation templates. Sign-in emails are counted per app per day and shown on Usage — never capped — with a signin_surge alert. The pricing unit is active people: a person counts once a month on their first signed-in request. A tool can be defined before its provider key. An app's email leaves only from its verified sender domain (sign-in codes are the one email sent via Gemmein). gemmein dev --host serves a phone on the network. Four migrations (2026-09-08a–d) run before this engine boots."
   }
  ]
 }
