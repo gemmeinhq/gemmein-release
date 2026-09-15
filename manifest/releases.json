@@ -210,6 +210,16 @@
    },
    "artifactFormat": "v1",
    "notes": "Mobile on the same contract: @gemmein/sdk 0.10.0 gains the ./expo entry (createExpoGemmein, SecureStoreTokenStore, AppState visibility, expo/fetch), fetch/visibility/platform options and a store account token on currentUser(); GemmeinSwift 0.10.0 is the Swift surface, pinned to the JS registry. A relay names a person by email, id or store token, and RevenueCat has purchase, expiration and cancellation templates. Sign-in emails are counted per app per day and shown on Usage — never capped — with a signin_surge alert. The pricing unit is active people: a person counts once a month on their first signed-in request. A tool can be defined before its provider key. An app's email leaves only from its verified sender domain (sign-in codes are the one email sent via Gemmein). gemmein dev --host serves a phone on the network. Four migrations (2026-09-08a–d) run before this engine boots."
+  },
+  {
+   "version": "0.12.0",
+   "date": "2026-09-15",
+   "files": {
+    "gemmein.js": "b39277a634627a2ba7ba5be3abdff8c17e590dbcd9b43ed1bb5ada43eecfdde7",
+    "llms.txt": "297d855f1ed891ee799d022242d275df0519b113290868aea6f5e14cac6ace39"
+   },
+   "artifactFormat": "v1",
+   "notes": "The runtime, six phases (10–15 Sep): credits sit on grants (pack · plan period · comp · promo · refund) and are metered per unit — a tool priced per call or per tokens reserves a ceiling and settles at the provider's usage; g.credits.balance() answers spendable, reserved and expiring; grant_credits takes expiresInDays, plans roll over, the credits_low relay trigger. Runs: a job tool (generate, transcribe) answers 202 with a Run; g.runs start/get/list/cancel/watch; results as sealed files on the person; runs_capped, unknown_run, run_ended. The hand-off: provider external — run_started relay + run_external action post the run and a single-use token to the founder's pipeline, which completes or fails it through the completion door. Queries: operators in where (eq ne gt gte lt lte in nin contains startsWith exists), count and stats doors, invalid_filter / invalid_count / invalid_stats; a relay's when and where read the same grammar. The multimodal surface: a provider serves every kind its key sells — OpenAI images, speech, transcription, video; Google Imagen, Veo, audio transcription; Deepgram joins (ten providers). @gemmein/sdk 0.11.0, @gemmein/mcp 0.8.0, GemmeinSwift 0.11.0. Migrations 2026-09-10a … 2026-09-15a ran before this engine."
   }
  ]
 }
