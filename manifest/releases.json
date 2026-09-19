@@ -220,6 +220,16 @@
    },
    "artifactFormat": "v1",
    "notes": "The runtime, six phases (10–15 Sep): credits sit on grants (pack · plan period · comp · promo · refund) and are metered per unit — a tool priced per call or per tokens reserves a ceiling and settles at the provider's usage; g.credits.balance() answers spendable, reserved and expiring; grant_credits takes expiresInDays, plans roll over, the credits_low relay trigger. Runs: a job tool (generate, transcribe) answers 202 with a Run; g.runs start/get/list/cancel/watch; results as sealed files on the person; runs_capped, unknown_run, run_ended. The hand-off: provider external — run_started relay + run_external action post the run and a single-use token to the founder's pipeline, which completes or fails it through the completion door. Queries: operators in where (eq ne gt gte lt lte in nin contains startsWith exists), count and stats doors, invalid_filter / invalid_count / invalid_stats; a relay's when and where read the same grammar. The multimodal surface: a provider serves every kind its key sells — OpenAI images, speech, transcription, video; Google Imagen, Veo, audio transcription; Deepgram joins (ten providers). @gemmein/sdk 0.11.0, @gemmein/mcp 0.8.0, GemmeinSwift 0.11.0. Migrations 2026-09-10a … 2026-09-15a ran before this engine."
+  },
+  {
+   "version": "0.13.0",
+   "date": "2026-09-19",
+   "files": {
+    "gemmein.js": "8e8dcbb16148ca5e777ea3c7175debe5a8bd5698184c54e93940a71f44cda8d5",
+    "llms.txt": "9c6bb89e20f8639e9ea8ebf81c74b745ff8fce5d62baf78fb660f6ca3715ca88"
+   },
+   "artifactFormat": "v1",
+   "notes": "A tool can run on your own pipeline: a URL, a signing secret shown once, the run handed to it signed, /progress optional, /complete with text, files and data. Relays gain start_run (a record written, a payment landing, a clock or a webhook starts a run on any tool for that person); run_external is retired. A tool is priced in credits or included with a plan; requiresAny on tools. A plan switch mid-period moves access on the same audit row. pipelines.handle in @gemmein/sdk 0.12.0; @gemmein/mcp 0.9.0; GemmeinSwift 0.11.0. Migrations 2026-09-19b…f."
   }
  ]
 }
