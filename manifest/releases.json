@@ -240,6 +240,16 @@
    },
    "artifactFormat": "v1",
    "notes": "The owner and the app are separate: signing in to your own app makes you an ordinary customer (no read-through, no admin_write/public_read/addressed writes from an app session); the dashboard is the admin view, `gemmein records` reads every customer through the CLI key. Secret keys write and delete under any rule within their scopes; gemmeinServer refuses to run in a client (secret_key_in_client); writtenBy: \"server\". `gemmein check` scans the built frontend for secret keys (--build <dir>) and `gemmein go-live` refuses a build carrying one (--allow-secret-scan <path> --reason overrides one file, logged). g.ai.upload: customer audio for transcribe tools, sealed, capped per provider, deleted after 24 h unused or after the run. The free (default) plan may carry credits.perPeriod and a one-time credits.once welcome allowance. Logs name who, to whom and what moved. @gemmein/sdk 0.13.0, @gemmein/mcp 0.10.0, GemmeinSwift 0.13.0. Migrations 2026-09-25a…c."
+  },
+  {
+   "version": "0.15.0",
+   "date": "2026-09-25",
+   "files": {
+    "gemmein.js": "641aa102417b9412641eb9bd5cf3de3f3562d09ae9602ac1f65640e6d92c8bfc",
+    "llms.txt": "78f22e5475f69d17b37994cc9c4ccb388f51e32cb14de40f72b56e4516bd78a2"
+   },
+   "artifactFormat": "v1",
+   "notes": "The first hour: a new cloud app is born with no collections — create one with `gemmein collection add <name>` then `gemmein sync`, or on Collections in the dashboard. `gemmein sync` names the cloud app from \"app\" in gemmein/gemmein.config.json while it is still \"My App\" (a conditional rename on the CLI key; a name already changed stays, and sync says so); `gemmein go-live` prints the same name lines. llms.txt teaches the first hour. @gemmein/sdk 0.13.0, @gemmein/mcp 0.10.0, GemmeinSwift 0.13.0 unchanged. No migration."
   }
  ]
 }
