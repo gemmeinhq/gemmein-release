@@ -250,6 +250,16 @@
    },
    "artifactFormat": "v1",
    "notes": "The first hour: a new cloud app is born with no collections — create one with `gemmein collection add <name>` then `gemmein sync`, or on Collections in the dashboard. `gemmein sync` names the cloud app from \"app\" in gemmein/gemmein.config.json while it is still \"My App\" (a conditional rename on the CLI key; a name already changed stays, and sync says so); `gemmein go-live` prints the same name lines. llms.txt teaches the first hour. @gemmein/sdk 0.13.0, @gemmein/mcp 0.10.0, GemmeinSwift 0.13.0 unchanged. No migration."
+  },
+  {
+   "version": "0.16.0",
+   "date": "2026-09-26",
+   "files": {
+    "gemmein.js": "4cd2e9e09605646c78ce4b0773693844d655ff735fec6d8877ab14c8ea307d3d",
+    "llms.txt": "a68f4998321e53ebbe8a62b76421d657ea3eccea38b6392f6897a0f3efdc492b"
+   },
+   "artifactFormat": "v1",
+   "notes": "A refused page origin says why: 403 origin_not_allowed carries reason (no_key, secret_key, unknown_key, local, address, domain) and, once the key names an app, live; key problems are answered first from any origin, and `gemmein dev` gives the same three key answers pointing at the pk_local_ key it prints. Before go-live local pages work only on localhost or 127.0.0.1. llms.txt teaches the refused-origin reasons, the local-page rule and adding the deploy URL on Domains before the first deploy. @gemmein/sdk 0.13.1 (the refused-origin message names the fix per reason); @gemmein/mcp 0.10.0 and GemmeinSwift 0.13.0 unchanged. Migration 2026-09-25d (apps.email_accent)."
   }
  ]
 }
