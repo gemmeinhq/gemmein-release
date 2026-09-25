@@ -230,6 +230,16 @@
    },
    "artifactFormat": "v1",
    "notes": "A tool can run on your own pipeline: a URL, a signing secret shown once, the run handed to it signed, /progress optional, /complete with text, files and data. Relays gain start_run (a record written, a payment landing, a clock or a webhook starts a run on any tool for that person); run_external is retired. A tool is priced in credits or included with a plan; requiresAny on tools. A plan switch mid-period moves access on the same audit row. pipelines.handle in @gemmein/sdk 0.12.0; @gemmein/mcp 0.9.0; GemmeinSwift 0.11.0. Migrations 2026-09-19b…f."
+  },
+  {
+   "version": "0.14.0",
+   "date": "2026-09-25",
+   "files": {
+    "gemmein.js": "4af6bf46eba69c7f6f623faa62f44d75fb0306fa0489eb2bd5d2a3fd58193840",
+    "llms.txt": "289168dbee26ce0c89164fd80c2159608af09460a692fb4b358da4e460921a37"
+   },
+   "artifactFormat": "v1",
+   "notes": "The owner and the app are separate: signing in to your own app makes you an ordinary customer (no read-through, no admin_write/public_read/addressed writes from an app session); the dashboard is the admin view, `gemmein records` reads every customer through the CLI key. Secret keys write and delete under any rule within their scopes; gemmeinServer refuses to run in a client (secret_key_in_client); writtenBy: \"server\". `gemmein check` scans the built frontend for secret keys (--build <dir>) and `gemmein go-live` refuses a build carrying one (--allow-secret-scan <path> --reason overrides one file, logged). g.ai.upload: customer audio for transcribe tools, sealed, capped per provider, deleted after 24 h unused or after the run. The free (default) plan may carry credits.perPeriod and a one-time credits.once welcome allowance. Logs name who, to whom and what moved. @gemmein/sdk 0.13.0, @gemmein/mcp 0.10.0, GemmeinSwift 0.13.0. Migrations 2026-09-25a…c."
   }
  ]
 }
