@@ -45,8 +45,9 @@ and free.
    development.
 4. `npx gemmein check` says what's ready and what going live still needs.
    Then `npx gemmein go-live`, or Go live in the dashboard; both do the same
-   thing. A web app's domain is proven with a DNS record at going live; a
-   mobile-only app needs no domain.
+   thing. Going live needs at least one collection and, for a web app, a
+   verified domain (a mobile-only app needs none). Payments and the AI
+   provider key can be set up after going live.
 
 ## Use the MCP tools
 
@@ -56,9 +57,10 @@ and free.
 - `check_integration`: before you say the app is done. With the app key it
   checks that strangers can't read or write a private collection. Add the
   development secret key (`sk_dev_…`) and it also signs in two test people
-  and proves one can't read the other's records. That part writes only in
-  the development environment: the two test people stay, and its test
-  record is deleted at the end. A live key (`sk_live_…`) is refused.
+  and proves one can't read the other's records. That part writes in the
+  development environment: it creates two test people and a probe record,
+  deletes the record, and signs the test people out of earlier sessions.
+  A live key (`sk_live_…`) is refused.
 
 ## Keys
 
@@ -68,7 +70,7 @@ never goes in the repo or the app, only in a server's environment.
 ## When the dashboard disagrees
 
 If the dashboard shows something different from what you read, trust the
-dashboard, then read the guide again.
+dashboard and re-read the guide.
 
 ## Words
 

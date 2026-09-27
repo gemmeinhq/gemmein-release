@@ -52,9 +52,10 @@ Then ask Claude to build your app on Gemmein, or run `/gemmein:build-on-gemmein`
   reads, unless the app lets strangers write a private collection, in which
   case its test write succeeds and the check fails. With a development
   secret key (`sk_dev_…`) it also writes in your app's development
-  environment: it signs in two test people (created on first use and kept;
-  their earlier sessions are signed out), creates one test record and
-  deletes it at the end. A live key (`sk_live_…`) is refused.
+  environment: it creates two test people and a probe record, deletes the
+  record, and signs the test people out of earlier sessions. The test people
+  stay. If you name your own test people, those people are signed out of
+  their development sessions. A live key (`sk_live_…`) is refused.
 - The plugin itself stores nothing and collects nothing. Gemmein's privacy
   policy: https://gemmein.com/privacy
 

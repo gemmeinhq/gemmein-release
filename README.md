@@ -13,8 +13,11 @@ backend that enforces them while you build.
 
 `@gemmein/mcp` gives a coding agent the whole Gemmein contract as tools — the
 builder guide, the SDK reference, rule and error explainers, and a live check
-of an app's access boundaries — read-only against the platform: no tool it
-ships creates, edits, or deletes anything on Gemmein.
+of an app's access boundaries. Eight tools are read-only. `check_integration`
+runs live checks against your app; with a development secret key it also
+writes in the development environment: it creates two test people and a
+probe record, deletes the record, and signs the test people out of earlier
+sessions.
 
 Install for Claude Code:
 
