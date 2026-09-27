@@ -61,6 +61,10 @@ Tools it serves:
 - `check_integration` — runs an app's isolation and access checks live
   against itself and hands back structured pass/fail.
 
+The server's full source is in [`mcp/`](mcp/) (MIT). It is a standalone
+Node package: `cd mcp && npm install && npm run build`, then run
+`node dist/index.js`. It does not use the Gemmein engine.
+
 Docs: [docs.gemmein.com/mcp](https://docs.gemmein.com/mcp).
 
 ## How the launcher works
@@ -80,6 +84,7 @@ ever fails verification, the launcher refuses to run it.
 
 Two licenses, on purpose:
 
+- The MCP server (`mcp/`, published as `@gemmein/mcp`) is **MIT**.
 - The npm launcher (`shim/`) is **MIT** — read it, audit it, it's yours.
 - The downloaded engine is proprietary, under the
   [Gemmein Engine License](LICENSE-ENGINE.md) — you can run and cache it

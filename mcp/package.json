@@ -1,0 +1,53 @@
+{
+  "name": "@gemmein/mcp",
+  "version": "0.10.0",
+  "mcpName": "com.gemmein/mcp",
+  "description": "Gemmein MCP server \u2014 gives coding agents the Gemmein guide, API reference, rule/error explainers, and a live integration check (reaffirm) as tools. Read-only: it never creates, edits, or deletes anything.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "gemmein-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "auth",
+    "backend",
+    "baas",
+    "ai",
+    "vibe-coding",
+    "gemmein"
+  ],
+  "homepage": "https://gemmein.com",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json && chmod +x dist/index.js",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@gemmein/sdk": "^0.13.0",
+    "@modelcontextprotocol/sdk": "^1.29.0"
+  },
+  "author": "Gemmein Limited",
+  "bugs": {
+    "email": "hello@gemmein.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gemmeinhq/gemmein-release.git",
+    "directory": "mcp"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0"
+  }
+}
