@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "gemmein": {
+      "command": "npx",
+      "args": ["-y", "@gemmein/mcp@0.10.0"]
+    }
+  }
+}

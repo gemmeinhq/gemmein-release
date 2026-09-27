@@ -67,6 +67,23 @@ Node package: `cd mcp && npm install && npm run build`, then run
 
 Docs: [docs.gemmein.com/mcp](https://docs.gemmein.com/mcp).
 
+## Claude plugin
+
+[`plugins/gemmein/`](plugins/gemmein/) is a Claude plugin that bundles the
+MCP server above, pinned to an exact version, with one skill,
+`build-on-gemmein`: it has Claude read the Gemmein guide, ask what the app
+is for, say whether Gemmein fits, and then follow the first-hour path
+(`npx -y gemmein dev`, collections, `npx gemmein sync`, going live). This
+repository is also a plugin marketplace. In Claude Code:
+
+```
+/plugin marketplace add gemmeinhq/gemmein-release
+/plugin install gemmein@gemmein
+```
+
+What the plugin runs, sends and stores is in
+[`plugins/gemmein/README.md`](plugins/gemmein/README.md).
+
 ## How the launcher works
 
 The npm package you install is a small launcher, published as readable
