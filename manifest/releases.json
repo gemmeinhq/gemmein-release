@@ -260,6 +260,16 @@
    },
    "artifactFormat": "v1",
    "notes": "A refused page origin says why: 403 origin_not_allowed carries reason (no_key, secret_key, unknown_key, local, address, domain) and, once the key names an app, live; key problems are answered first from any origin, and `gemmein dev` gives the same three key answers pointing at the pk_local_ key it prints. Before go-live local pages work only on localhost or 127.0.0.1. llms.txt teaches the refused-origin reasons, the local-page rule and adding the deploy URL on Domains before the first deploy. @gemmein/sdk 0.13.1 (the refused-origin message names the fix per reason); @gemmein/mcp 0.10.0 and GemmeinSwift 0.13.0 unchanged. Migration 2026-09-25d (apps.email_accent)."
+  },
+  {
+   "version": "0.17.0",
+   "date": "2026-09-27",
+   "files": {
+    "gemmein.js": "1b8a6bc62de9c16af6baf995b681680fae2bf46bbefb30905661253c169c6313",
+    "llms.txt": "669f7db061636cb07b9116767d58ed5950c060210f9f93dcae911bc87b207408"
+   },
+   "artifactFormat": "v1",
+   "notes": "Development / Live: payments are per environment — one Stripe config per environment with its own webhook address (/hooks/stripe/<app>/dev and /live) and signing secret, and a Stripe event routes by its livemode; a sale in an environment without its secret is refused (payments_not_configured names which part is missing). Going live copies plans and products into Live (names, credits and access keys; never Payment Links or the signing secret), and `gemmein go-live` names what was copied. Refusals and the AI page address name their environment. llms.txt teaches the dashboard switch, Stripe per environment, what going live copies and the Sync key under Live. @gemmein/sdk 0.13.2 (the payments_not_configured REFERENCE row); @gemmein/mcp 0.10.0 and GemmeinSwift 0.13.0 unchanged. No migration."
   }
  ]
 }
