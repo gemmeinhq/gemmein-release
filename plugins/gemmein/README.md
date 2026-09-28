@@ -56,6 +56,13 @@ Then ask Claude to build your app on Gemmein, or run `/gemmein:build-on-gemmein`
   record, and signs the test people out of earlier sessions. The test people
   stay. If you name your own test people, those people are signed out of
   their development sessions. A live key (`sk_live_…`) is refused.
+- The `build-on-gemmein` skill reads docs.gemmein.com (llms.txt and
+  llms-full.txt) and has Claude run the `gemmein` CLI. `gemmein dev` runs
+  on your computer and sends nothing. `gemmein sync`, `gemmein check` and
+  `gemmein go-live` send your project's collections, safety rules, AI tools,
+  relays and build-scan result to the Gemmein API (api.gemmein.com) with the
+  CLI key from your dashboard. Gemmein keeps them for as long as the app
+  exists. Nothing is sent to any other service.
 - The plugin itself stores nothing and collects nothing. Gemmein's privacy
   policy: https://gemmein.com/privacy
 
