@@ -4,8 +4,14 @@ The [Gemmein](https://gemmein.com) MCP server — gives your coding agent the
 whole Gemmein contract as tools, straight in the editor.
 
 Gemmein is the backend for web and mobile apps: sign-in, protected data, payments, AI tools and a dashboard to run your customers.
-This server is **read-only**: it never creates, edits, or deletes anything on
-the platform.
+Eight tools are read-only. `check_integration` runs live checks against your
+app; with a development secret key it also writes in the development
+environment: it creates two test people and a probe record, deletes the
+record, and signs the test people out of earlier sessions. Without a secret
+key it writes nothing while the app's boundaries hold — but if a private
+collection is open to strangers, the anonymous test write succeeds and its
+record stays, in whatever environment the key names (live included), and the
+check fails, naming the collection.
 
 ## Setup
 

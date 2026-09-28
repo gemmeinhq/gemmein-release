@@ -1,8 +1,8 @@
 {
   "name": "@gemmein/mcp",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "mcpName": "com.gemmein/mcp",
-  "description": "Gemmein MCP server \u2014 gives coding agents the Gemmein guide, API reference, rule/error explainers, and a live integration check (reaffirm) as tools. Read-only: it never creates, edits, or deletes anything.",
+  "description": "Gemmein MCP server \u2014 gives coding agents the Gemmein guide, API reference, rule/error explainers, and a live integration check (reaffirm) as tools. Eight tools are read-only; check_integration writes test people and a probe record in the app's development environment; if a private collection is open to strangers, its anonymous test write succeeds and stays, in any environment, and the check fails, naming it.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -39,6 +39,7 @@
   },
   "author": "Gemmein Limited",
   "bugs": {
+    "url": "https://github.com/gemmeinhq/gemmein-release/issues",
     "email": "hello@gemmein.com"
   },
   "repository": {
