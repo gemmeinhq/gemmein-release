@@ -10,6 +10,16 @@
   },
   "homepage": "https://docs.gemmein.com/mcp",
   "repository": "https://github.com/gemmeinhq/gemmein-release",
+  "documentationUrl": "https://docs.gemmein.com",
+  "supportUrl": "mailto:hello@gemmein.com",
+  "privacyPolicyUrl": "https://gemmein.com/privacy",
+  "termsOfServiceUrl": "https://gemmein.com/terms",
   "license": "MIT",
-  "keywords": ["gemmein", "backend", "auth", "payments", "mcp"]
+  "keywords": [
+    "gemmein",
+    "backend",
+    "auth",
+    "payments",
+    "mcp"
+  ]
 }
