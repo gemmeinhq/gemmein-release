@@ -1,0 +1,15 @@
+{
+  "name": "gemmein",
+  "displayName": "Gemmein",
+  "version": "1.0.0",
+  "description": "Build a web or mobile app on Gemmein: sign-in, protected data, payments and AI tools. Adds the Gemmein MCP server (the builder guide, SDK reference, rule and error explainers, and a live access check) and a skill for the first hour.",
+  "author": {
+    "name": "Gemmein Limited",
+    "email": "hello@gemmein.com",
+    "url": "https://gemmein.com"
+  },
+  "homepage": "https://docs.gemmein.com/mcp",
+  "repository": "https://github.com/gemmeinhq/gemmein-release",
+  "license": "MIT",
+  "keywords": ["gemmein", "backend", "auth", "payments", "mcp"]
+}

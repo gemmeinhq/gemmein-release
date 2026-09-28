@@ -270,6 +270,16 @@
    },
    "artifactFormat": "v1",
    "notes": "Development / Live: payments are per environment — one Stripe config per environment with its own webhook address (/hooks/stripe/<app>/dev and /live) and signing secret, and a Stripe event routes by its livemode; a sale in an environment without its secret is refused (payments_not_configured names which part is missing). Going live copies plans and products into Live (names, credits and access keys; never Payment Links or the signing secret), and `gemmein go-live` names what was copied. Refusals and the AI page address name their environment. llms.txt teaches the dashboard switch, Stripe per environment, what going live copies and the Sync key under Live. @gemmein/sdk 0.13.2 (the payments_not_configured REFERENCE row); @gemmein/mcp 0.10.0 and GemmeinSwift 0.13.0 unchanged. No migration."
+  },
+  {
+   "version": "0.18.0",
+   "date": "2026-09-28",
+   "files": {
+    "gemmein.js": "6e1c2e348b18eab87a48538b875aa34d7f3135ba29108fe6b526e4b1db04407a",
+    "llms.txt": "be2dbd2dd26f80cfd88d3a1c9e18abe384350ffdcfc8ad16616e53537e84f7b6"
+   },
+   "artifactFormat": "v1",
+   "notes": "Go-live parity: `gemmein go-live` and the dashboard run one requirement. The CLI takes a mobile-only app live without a domain, and `--confirm-no-secret-key` records the owner's logged confirmation that no secret key ships in it. A build scan proves the app was read only when it read a file that can carry a key (for a phone app a real bundle, a script in www/ or a file in --build; never a JSON file); `gemmein check` reports both counts and the server picks by where the app lives at go-live. Changing where the app lives clears a passing scan; a failed one stays. The confirmation row is written only when the go-live proceeds. llms.txt lists everything going live needs and three families of grant. @gemmein/sdk 0.13.3 and @gemmein/mcp 0.10.1 (tool annotations); GemmeinSwift 0.13.0 unchanged. No migration."
   }
  ]
 }

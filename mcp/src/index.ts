@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// @gemmein/mcp — the Gemmein MCP server (phase 1: read-only).
+// @gemmein/mcp — the Gemmein MCP server (phase 1: docs tools + one live check).
 //
 // Gives a coding agent the whole Gemmein contract as tools: the guide
 // (llms.txt), the API reference (REFERENCE.md), targeted search over both,
@@ -7,11 +7,12 @@
 // harness template, and `check_integration` — the reaffirm boundary checks
 // run live against the caller's own app.
 //
-// Phase-1 law: NOTHING here creates, mutates, or deletes platform state.
-// The only writes anywhere are check_integration's Tier-B probe records in
-// the caller's own DEV environment (created and deleted by the check, the
-// same as reaffirm.mjs in CI). Provisioning (create app / mint keys) is
-// phase 2, gated behind launch signup unlock.
+// Eight tools are read-only and offline. The only writes anywhere are
+// check_integration's Tier B, in the caller's own DEV environment: the two
+// test people (get-or-create, kept), their sessions (earlier ones revoked),
+// and a probe record it deletes — the same as reaffirm.mjs in CI.
+// Provisioning (create app / mint keys) is phase 2, gated behind launch
+// signup unlock.
 //
 // The guide/reference/template are read from the installed @gemmein/sdk
 // package — one source of truth, no copies to drift.
@@ -273,21 +274,24 @@ const TOOLS = [
     name: "guide",
     description:
       "Call this FIRST — before any install, account, or code — when your human asks to build an app on Gemmein, to move an existing app onto it, or whether their app can use it at all. The guide (llms.txt) opens with two doors — starting from an idea with nothing built yet, or already holding an app — and both lead to the same fit assessment: the in-scope map, the out-of-scope list (each item downgrades the verdict; none may be approximated), and the three verdicts you deliver to your human before installing anything — FITS, FITS EXCEPT <named gaps>, or DOESN'T FIT. After the verdict it is the full build contract: auth flow, the seven collection safety rules, record shapes, links/expand, uploads, contention patterns, payments (g.subscriptions.checkout / g.payments.buy), drafts, error philosophy, pricing. It also teaches the keys (server · CLI · sync), `gemmein sync` and `sync --live`, go-live and promotion, relays, AI tools defined on the server and run with `g.ai.run`, and credits.",
-    annotations: { title: "Guide", readOnlyHint: true },
+    title: "Guide",
+    annotations: { title: "Guide", readOnlyHint: true, openWorldHint: false },
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
   },
   {
     name: "reference",
     description:
       "Reach for this while WRITING code against @gemmein/sdk: every method, exact signature, return shape, and the stable error-code table (REFERENCE.md). Use `guide` for how the model works and whether the app fits at all; use `search_docs` when you need one fact from either document.",
-    annotations: { title: "Reference", readOnlyHint: true },
+    title: "Reference",
+    annotations: { title: "Reference", readOnlyHint: true, openWorldHint: false },
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
   },
   {
     name: "search_docs",
     description:
       "Use when one question comes up mid-build ('keyed create', 'ifVersion', 'addressed', 'expand') and reading a full document would waste context. Searches the guide and the API reference; returns matching passages with 3 lines of context either side, at most 6 match blocks per document. Not the tool for the fit verdict — search finds what the docs say, not what Gemmein refuses to support; call `guide` for that.",
-    annotations: { title: "Search docs", readOnlyHint: true },
+    title: "Search docs",
+    annotations: { title: "Search docs", readOnlyHint: true, openWorldHint: false },
     inputSchema: {
       type: "object",
       properties: { query: { type: "string", description: "term or phrase to find" } },
@@ -299,7 +303,8 @@ const TOOLS = [
     name: "explain_rule",
     description:
       "Call while DESIGNING a collection — which rule fits this data? — or when a rule refuses something at runtime. One of the seven rules (private, shared, admin_write, public_read, community, addressed, direct) returns its exact access contract, what it is right for, and the mistakes that leak data. Call with no rule for the all-seven cheat-sheet plus the cross-cutting law, including what NO rule supports (team/group/workspace scope, per-user visibility inside a rule) — if the app needs those shapes, that is a fit gap to report to your human, never something to approximate with client-side filtering.",
-    annotations: { title: "Explain rule", readOnlyHint: true },
+    title: "Explain rule",
+    annotations: { title: "Explain rule", readOnlyHint: true, openWorldHint: false },
     inputSchema: {
       type: "object",
       properties: {
@@ -316,7 +321,8 @@ const TOOLS = [
     name: "explain_error",
     description:
       "Call the moment a GemmeinError reaches you (err.code: conflict, forbidden, unknown_collection, invalid_shape, html_not_allowed, …): what the code means and the exact next step — including whether the refusal is final (a forbidden repeats on retry; fix the approach, not the request). Parsed from the installed API reference, so codes match the SDK version the app runs. Call with no code to list every stable code.",
-    annotations: { title: "Explain error", readOnlyHint: true },
+    title: "Explain error",
+    annotations: { title: "Explain error", readOnlyHint: true, openWorldHint: false },
     inputSchema: {
       type: "object",
       properties: { code: { type: "string", description: "the err.code to explain; omit to list all" } },
@@ -327,7 +333,8 @@ const TOOLS = [
     name: "validate_collection_name",
     description:
       "Run at PLANNING time on every collection name you intend to use, before any g.collection(name) call is written. The naming law: lowercase letters, numbers, underscores; starts with a letter; 2-63 characters. A bad name throws from g.collection(name) before any network call — at module load that blanks the whole app with no console error. An invalid name comes back with a suggested fix.",
-    annotations: { title: "Validate collection name", readOnlyHint: true },
+    title: "Validate collection name",
+    annotations: { title: "Validate collection name", readOnlyHint: true, openWorldHint: false },
     inputSchema: {
       type: "object",
       properties: { name: { type: "string" } },
@@ -339,14 +346,16 @@ const TOOLS = [
     name: "reaffirm_template",
     description:
       "Fetch this when you wire up the app's CI, or when you hand the finished app to your human: reaffirm.mjs, the ready-to-edit harness that re-proves the app's boundaries against live Gemmein on every deploy (also shipped inside the @gemmein/sdk package). Copy it next to the app, set the CONFIG block, run it in CI. For a one-off check right now, call check_integration — the same checks with no file to install.",
-    annotations: { title: "Reaffirm template", readOnlyHint: true },
+    title: "Reaffirm template",
+    annotations: { title: "Reaffirm template", readOnlyHint: true, openWorldHint: false },
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
   },
   {
     name: "explain_relay",
     description:
       "Call while WRITING or FIXING gemmein/relays/<name>.json — before `gemmein sync` carries it to the cloud. A relay is one trigger (receiver: a provider's webhook; schedule: a clock; data_change: a record changing) and up to ten actions in Gemmein's own verbs (write_record, grant_access, revoke_access, grant_credits, email_person, call_url, fulfil_product, refund_product, grant_plan, revoke_plan) — Gemmein runs it: receives the event, maps the fields, authorises, carries out the action. Pass the definition JSON; the answer is the English sentence the dashboard shows (\"When gocardless-paid receives an event where event_type is confirmed → grant Pro, email the person, call https://…\") or the ONE refusal sentence the cloud would answer, naming the field and the fix. Offline and read-only: nothing is created. Two checks run only in the cloud and are stated in the answer (the API's own hosts; the address's resolved network at call time).",
-    annotations: { title: "Explain relay (validate offline)", readOnlyHint: true },
+    title: "Explain relay (validate offline)",
+    annotations: { title: "Explain relay (validate offline)", readOnlyHint: true, openWorldHint: false },
     inputSchema: {
       type: "object",
       properties: {
@@ -359,8 +368,17 @@ const TOOLS = [
   {
     name: "check_integration",
     description:
-      "Call after wiring the app to Gemmein and before telling your human it is done — and again before go-live. Runs the reaffirm boundary checks live against the caller's own app; returns structured pass/fail (structuredContent: checks, notes, failedCount, passed). Tier A (public pk_ key only): the collection name is valid, anonymous reads and writes of a private collection are refused, an optional public collection reads as its rule intends — safe against any environment, live included. Tier B (add the sk_dev secret key): proves one user cannot read another's private records, using two throwaway test sessions in the DEV environment. sk_live is refused by design — never pass a live secret to any tool; dev and live enforce the same rules, so isolation proven in dev holds in live. The only writes anywhere are Tier B's own probe records in the caller's dev environment, deleted at the end of the check. A failed check means the app's assumptions drifted from its rules — fix before shipping.",
-    annotations: { title: "Check integration (live boundary check)", readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+      "Call after wiring the app to Gemmein and before telling your human it is done — and again before go-live. Runs the reaffirm boundary checks live against the caller's own app; returns structured pass/fail (structuredContent: checks, notes, failedCount, passed). Tier A (public pk_ key only): the collection name is valid, anonymous reads and writes of a private collection are refused, an optional public collection reads as its rule intends — safe against any environment, live included. Tier B (add the sk_dev secret key): proves one user cannot read another's private records, using two throwaway test sessions in the DEV environment. sk_live is refused by design — never pass a live secret to any tool; dev and live enforce the same rules, so isolation proven in dev holds in live. Tier A writes nothing while the boundaries hold — but if a private collection is open to strangers, its anonymous test write succeeds and the record stays, in whatever environment the key names (live included), and the check fails, naming the collection. Tier B writes only in the caller's dev environment: it signs in two test people (created on first use and kept; any earlier sessions of theirs are signed out), creates one probe record as the first and deletes it at the end of the check. Signing a person in signs them out of their earlier sessions: pass your own testUsers only for throwaway addresses, because real development people you name are signed out. A failed check means the app's assumptions drifted from its rules — fix before shipping.",
+    title: "Check integration (live boundary check)",
+    // Honest hints (directory review reads these): it calls the live
+    // Gemmein API (open world). Tier B writes in the caller's dev
+    // environment: it gets-or-creates the two test people, revokes their
+    // earlier sessions and mints new ones, creates a probe record and
+    // deletes it, and each call adds audit rows — so not read-only, may
+    // delete/revoke (destructive), and a repeat call has new effects
+    // (not idempotent). Tier A alone writes nothing unless a boundary is
+    // OPEN, in which case the anonymous probe create succeeds.
+    annotations: { title: "Check integration (live boundary check)", readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true },
     inputSchema: {
       type: "object",
       properties: {
@@ -369,7 +387,7 @@ const TOOLS = [
         publicCollection: { type: "string", description: "optional: a community/public_read collection to confirm anonymous readability" },
         secretKey: { type: "string", description: "optional: the sk_dev secret key — enables Tier B isolation proof (sk_live is refused)" },
         apiUrl: { type: "string", description: "optional: API base URL override (local/dev API); omit for production Gemmein" },
-        testUsers: { type: "array", items: { type: "string" }, minItems: 2, maxItems: 2, description: "optional: the two Tier-B test emails (default reaffirm-a/b@test.dev)" },
+        testUsers: { type: "array", items: { type: "string" }, minItems: 2, maxItems: 2, description: "optional: the two Tier-B test emails (default reaffirm-a/b@test.dev). Each is signed out of its earlier sessions, so name real development people only if signing them out is fine" },
         timeoutMs: { type: "number", description: "overall time budget, default 30000" },
       },
       required: ["publicKey", "privateCollection"],
@@ -385,15 +403,15 @@ const server = new Server(
   {
     capabilities: { tools: {} },
     // Stated ONCE, server-wide, in the initialize result every client
-    // hands to its model: what Gemmein is, the read-only law, and the
+    // hands to its model: what Gemmein is, what the tools write, and the
     // fit protocol (the verdicts live in `guide`).
     instructions:
       "Gemmein is the go-live system for AI-built web apps: passwordless auth, records " +
       "under seven safety rules, Stripe-run subscriptions and one-off digital products. " +
-      "This server is read-only against the platform: no tool here creates, edits, or " +
-      "deletes anything on Gemmein. The one write anywhere is check_integration's Tier-B " +
-      "probe records, created and then deleted in the caller's own dev environment; " +
-      "sk_live keys are refused. Protocol: when the question is whether an app can use " +
+      "Eight tools are read-only. check_integration runs live checks against the app; " +
+      "with a development secret key it also writes in the development environment: it " +
+      "creates two test people and a probe record, deletes the record, and signs the test " +
+      "people out of earlier sessions. sk_live keys are refused. Protocol: when the question is whether an app can use " +
       "Gemmein, call guide first — it opens with two doors, an idea with nothing built " +
       "yet and an app that already exists, and both reach the same fit assessment: you " +
       "deliver one of three verdicts to your human before installing anything: FITS, FITS EXCEPT " +

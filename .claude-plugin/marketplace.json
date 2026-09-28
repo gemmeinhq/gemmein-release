@@ -1,0 +1,15 @@
+{
+  "name": "gemmein",
+  "description": "Gemmein's Claude Code plugins.",
+  "owner": {
+    "name": "Gemmein Limited",
+    "email": "hello@gemmein.com",
+    "url": "https://gemmein.com"
+  },
+  "plugins": [
+    {
+      "name": "gemmein",
+      "source": "./plugins/gemmein"
+    }
+  ]
+}
