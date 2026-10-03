@@ -4,7 +4,9 @@ The [Gemmein](https://gemmein.com) MCP server — gives your coding agent the
 whole Gemmein contract as tools, straight in the editor.
 
 Gemmein is the backend for web and mobile apps: sign-in, protected data, payments, AI tools and a dashboard to run your customers.
-Eight tools are read-only. `check_integration` runs live checks against your
+Eight tools are read-only, and all but `guide` work offline: `guide` makes one
+read-only GET to `https://docs.gemmein.com/llms-dashboard.txt` for the
+dashboard section. `check_integration` runs live checks against your
 app; with a development secret key it also writes in the development
 environment: it creates two test people and a probe record, deletes the
 record, and signs the test people out of earlier sessions. Without a secret
@@ -34,10 +36,14 @@ Cursor / any MCP client (`mcpServers` config):
   assessment (FITS / FITS EXCEPT / DOESN'T FIT — the verdict an agent
   delivers before any install), then the full builder's guide (auth flow, the seven collection
   safety rules, record shapes, links, uploads, contention patterns, payments,
-  credits, AI tools, relays, mobile).
+  credits, AI tools, relays, mobile). The guide is the packaged contract —
+  what code calls, matching the installed SDK. The dashboard section
+  (connecting Stripe, the dashboard's rooms, health checks) is read live from
+  docs.gemmein.com, because it changes with the dashboard; offline, the guide
+  ends with a link to it instead.
 - **`reference`** — the exact SDK API reference: every method, signature,
   return shape, error code.
-- **`search_docs`** — targeted search over both documents.
+- **`search_docs`** — targeted search over both packaged documents, offline.
 - **`explain_rule`** — any safety rule's contract, what it's right for, and
   the mistakes to avoid (or a cheat-sheet of all seven).
 - **`explain_error`** — what a `GemmeinError` code means and exactly what to do.

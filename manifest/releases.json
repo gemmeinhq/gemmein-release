@@ -280,6 +280,16 @@
    },
    "artifactFormat": "v1",
    "notes": "Go-live parity: `gemmein go-live` and the dashboard run one requirement. The CLI takes a mobile-only app live without a domain, and `--confirm-no-secret-key` records the owner's logged confirmation that no secret key ships in it. A build scan proves the app was read only when it read a file that can carry a key (for a phone app a real bundle, a script in www/ or a file in --build; never a JSON file); `gemmein check` reports both counts and the server picks by where the app lives at go-live. Changing where the app lives clears a passing scan; a failed one stays. The confirmation row is written only when the go-live proceeds. llms.txt lists everything going live needs and three families of grant. @gemmein/sdk 0.13.3 and @gemmein/mcp 0.10.1 (tool annotations); GemmeinSwift 0.13.0 unchanged. No migration."
+  },
+  {
+   "version": "0.19.0",
+   "date": "2026-10-03",
+   "files": {
+    "gemmein.js": "a4a846146b0b306669f8db27f315ccd63b531d82fd6cd2cba02f853c977b41f6",
+    "llms.txt": "1a8960e0939bde0bad201187c1b97066753e77d43fd31547efc17d61a25f4963"
+   },
+   "artifactFormat": "v1",
+   "notes": "The docs split and payments at go-live. `gemmein go-live` copies payments into Live like the dashboard's Promote: it reads Live's payments with its dry run and sends that version back, plans and products cross as Development defines them (name, price, credits) with no Payment Links (Live makes its own with its own rk_live_ key), a change in between answers 409 and nothing is copied, and each change is worded as what it is. llms.txt is the package guide: what code calls; the dashboard steps are site-only (docs.gemmein.com/llms-dashboard.txt, the tail of llms-full.txt). The local engine carries prod's payments code (payments_off, buyer-safe refusals, key-only); fakeStripe is not in the bundle. @gemmein/sdk 0.13.4 (docs only), @gemmein/mcp 0.11.0 (guide reads the dashboard steps live), GemmeinSwift 0.13.1 (docs only). No migration."
   }
  ]
 }

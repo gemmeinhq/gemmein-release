@@ -7,19 +7,21 @@
 // harness template, and `check_integration` — the reaffirm boundary checks
 // run live against the caller's own app.
 //
-// Eight tools are read-only and offline. The only writes anywhere are
-// check_integration's Tier B, in the caller's own DEV environment: the two
-// test people (get-or-create, kept), their sessions (earlier ones revoked),
-// and a probe record it deletes — the same as reaffirm.mjs in CI.
-// Provisioning (create app / mint keys) is phase 2, gated behind launch
-// signup unlock.
+// Eight tools are read-only; seven of them are offline. `guide` makes one
+// read-only GET to a fixed address on docs.gemmein.com for the dashboard
+// section (see dashboard.ts) and falls back to a link offline. The only
+// writes anywhere are check_integration's Tier B, in the caller's own DEV
+// environment: the two test people (get-or-create, kept), their sessions
+// (earlier ones revoked), and a probe record it deletes — the same as
+// reaffirm.mjs in CI. Provisioning (create app / mint keys) is phase 2,
+// gated behind launch signup unlock.
 //
 // The guide/reference/template are read from the installed @gemmein/sdk
-// package — one source of truth, no copies to drift.
+// package — one source of truth, no copies to drift. The packaged guide is
+// the contract (what code calls); the dashboard how-to changes with the
+// dashboard, so it is read live instead of packaged.
 
-import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
-import { dirname, join } from "node:path";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
@@ -28,19 +30,9 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { gemmein, gemmeinServer } from "@gemmein/sdk";
 import { CLOUD_ONLY_NOTE, explainRelay } from "./relays.js";
+import { guideText, sdkFile } from "./dashboard.js";
 
 const require = createRequire(import.meta.url);
-
-function sdkFile(name: "llms.txt" | "REFERENCE.md" | "reaffirm.mjs"): string {
-  try {
-    return readFileSync(require.resolve(`@gemmein/sdk/${name}`), "utf8");
-  } catch {
-    // sdk 0.1.0 shipped the files in its tarball but without subpath
-    // exports, so Node refuses the pretty specifier. Resolve the entry
-    // point (dist/index.js) and read from the package root instead.
-    return readFileSync(join(dirname(require.resolve("@gemmein/sdk")), "..", name), "utf8");
-  }
-}
 
 // Same law as the SDK's assertCollectionName — kept in lockstep by test.
 const COLLECTION_NAME_RE = /^[a-z][a-z0-9_]{1,62}$/;
@@ -273,9 +265,11 @@ const TOOLS = [
   {
     name: "guide",
     description:
-      "Call this FIRST — before any install, account, or code — when your human asks to build an app on Gemmein, to move an existing app onto it, or whether their app can use it at all. The guide (llms.txt) opens with two doors — starting from an idea with nothing built yet, or already holding an app — and both lead to the same fit assessment: the in-scope map, the out-of-scope list (each item downgrades the verdict; none may be approximated), and the three verdicts you deliver to your human before installing anything — FITS, FITS EXCEPT <named gaps>, or DOESN'T FIT. After the verdict it is the full build contract: auth flow, the seven collection safety rules, record shapes, links/expand, uploads, contention patterns, payments (g.subscriptions.checkout / g.payments.buy), drafts, error philosophy, pricing. It also teaches the keys (server · CLI · sync), `gemmein sync` and `sync --live`, go-live and promotion, relays, AI tools defined on the server and run with `g.ai.run`, and credits.",
+      "Call this FIRST — before any install, account, or code — when your human asks to build an app on Gemmein, to move an existing app onto it, or whether their app can use it at all. The guide (llms.txt) opens with two doors — starting from an idea with nothing built yet, or already holding an app — and both lead to the same fit assessment: the in-scope map, the out-of-scope list (each item downgrades the verdict; none may be approximated), and the three verdicts you deliver to your human before installing anything — FITS, FITS EXCEPT <named gaps>, or DOESN'T FIT. After the verdict it is the full build contract: auth flow, the seven collection safety rules, record shapes, links/expand, uploads, contention patterns, payments (g.subscriptions.checkout / g.payments.buy), drafts, error philosophy, pricing. It also teaches the keys (server · CLI · sync), `gemmein sync` and `sync --live`, go-live and promotion, relays, AI tools defined on the server and run with `g.ai.run`, and credits. The guide is the packaged contract — what code calls, matching the installed SDK. The dashboard section (connecting Stripe, the dashboard's rooms, health checks) is appended live from docs.gemmein.com, because it changes with the dashboard; offline, the guide ends with a link to it instead.",
     title: "Guide",
-    annotations: { title: "Guide", readOnlyHint: true, openWorldHint: false },
+    // One read-only GET to a fixed docs.gemmein.com address (open world);
+    // nothing is written.
+    annotations: { title: "Guide", readOnlyHint: true, openWorldHint: true },
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
   },
   {
@@ -289,7 +283,7 @@ const TOOLS = [
   {
     name: "search_docs",
     description:
-      "Use when one question comes up mid-build ('keyed create', 'ifVersion', 'addressed', 'expand') and reading a full document would waste context. Searches the guide and the API reference; returns matching passages with 3 lines of context either side, at most 6 match blocks per document. Not the tool for the fit verdict — search finds what the docs say, not what Gemmein refuses to support; call `guide` for that.",
+      "Use when one question comes up mid-build ('keyed create', 'ifVersion', 'addressed', 'expand') and reading a full document would waste context. Searches the packaged guide and the API reference, offline (not the dashboard section `guide` reads live from docs.gemmein.com); returns matching passages with 3 lines of context either side, at most 6 match blocks per document. Not the tool for the fit verdict — search finds what the docs say, not what Gemmein refuses to support; call `guide` for that.",
     title: "Search docs",
     annotations: { title: "Search docs", readOnlyHint: true, openWorldHint: false },
     inputSchema: {
@@ -408,7 +402,9 @@ const server = new Server(
     instructions:
       "Gemmein is the go-live system for AI-built web apps: passwordless auth, records " +
       "under seven safety rules, Stripe-run subscriptions and one-off digital products. " +
-      "Eight tools are read-only. check_integration runs live checks against the app; " +
+      "Eight tools are read-only. guide returns the packaged contract (what code calls) " +
+      "plus the dashboard section, read live from docs.gemmein.com (a link to it when " +
+      "offline). check_integration runs live checks against the app; " +
       "with a development secret key it also writes in the development environment: it " +
       "creates two test people and a probe record, deletes the record, and signs the test " +
       "people out of earlier sessions. sk_live keys are refused. Protocol: when the question is whether an app can use " +
@@ -432,7 +428,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
   try {
     switch (name) {
       case "guide":
-        return text(sdkFile("llms.txt"));
+        return text(await guideText());
       case "reference":
         return text(sdkFile("REFERENCE.md"));
       case "search_docs":
