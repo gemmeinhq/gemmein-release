@@ -44,7 +44,8 @@ No environment variables are required to run it.
 Tools it serves:
 
 - `guide` — the full builder's guide, covering auth flow, the seven safety
-  rules, record shapes, links, uploads, contention, payments.
+  rules, record shapes, links, uploads, contention, payments, plus the
+  dashboard steps read live from docs.gemmein.com/llms-dashboard.txt.
 - `reference` — every SDK method, exact signature, return shape, and error
   code.
 - `search_docs` — targeted search over both, when it needs one fact.

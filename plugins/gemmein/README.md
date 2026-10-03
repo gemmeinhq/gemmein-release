@@ -12,7 +12,8 @@ one skill, `build-on-gemmein`, that walks the first hour.
 - **MCP server `gemmein`**: runs `@gemmein/mcp` on your machine with
   `npx`, pinned to an exact version. It needs Node 20 or later and no
   environment variables. Its nine tools:
-  - `guide`: the full builder's guide.
+  - `guide`: the full builder's guide: the bundled package guide plus the
+    dashboard steps from docs.gemmein.com.
   - `reference`: every SDK method, signature, return shape and error code.
   - `search_docs`: finds one fact in the guide or the reference.
   - `explain_rule`: explains the seven collection safety rules.
@@ -45,8 +46,12 @@ Then ask Claude to build your app on Gemmein, or run `/gemmein:build-on-gemmein`
 
 - The first time the MCP server starts, `npx` downloads `@gemmein/mcp` and
   its dependencies from the npm registry.
-- Eight tools work offline, from the guide and reference bundled in the
+- Seven tools work offline, from the guide and reference bundled in the
   package. They send nothing and write nothing.
+- `guide` returns the bundled guide plus the dashboard steps, read with one
+  GET to https://docs.gemmein.com/llms-dashboard.txt (no headers, no
+  credentials, a 3-second timeout). Offline, it returns the bundled guide
+  and a link to that page. It sends nothing else and writes nothing.
 - `check_integration` calls the Gemmein API (api.gemmein.com, or the
   `apiUrl` you pass) with the keys you give it. With the app key it only
   reads, unless the app lets strangers write a private collection, in which
