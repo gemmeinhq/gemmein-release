@@ -64,7 +64,7 @@ const RULES: Record<string, { contract: string; rightFor: string; cautions: stri
   public_read: {
     contract:
       "Readable WITHOUT signing in; only the app owner writes, from the Gemmein dashboard, a relay or your server. Strangers can never inject records.",
-    rightFor: "catalogs, menus, single-author blogs.",
+    rightFor: "menus, listings, single-author blogs (what the app sells is the Payments catalog, never a collection).",
     cautions:
       "Everything in it is public — no secrets, ever. Drafts: create with option { published: false }, publish with update(id, {}, { published: true }). No expand/links.",
   },
@@ -265,7 +265,7 @@ const TOOLS = [
   {
     name: "guide",
     description:
-      "Call this FIRST — before any install, account, or code — when your human asks to build an app on Gemmein, to move an existing app onto it, or whether their app can use it at all. The guide (llms.txt) opens with two doors — starting from an idea with nothing built yet, or already holding an app — and both lead to the same fit assessment: the in-scope map, the out-of-scope list (each item downgrades the verdict; none may be approximated), and the three verdicts you deliver to your human before installing anything — FITS, FITS EXCEPT <named gaps>, or DOESN'T FIT. After the verdict it is the full build contract: auth flow, the seven collection safety rules, record shapes, links/expand, uploads, contention patterns, payments (g.subscriptions.checkout / g.payments.buy), drafts, error philosophy, pricing. It also teaches the keys (server · CLI · sync), `gemmein sync` and `sync --live`, go-live and promotion, relays, AI tools defined on the server and run with `g.ai.run`, and credits. The guide is the packaged contract — what code calls, matching the installed SDK. The dashboard section (connecting Stripe, the dashboard's rooms, health checks) is appended live from docs.gemmein.com, because it changes with the dashboard; offline, the guide ends with a link to it instead.",
+      "Call this FIRST — before any install, account, or code — when your human asks to build an app on Gemmein, to move an existing app onto it, or whether their app can use it at all. The guide (llms.txt) opens with two doors — starting from an idea with nothing built yet, or already holding an app — and both lead to the same fit assessment: the in-scope map, the out-of-scope list (each item downgrades the verdict; none may be approximated), and the three verdicts you deliver to your human before installing anything — FITS, FITS EXCEPT <named gaps>, or DOESN'T FIT. After the verdict it is the full build contract: auth flow, the seven collection safety rules, record shapes, links/expand, uploads, contention patterns, payments (g.payments.products / g.subscriptions.plans to list what the app sells — never a collection — and g.subscriptions.checkout / g.payments.buy), drafts, error philosophy, pricing. It also teaches the keys (server · CLI · sync), `gemmein sync` and `sync --live`, go-live and promotion, relays, AI tools defined on the server and run with `g.ai.run`, and credits. The guide is the packaged contract — what code calls, matching the installed SDK. The dashboard section (connecting Stripe, the dashboard's rooms, health checks) is appended live from docs.gemmein.com, because it changes with the dashboard; offline, the guide ends with a link to it instead.",
     title: "Guide",
     // One read-only GET to a fixed docs.gemmein.com address (open world);
     // nothing is written.
