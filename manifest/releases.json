@@ -290,6 +290,16 @@
    },
    "artifactFormat": "v1",
    "notes": "The docs split and payments at go-live. `gemmein go-live` copies payments into Live like the dashboard's Promote: it reads Live's payments with its dry run and sends that version back, plans and products cross as Development defines them (name, price, credits) with no Payment Links (Live makes its own with its own rk_live_ key), a change in between answers 409 and nothing is copied, and each change is worded as what it is. llms.txt is the package guide: what code calls; the dashboard steps are site-only (docs.gemmein.com/llms-dashboard.txt, the tail of llms-full.txt). The local engine carries prod's payments code (payments_off, buyer-safe refusals, key-only); fakeStripe is not in the bundle. @gemmein/sdk 0.13.4 (docs only), @gemmein/mcp 0.11.0 (guide reads the dashboard steps live), GemmeinSwift 0.13.1 (docs only). No migration."
+  },
+  {
+   "version": "0.20.0",
+   "date": "2026-10-04",
+   "files": {
+    "gemmein.js": "de6a9ffaf495e30c09b2c903c447566f3622993f255260b4e363d5f3d94e912a",
+    "llms.txt": "697b8db0fcfbb8f0dfed3d18f9858e6cb3b33315ac35aff2cda4abd41a5b8915"
+   },
+   "artifactFormat": "v1",
+   "notes": "One catalog and the Stripe tax code. `GET /catalog`, read with the app's publishable key, signed in or not, answers `{ products, plans }` for that key's own app and environment: exactly what `g.payments.buy` / `g.subscriptions.checkout` would sell right now, plus the free plan at price 0, in the console's order; never Payment Link URLs, Stripe ids, file references or anything of another environment. `gemmein dev` serves `/catalog` from the payments.json it loaded; payments.json takes an optional `price` so a local item is listed exactly when the cloud's would be (an unpriced Stripe-road item is named at boot). Every Product Gemmein makes carries a Stripe `tax_code` (a product txcd_10000000, a plan txcd_10103000, or the founder's Tax category), carried by go-live and promote. llms.txt teaches the catalog: what an app sells is the Payments catalog, never a `public_read` collection. fakeStripe is not in the bundle. @gemmein/sdk 0.14.0 (`g.payments.products()`, `g.subscriptions.plans()`), @gemmein/mcp 0.12.0 (wants sdk ^0.14.0), GemmeinSwift 0.14.0. No migration."
   }
  ]
 }
