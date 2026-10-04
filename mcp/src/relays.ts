@@ -524,6 +524,43 @@ function validateAction(raw: unknown, index: number, triggerKind: RelayTrigger["
 
 /** The cloud's rules (localMode off: https only). Throws
  *  RelayDefinitionError with the one sentence. */
+// Round 5 (port of apps/api/src/relays/schema.ts): a grant or take action
+// is unique by its target in one relay.
+function grantTarget(action: { type: string } & Record<string, unknown>): string | null {
+  switch (action.type) {
+    case "fulfil_product":
+    case "refund_product": return `product:${String(action.product ?? "").trim().toLowerCase()}`;
+    case "grant_plan":
+    case "revoke_plan": return "plan";
+    case "grant_access":
+    case "revoke_access": return `access:${String(action.entitlement ?? "").trim().toLowerCase()}`;
+    case "grant_credits": return "credits";
+    default: return null;
+  }
+}
+const TARGET_WORDS: Record<string, (target: string) => string> = {
+  fulfil_product: (t) => `the product "${t.slice("product:".length)}"`,
+  refund_product: (t) => `the product "${t.slice("product:".length)}"`,
+  grant_plan: () => "a plan (one grant_plan per relay)",
+  revoke_plan: () => "a plan (one revoke_plan per relay)",
+  grant_access: (t) => `the access "${t.slice("access:".length)}"`,
+  revoke_access: (t) => `the access "${t.slice("access:".length)}"`,
+  grant_credits: () => "credits (one grant_credits per relay — write one with the summed amount)",
+};
+function assertUniqueGrantTargets(actions: ReadonlyArray<{ type: string } & Record<string, unknown>>): void {
+  const seen = new Map<string, number>();
+  actions.forEach((action, i) => {
+    const target = grantTarget(action);
+    if (target === null) return;
+    const key = `${action.type}|${target}`;
+    const first = seen.get(key);
+    if (first !== undefined) {
+      refuse(`actions[${i}] ${action.type} acts on ${TARGET_WORDS[action.type]!(target)} again (actions[${first}] already does) — a relay grants or takes each target once; merge the two into one action`);
+    }
+    seen.set(key, i);
+  });
+}
+
 export function validateRelayDefinition(input: unknown): RelayDefinition {
   const def = requireObject(input, "the relay");
   rejectUnknownKeys(def, ["name", "trigger", "actions"], "the relay");
@@ -533,6 +570,7 @@ export function validateRelayDefinition(input: unknown): RelayDefinition {
   if (!Array.isArray(def.actions) || def.actions.length === 0) refuse("actions must be a non-empty list — a relay that does nothing is not one");
   if (def.actions.length > ACTIONS_PER_RELAY) refuse(`actions lists ${def.actions.length} — at most ${ACTIONS_PER_RELAY} per relay; split the rest into a second relay`);
   const actions = def.actions.map((raw, i) => validateAction(raw, i, trigger.kind));
+  assertUniqueGrantTargets(actions as unknown as Array<{ type: string } & Record<string, unknown>>);
   return { name, trigger, actions };
 }
 
