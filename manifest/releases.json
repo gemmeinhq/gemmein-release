@@ -300,6 +300,16 @@
    },
    "artifactFormat": "v1",
    "notes": "One catalog and the Stripe tax code. `GET /catalog`, read with the app's publishable key, signed in or not, answers `{ products, plans }` for that key's own app and environment: exactly what `g.payments.buy` / `g.subscriptions.checkout` would sell right now, plus the free plan at price 0, in the console's order; never Payment Link URLs, Stripe ids, file references or anything of another environment. `gemmein dev` serves `/catalog` from the payments.json it loaded; payments.json takes an optional `price` so a local item is listed exactly when the cloud's would be (an unpriced Stripe-road item is named at boot). Every Product Gemmein makes carries a Stripe `tax_code` (a product txcd_10000000, a plan txcd_10103000, or the founder's Tax category), carried by go-live and promote. llms.txt teaches the catalog: what an app sells is the Payments catalog, never a `public_read` collection. fakeStripe is not in the bundle. @gemmein/sdk 0.14.0 (`g.payments.products()`, `g.subscriptions.plans()`), @gemmein/mcp 0.12.0 (wants sdk ^0.14.0), GemmeinSwift 0.14.0. No migration."
+  },
+  {
+   "version": "0.21.0",
+   "date": "2026-10-04",
+   "files": {
+    "gemmein.js": "ac85761c598e6257db70d50becf7e756ac5813cee98294baa395df1bae5c68d8",
+    "llms.txt": "fd2defdc2fd879d147b5c198aac57e8983a06d2b70549a174dc6c4057b785b23"
+   },
+   "artifactFormat": "v1",
+   "notes": "Fix mode and the dashboard redesign, one release. Free trials and an in-place plan switch: a paid plan carries a trial (one per customer per app), and a subscriber changes plan, cancels or updates their card through the founder's own Stripe customer portal (`g.subscriptions.manage()`); `mine()` answers trialing, trialEndsAt and endsAt. Relays run within seconds of the commit (the sweep stays the net), and a relay grants or takes each target once (`duplicate_grant_target`). The go-live payment is a Stripe pop-up (Embedded Checkout) that states the exact charge, one Stripe customer per account; the card-step doors answer 410. Email templates: the AI writes HTML for the purchase email, `notify`, a relay's `email_person` and Inbox replies, and the sign-in email takes a brand config; templates carry to Live at go-live and promote, and `gemmein dev` renders them as production does. Cloudflare Domain Connect connects a domain in one click, and `npx gemmein domains` reads the cloud app's domains and records. `gemmein/payments.json` carries price, delivery, credits, tax category and a plan's trial; `npx gemmein sync` sets it in Development and `npx gemmein payments --cloud` reads it back. Products can be bought signed out, with a UK/EU 14-day consent switch per app. llms.txt teaches all of it. fakeStripe is not in the bundle. @gemmein/sdk 0.15.0, @gemmein/mcp 0.13.0 (wants sdk ^0.15.0), GemmeinSwift 0.15.0. Migrations: 14 before the API deploy, 1 after."
   }
  ]
 }
