@@ -12,6 +12,11 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { spawn } from "node:child_process";
 
+/** No byte of the engine arrived for this long (connecting included): the
+ *  download is abandoned with a sentence instead of hanging a first run. */
+export const DOWNLOAD_IDLE_MS = 30_000;
+const UNREACHABLE = "couldn't download the Gemmein engine — check your connection and run again";
+
 export function engineDir(version, base = join(homedir(), ".gemmein", "engine")) {
   return join(base, version);
 }
@@ -33,7 +38,7 @@ export function engineCached(version, files, base) {
  * A hash mismatch aborts everything — nothing unverified is ever written
  * to its final location, so nothing unverified can ever run.
  */
-export async function fetchEngine(version, files, downloadBase, base) {
+export async function fetchEngine(version, files, downloadBase, base, { idleMs = DOWNLOAD_IDLE_MS } = {}) {
   if (Object.values(files).some((h) => !/^[a-f0-9]{64}$/.test(h))) {
     throw new Error(
       "this shim build has no released engine pinned — update the gemmein package (npm i -g gemmein@latest)"
@@ -47,9 +52,31 @@ export async function fetchEngine(version, files, downloadBase, base) {
   writeFileSync(join(dir, "package.json"), JSON.stringify({ type: "module" }) + "\n");
   for (const [name, expected] of Object.entries(files)) {
     const url = `${downloadBase}/${version}/${name}`;
-    const res = await fetch(url);
+    // Every chunk that arrives restarts the clock; silence for idleMs aborts.
+    const stop = new AbortController();
+    let quiet;
+    const moved = () => { clearTimeout(quiet); quiet = setTimeout(() => stop.abort(), idleMs); };
+    let res;
+    const chunks = [];
+    try {
+      moved();
+      res = await fetch(url, { signal: stop.signal });
+      if (res.ok) {
+        const reader = res.body.getReader();
+        for (;;) {
+          moved();
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+        }
+      }
+    } catch {
+      throw new Error(UNREACHABLE);
+    } finally {
+      clearTimeout(quiet);
+    }
     if (!res.ok) throw new Error(`couldn't download the Gemmein engine (${res.status} for ${name}) — check your connection and try again`);
-    const bytes = Buffer.from(await res.arrayBuffer());
+    const bytes = Buffer.concat(chunks);
     const actual = sha256(bytes);
     if (actual !== expected) {
       throw new Error(
