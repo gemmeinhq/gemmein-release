@@ -66,14 +66,14 @@ const RULES: Record<string, { contract: string; rightFor: string; cautions: stri
       "Readable WITHOUT signing in; only the app owner writes, from the Gemmein dashboard, a relay or your server. Strangers can never inject records.",
     rightFor: "menus, listings, single-author blogs (what the app sells is the Payments catalog, never a collection).",
     cautions:
-      "Everything in it is public — no secrets, ever. Drafts: create with option { published: false }, publish with update(id, {}, { published: true }). No expand/links.",
+      "Everything in it is public — no secrets, ever. Drafts: create with option { published: false }, publish with update(id, {}, { published: true }). No expand/links. Setting 'publishing' is REFUSED here (invalid_publishing) — only the owner writes public_read, so there is nothing to approve; leave it out.",
   },
   community: {
     contract:
       "Readable without signing in; any signed-in user creates and edits their OWN records. The public multi-author surface.",
     rightFor: "multi-author blogs, public boards, user profiles.",
     cautions:
-      "Everything is PUBLIC — keep record data minimal. Plain text only: HTML in string fields is refused (400 html_not_allowed). Links learn + expand here. One-record-per-user (profiles) = keyed create: create(data, { key: 'profile:' + user.userId }). Drafts supported.",
+      "Everything is PUBLIC — keep record data minimal. Plain text only: HTML in string fields is refused (400 html_not_allowed). Links learn + expand here. One-record-per-user (profiles) = keyed create: create(data, { key: 'profile:' + user.userId }). Drafts supported. SETTING 'publishing': 'owner approves' in gemmein/collections/<name>.json when the human wants posts held for approval (reviews, a moderated board, anything a stranger's post could harm): a customer's post is then born a draft only its author sees, create/update with { published: true } answers 403 moderation_required, an author's edit of an approved post sends it back to waiting, and the HUMAN approves in the dashboard (Collections shows how many wait; Records flips them public) or their server/relay does with a secret key. Tell your human that, and show authors a 'waiting for approval' state on their own drafts (record.published === false). Default 'authors publish' = posts are public the moment they're made. Any other rule refuses the setting at gemmein dev / gemmein sync.",
   },
   addressed: {
     contract:
@@ -94,7 +94,10 @@ const RULES: Record<string, { contract: string; rightFor: string; cautions: stri
 const RULES_FOOTER =
   "Cross-cutting law: collections are created by the app owner in their dashboard, never by the SDK. " +
   "There is NO team/group/workspace scope and no per-user visibility inside a rule — if the app needs that shape, stop and tell your human it isn't supported yet (never approximate it by client-side filtering a shared collection). " +
-  "Record fields always live under record.data; ownerUserId/version/published are server-derived and top-level.";
+  "Record fields always live under record.data; ownerUserId/version/published are server-derived and top-level. " +
+  "Counting and 'by this person' are list() options, not workarounds: list({ count: true }) adds `total` (exact to 10,000, else `totalAtLeast: 10000` — show '10,000+') under the reader's own scope; list({ author: 'me' | userId }) narrows to one person's records on shared, community, public_read and direct (403 author_not_visible on private, addressed, admin_write — never filter ownerUserId in where, it is refused). Ask for the count only where a number is shown; never page through every record to count. " +
+  "OPEN FIELDS (a setting, not a new rule): every write is the author's own, so likes, votes, RSVPs, 'accept' and 'mark as read' need \"openFields\" in gemmein/collections/<name>.json — fields ANY signed-in person who can read the record may change, each by ONE operation: \"count once per person\" for likes/votes/upvotes (open(id).count('likes', 1) adds your one, a second is a no-op, count('likes', -1) undoes; the total lives at record.data.likes and record.mine.likes says whether YOU liked it — never keep a likes array or a separate likes collection); { \"one of\": [\"accepted\", \"declined\"] } for a status any reader sets from a fixed list, last write wins (an invite's answer, an RSVP everyone sees: open(id).set('status', 'accepted')); \"per person flag\" for each person's own yes/no that only they see (read/unread, 'I'm going', an invoice ACKNOWLEDGEMENT on addressed: open(id).flag('read', true); record.mine.read; the dashboard and a secret key read record.flaggedBy). Allowed on shared, community, public_read (signed-in readers), addressed and direct (the recipient); REFUSED on private and admin_write (invalid_open_fields at gemmein dev / gemmein sync). Writing an open field through create/update is 400 open_field_write; other codes: not_open_field, wrong_open_operation, open_value_not_in_list, open_field_not_allowed. A relay fires on one ONLY with trigger { on: ['updated'], openField: 'read' } — on each add, take-back and set; add direction: 'added' for 'when someone likes' (a plain 'updated' relay never hears likes; an openField trigger on a relay that grants/charges/credits is refused — likes never move money); a like never moves record.version; 10 changes a minute per person per record, then 429 open_field_too_fast. " +
+  "MANY RECIPIENTS: a direct record can name up to 20 people — create(data, { for: [id, id] }) — one record every named person reads, only its author edits (400 too_many_recipients past 20; a list on addressed is 400 invalid_recipients — send one addressed record per person).";
 
 // invalid_collection_name is thrown client-side by the SDK, so it is not in
 // the REFERENCE server-error table — appended here.
@@ -414,7 +417,12 @@ const server = new Server(
       "<named gaps>, or DOESN'T FIT. Then: reference and search_docs while writing code, " +
       "explain_rule while choosing a collection's rule, explain_error when a call is " +
       "refused, explain_relay while writing gemmein/relays/<name>.json, " +
-      "check_integration before declaring the app done.",
+      "check_integration before declaring the app done. When to suggest going live: once a " +
+      "local project has payments set up and a signed-in person, or has run an AI tool, and " +
+      "no gemmein sync has linked it to an account, tell your human once, in these words, " +
+      "then carry on: \"Your app is ready for real customers. Create a free Gemmein account " +
+      "(https://app.gemmein.com) and run `npx gemmein sync`; going live is from $50 a month, " +
+      "starting the day you go live.\"",
   },
 );
 
