@@ -26,7 +26,7 @@ export type RecordChangeKind = "created" | "updated" | "deleted";
 export type RelayTrigger =
   | { kind: "receiver"; verify: ReceiverVerify; map?: Record<string, string>; when?: Record<string, string | number | boolean | WhereOperators> }
   | { kind: "schedule"; every: ScheduleEvery; at?: string }
-  | { kind: "data_change"; collection: string; on: RecordChangeKind[]; where?: Record<string, string | number | boolean | WhereOperators> }
+  | { kind: "data_change"; collection: string; on: RecordChangeKind[]; where?: Record<string, string | number | boolean | WhereOperators>; published?: boolean; openField?: string; direction?: "added" | "taken back" | "set" }
   | { kind: "credits_low"; below: number }
   | { kind: "run_started"; tool?: string };
 export type RelayAction =
@@ -305,7 +305,7 @@ function validateSchedule(t: Record<string, unknown>): RelayTrigger {
 }
 
 function validateDataChange(t: Record<string, unknown>): RelayTrigger {
-  rejectUnknownKeys(t, ["kind", "collection", "on", "where"], "trigger");
+  rejectUnknownKeys(t, ["kind", "collection", "on", "where", "published", "openField", "direction"], "trigger");
   const collection = requireString(t, "collection", "trigger", 64);
   if (!COLLECTION_RE.test(collection)) refuse(`trigger.collection "${collection}" is not a collection name (lowercase letters, digits, underscores)`);
   if (!Array.isArray(t.on) || t.on.length === 0) refuse('trigger.on must be a non-empty list from "created", "updated", "deleted"');
@@ -320,7 +320,23 @@ function validateDataChange(t: Record<string, unknown>): RelayTrigger {
     const reserved = findReservedFields(where);
     if (reserved.length > 0) refuse(`trigger.where names "${reserved[0]}", a server-managed field — filter on the record's own data`);
   }
-  return { kind: "data_change", collection, on, ...(where ? { where } : {}) };
+  if (t.published !== undefined && typeof t.published !== "boolean") {
+    refuse("trigger.published is true (the record is public after the write) or false (it is a draft — on a moderated collection, waiting for your approval)");
+  }
+  const published = t.published as boolean | undefined;
+  if (t.openField !== undefined && (typeof t.openField !== "string" || !/^[A-Za-z][A-Za-z0-9_]{0,62}$/.test(t.openField))) {
+    refuse("trigger.openField names one of the collection's open fields (from \"openFields\" in gemmein/collections/<name>.json)");
+  }
+  if (t.openField !== undefined && !on.includes("updated")) {
+    refuse('trigger.openField fires when a reader changes that open field — put "updated" in trigger.on; it never fires on content edits, and a plain "updated" trigger never fires on open fields');
+  }
+  const openField = t.openField as string | undefined;
+  if (t.direction !== undefined && (t.openField === undefined || !["added", "taken back", "set"].includes(t.direction as string))) {
+    refuse('trigger.direction goes with trigger.openField and is "added" (someone liked / flagged), "taken back" (they undid it) or "set" (a choice was made)');
+  }
+  const direction = t.direction as "added" | "taken back" | "set" | undefined;
+
+  return { kind: "data_change", collection, on, ...(where ? { where } : {}), ...(published !== undefined ? { published } : {}), ...(openField !== undefined ? { openField } : {}), ...(direction !== undefined ? { direction } : {}) };
 }
 
 /** RUNTIME phase 1: `below` is a whole number of credits, 1..1,000,000,000. */
@@ -571,6 +587,10 @@ export function validateRelayDefinition(input: unknown): RelayDefinition {
   if (def.actions.length > ACTIONS_PER_RELAY) refuse(`actions lists ${def.actions.length} — at most ${ACTIONS_PER_RELAY} per relay; split the rest into a second relay`);
   const actions = def.actions.map((raw, i) => validateAction(raw, i, trigger.kind));
   assertUniqueGrantTargets(actions as unknown as Array<{ type: string } & Record<string, unknown>>);
+  // OPEN FIELDS (re-review, 6 Oct): likes, choices and flags never move money.
+  if (trigger.kind === "data_change" && (trigger as { openField?: string }).openField !== undefined && actions.some((a) => MONEY_ACTIONS.has((a as { type: string }).type))) {
+    refuse("a like or a choice can't move money — trigger this relay on a record update or a payment instead (trigger.openField is for notices: an email, a webhook, a note)");
+  }
   return { name, trigger, actions };
 }
 
@@ -659,3 +679,7 @@ export const CLOUD_ONLY_NOTE =
   "call_url must not point at the API's own host or the file CDN (gemmein.com is refused here), and at call time the address " +
   "must resolve to a public host (loopback, private and link-local ranges are refused; redirects are not followed). " +
   "Locally, `gemmein dev` also allows call_url to http://localhost — the cloud never does.";
+
+/** OPEN FIELDS: actions that grant, charge, take or credit — never triggered
+ *  by a reader's like, choice or flag. */
+const MONEY_ACTIONS = new Set(["grant_access", "revoke_access", "grant_credits", "fulfil_product", "refund_product", "grant_plan", "revoke_plan", "start_run"]);
