@@ -67,3 +67,31 @@ test("verifies before caching, refuses tampered bytes, runs offline once cached"
     rmSync(cache, { recursive: true, force: true });
   }
 });
+
+// OFFLINE (0.22): a first run with no network, or a download that stalls,
+// ends with a sentence — never a hang, never a raw fetch error.
+test("an unreachable or stalled download says so and stops, within its idle limit", { timeout: 20_000 }, async () => {
+  const cache = mkdtempSync(join(tmpdir(), "shim-"));
+  const pins = { "gemmein.js": sha("x") };
+  const held = [];
+  const stall = createServer((req, res) => {
+    held.push(res);
+    if (req.url.endsWith("/headers-then-silence/gemmein.js")) { res.writeHead(200, { "content-length": "1000" }); res.write("a"); }
+    // otherwise: accept, never answer
+  });
+  await new Promise((r) => stall.listen(0, "127.0.0.1", r));
+  const port = stall.address().port;
+  try {
+    for (const base of [`http://127.0.0.1:1/engine`, `http://127.0.0.1:${port}/silent`, `http://127.0.0.1:${port}/headers-then-silence`]) {
+      const started = Date.now();
+      await assert.rejects(() => fetchEngine("1.0.0", pins, base, cache, { idleMs: 300 }),
+        (err) => { assert.equal(err.message, "couldn't download the Gemmein engine — check your connection and run again"); return true; });
+      assert.ok(Date.now() - started < 3000, `${base}: abandoned at the idle limit`);
+      assert.equal(engineCached("1.0.0", pins, cache), false);
+    }
+  } finally {
+    for (const r of held) r.destroy();
+    stall.close();
+    rmSync(cache, { recursive: true, force: true });
+  }
+});
