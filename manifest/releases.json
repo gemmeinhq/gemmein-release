@@ -310,6 +310,16 @@
    },
    "artifactFormat": "v1",
    "notes": "Fix mode and the dashboard redesign, one release. Free trials and an in-place plan switch: a paid plan carries a trial (one per customer per app), and a subscriber changes plan, cancels or updates their card through the founder's own Stripe customer portal (`g.subscriptions.manage()`); `mine()` answers trialing, trialEndsAt and endsAt. Relays run within seconds of the commit (the sweep stays the net), and a relay grants or takes each target once (`duplicate_grant_target`). The go-live payment is a Stripe pop-up (Embedded Checkout) that states the exact charge, one Stripe customer per account; the card-step doors answer 410. Email templates: the AI writes HTML for the purchase email, `notify`, a relay's `email_person` and Inbox replies, and the sign-in email takes a brand config; templates carry to Live at go-live and promote, and `gemmein dev` renders them as production does. Cloudflare Domain Connect connects a domain in one click, and `npx gemmein domains` reads the cloud app's domains and records. `gemmein/payments.json` carries price, delivery, credits, tax category and a plan's trial; `npx gemmein sync` sets it in Development and `npx gemmein payments --cloud` reads it back. Products can be bought signed out, with a UK/EU 14-day consent switch per app. llms.txt teaches all of it. fakeStripe is not in the bundle. @gemmein/sdk 0.15.0, @gemmein/mcp 0.13.0 (wants sdk ^0.15.0), GemmeinSwift 0.15.0. Migrations: 14 before the API deploy, 1 after."
+  },
+  {
+   "version": "0.22.0",
+   "date": "2026-10-08",
+   "files": {
+    "gemmein.js": "a879aa0134b26111b291ec3cd06190dabe43d54729eba993c8943a8f398cc23b",
+    "llms.txt": "a50c1e81b3717cbb1c37a31ceec0ecc41441eb3548cda855091941558b65adfd"
+   },
+   "artifactFormat": "v1",
+   "notes": "Audio and video in every collection and product; AI tools take image, audio, video and document files, ticked per tool, priced per run; uploads count toward the app's storage, now the larger of 100 GB or 50 MB per active person on Live (Development stays capped at 1 GB). Rule settings: community publishing (authors publish or owner approves), open fields (count once per person, one of a list, per-person flags) with their own relay event, direct records to up to 20 recipients. Promote compares file contents and refuses when Development changed since the review (development_changed / review_required); go-live checks the review before payment. Sign-in limits are per visitor (the dashboard's signed visitor IP; IPv6 by /64), the earlier code keeps working until the new email is confirmed sent, rate limits are atomic; exact credit shares on refunds; record search uses a values index. The CLI works offline (bounded DNS, local commands never wait on the network), sends pseudonymous milestones unless turned off or in CI, and bounds product uploads by size. Shim 0.22.0: the engine download stops with a sentence when the network is down or stalls. @gemmein/sdk 0.16.0, @gemmein/mcp 0.14.0 (wants sdk ^0.16.0), GemmeinSwift 0.16.0. Migrations: 8 before the API deploy, 1 after."
   }
  ]
 }
