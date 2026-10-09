@@ -15,7 +15,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "prepublishOnly": "node ../../Noob-Auth/ops/process/gate.mjs release"
   },
   "keywords": [
     "backend",
