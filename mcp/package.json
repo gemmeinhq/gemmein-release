@@ -31,7 +31,7 @@
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.build.json && chmod +x dist/index.js",
     "prepack": "npm run build",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "node ../../Noob-Auth/ops/process/gate.mjs release && npm run build"
   },
   "dependencies": {
     "@gemmein/sdk": "^0.16.0",
