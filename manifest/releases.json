@@ -320,6 +320,16 @@
    },
    "artifactFormat": "v1",
    "notes": "Audio and video in every collection and product; AI tools take image, audio, video and document files, ticked per tool, priced per run; uploads count toward the app's storage, now the larger of 100 GB or 50 MB per active person on Live (Development stays capped at 1 GB). Rule settings: community publishing (authors publish or owner approves), open fields (count once per person, one of a list, per-person flags) with their own relay event, direct records to up to 20 recipients. Promote compares file contents and refuses when Development changed since the review (development_changed / review_required); go-live checks the review before payment. Sign-in limits are per visitor (the dashboard's signed visitor IP; IPv6 by /64), the earlier code keeps working until the new email is confirmed sent, rate limits are atomic; exact credit shares on refunds; record search uses a values index. The CLI works offline (bounded DNS, local commands never wait on the network), sends pseudonymous milestones unless turned off or in CI, and bounds product uploads by size. Shim 0.22.0: the engine download stops with a sentence when the network is down or stalls. @gemmein/sdk 0.16.0, @gemmein/mcp 0.14.0 (wants sdk ^0.16.0), GemmeinSwift 0.16.0. Migrations: 8 before the API deploy, 1 after."
+  },
+  {
+   "version": "0.22.1",
+   "date": "2026-10-10",
+   "files": {
+    "gemmein.js": "cf015214b36468cf047c0810a6d69dfd6c425c3e478699d69bfb95e2e0993609",
+    "llms.txt": "c10af7f35c60c88c931c4745be22d018880648fc5a3971fc644ee4cb17d58d8d"
+   },
+   "artifactFormat": "v1",
+   "notes": "A person's data export, group attachments and a privacy fix. A person's AI call history (`g.ai.calls()`, `/auth/ai-calls`) answers what they were answered and what it cost, never the tool's prompt or params; the back office keeps the full row for the owner, and `AiCallRecord.prompt` is removed from the SDKs. `g.account.export()` hands the signed-in person everything the app holds about them as one JSON document: a cover (`about`), then records, likes and flags, files, purchases, subscription, credits, access, AI calls, runs, emails, support conversations, sessions and sign-ins, each section capped inside a 25 MB budget that names any section it cut; once every 30 days per person, and the owner exports the same document from the person's page once a day. Group attachments: on a direct collection, `upload(file, { for: [ids] })` is one file up to 20 named people can open. RevenueCat refunds take back the access and credits of the one purchase they name and mark its receipt refunded. The per-collection `inAppSends` setting is removed. llms.txt teaches all of it. Shim 0.22.1 carries the new pins. @gemmein/sdk 0.17.0, @gemmein/mcp 0.15.0 (wants sdk ^0.17.0), GemmeinSwift 0.17.0. Migrations: 1 before the API deploy."
   }
  ]
 }
