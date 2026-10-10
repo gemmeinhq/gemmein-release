@@ -1,6 +1,6 @@
 {
   "name": "@gemmein/mcp",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "mcpName": "com.gemmein/mcp",
   "description": "Gemmein MCP server \u2014 gives coding agents the Gemmein guide, API reference, rule/error explainers, and a live integration check (reaffirm) as tools. Eight tools are read-only; check_integration writes test people and a probe record in the app's development environment; if a private collection is open to strangers, its anonymous test write succeeds and stays, in any environment, and the check fails, naming it.",
   "license": "MIT",
@@ -34,7 +34,7 @@
     "prepublishOnly": "node ../../Noob-Auth/ops/process/gate.mjs release && npm run build"
   },
   "dependencies": {
-    "@gemmein/sdk": "^0.16.0",
+    "@gemmein/sdk": "^0.17.0",
     "@modelcontextprotocol/sdk": "^1.29.0"
   },
   "author": "Gemmein Limited",
