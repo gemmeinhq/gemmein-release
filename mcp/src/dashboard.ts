@@ -124,8 +124,11 @@ export async function fetchDashboard(
 export async function guideText(
   fetchImpl: FetchLike = globalThis.fetch,
   timeoutMs: number = DASHBOARD_TIMEOUT_MS,
+  /** How the packaged guide is read — the installed @gemmein/sdk by default;
+   *  the hosted server hands in its own reader (it carries the SDK's source). */
+  docs: (name: "llms.txt") => string = sdkFile,
 ): Promise<string> {
-  const guide = sdkFile("llms.txt").trimEnd();
+  const guide = docs("llms.txt").trimEnd();
   const section = await fetchDashboard(fetchImpl, timeoutMs);
   return section === null
     ? `${guide}\n\n${DASHBOARD_FALLBACK_LINE}\n`
