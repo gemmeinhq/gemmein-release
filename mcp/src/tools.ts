@@ -81,6 +81,10 @@ export type ToolHost = {
    *  a caller chooses. `url` is how it reaches itself. Absent (stdio): the
    *  caller's apiUrl, else production. */
   pinnedApi?: { url: string; label: string; fetch?: typeof fetch };
+  /** HOSTED CONNECTOR (cloud): the signed-in prove_app tool proves Tier B as
+   *  the app's test members, server-side — check_integration's "needs a
+   *  secret key" note points there instead of asking for a key in a chat. */
+  connectorProof?: boolean;
   /** HOSTED, signed in: tools that act for the founder's account, listed
    *  after the ten and answered by `call` (null = not one of them). */
   extra?: {
@@ -263,6 +267,8 @@ type IntegrationInput = {
   timeoutMs?: number;
   /** HOSTED only (never from a caller's arguments): the fetch the SDK uses. */
   fetchImpl?: typeof fetch;
+  /** HOSTED only (never from a caller's arguments): prove_app is on this door. */
+  connectorProof?: boolean;
 };
 
 async function runIntegrationChecks(sdk: GemmeinSdk, input: IntegrationInput) {
@@ -314,7 +320,9 @@ async function runIntegrationChecks(sdk: GemmeinSdk, input: IntegrationInput) {
   // ── Tier B — cross-user isolation. Dev environments only, by design.
   const sk = input.secretKey;
   if (!sk) {
-    notes.push("Tier B (cross-user isolation) skipped — pass secretKey (sk_dev) to prove one user can't read another's private records. Dev and live enforce the same rules, so isolation proven in dev holds in live.");
+    notes.push(input.connectorProof
+      ? "Tier B (cross-user isolation) skipped — from this connector, call prove_app instead: it proves one user can't read another's private records as the app's test members, server-side, with no key in the chat (never paste a secret key here). Dev and live enforce the same rules, so isolation proven in dev holds in live."
+      : "Tier B (cross-user isolation) skipped — pass secretKey (sk_dev) to prove one user can't read another's private records. Dev and live enforce the same rules, so isolation proven in dev holds in live.");
     return { checks, notes };
   }
   if (sk.startsWith("sk_live")) {
@@ -620,7 +628,7 @@ export async function callTool(host: ToolHost, name: string, args: Record<string
         };
       }
       case "check_integration": {
-        const { fetchImpl: _never, ...input } = args as IntegrationInput; // a fetch is the host's, never an argument
+        const { fetchImpl: _never, connectorProof: _host, ...input } = args as IntegrationInput; // a fetch and the door are the host's, never an argument
         if (typeof input.publicKey !== "string" || !input.publicKey.startsWith("pk_")) {
           return errText("publicKey must be the app's public pk_ key (never an sk_ secret).");
         }
@@ -630,7 +638,7 @@ export async function callTool(host: ToolHost, name: string, args: Record<string
         }
         // HOSTED: the wait is the server's, so its budget is capped at 30 s.
         const timeoutMs = pinned ? Math.min(Math.max(Number(input.timeoutMs) || 30_000, 1_000), 30_000) : input.timeoutMs ?? 30_000;
-        const run = runIntegrationChecks(await host.sdk(), pinned ? { ...input, apiUrl: pinned.url, ...(pinned.fetch ? { fetchImpl: pinned.fetch } : {}) } : input);
+        const run = runIntegrationChecks(await host.sdk(), { ...(pinned ? { ...input, apiUrl: pinned.url, ...(pinned.fetch ? { fetchImpl: pinned.fetch } : {}) } : input), ...(host.connectorProof ? { connectorProof: true } : {}) });
         const timeout = new Promise<never>((_, rej) =>
           setTimeout(() => rej(new Error(`check_integration timed out after ${timeoutMs}ms — is the API reachable?`)), timeoutMs).unref?.());
         const { checks, notes } = await Promise.race([run, timeout]);
@@ -659,11 +667,20 @@ export async function callTool(host: ToolHost, name: string, args: Record<string
   }
 }
 
+/** The brand an AI app draws beside the connector (MCP Implementation.title
+ *  and .icons, spec 2025-11-25): without them Claude.ai shows a placeholder.
+ *  The images are the site's own brand assets. */
+export const GEMMEIN_SERVER_TITLE = "Gemmein";
+export const GEMMEIN_SERVER_ICONS = [
+  { src: "https://gemmein.com/icon-512.png", mimeType: "image/png", sizes: ["512x512"] },
+  { src: "https://gemmein.com/favicon.svg", mimeType: "image/svg+xml" },
+];
+
 /** The MCP server both doors connect: stdio (index.ts) and HTTP (the hosted
  *  connector). One server per connection; nothing is shared between them. */
 export function createGemmeinServer(host: ToolHost): Server {
   const server = new Server(
-    { name: "gemmein", version: host.version },
+    { name: "gemmein", title: GEMMEIN_SERVER_TITLE, version: host.version, icons: GEMMEIN_SERVER_ICONS },
     {
       capabilities: { tools: {} },
       instructions: host.extra?.instructions ? `${SERVER_INSTRUCTIONS}\n\n${host.extra.instructions}` : SERVER_INSTRUCTIONS,
