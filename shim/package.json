@@ -16,7 +16,7 @@
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "prepublishOnly": "node ../../Noob-Auth/ops/process/gate.mjs release"
+    "prepublishOnly": "node ../prepublish-check.mjs release"
   },
   "keywords": [
     "backend",
