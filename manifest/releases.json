@@ -330,6 +330,16 @@
    },
    "artifactFormat": "v1",
    "notes": "A person's data export, group attachments and a privacy fix. A person's AI call history (`g.ai.calls()`, `/auth/ai-calls`) answers what they were answered and what it cost, never the tool's prompt or params; the back office keeps the full row for the owner, and `AiCallRecord.prompt` is removed from the SDKs. `g.account.export()` hands the signed-in person everything the app holds about them as one JSON document: a cover (`about`), then records, likes and flags, files, purchases, subscription, credits, access, AI calls, runs, emails, support conversations, sessions and sign-ins, each section capped inside a 25 MB budget that names any section it cut; once every 30 days per person, and the owner exports the same document from the person's page once a day. Group attachments: on a direct collection, `upload(file, { for: [ids] })` is one file up to 20 named people can open. RevenueCat refunds take back the access and credits of the one purchase they name and mark its receipt refunded. The per-collection `inAppSends` setting is removed. llms.txt teaches all of it. Shim 0.22.1 carries the new pins. @gemmein/sdk 0.17.0, @gemmein/mcp 0.15.0 (wants sdk ^0.17.0), GemmeinSwift 0.17.0. Migrations: 1 before the API deploy."
+  },
+  {
+   "version": "0.23.0",
+   "date": "2026-10-14",
+   "files": {
+    "gemmein.js": "09842d39acfab8badba0798dd032436e7c7520065fd1809eda32ee95c92d646a",
+    "llms.txt": "ab71a94c4d932ac5eb75352589e4de6ab5bc258d2d688b8959d68f42ff171387"
+   },
+   "artifactFormat": "v1",
+   "notes": "Pricing v2 and the hosted connector. A flat price per Live app: Launch $10, Live $40, Growing $100 a month, annual at 2 months off, people limits 1,000 / 5,000 / 15,000, storage 5 / 50 / 150 GB plus +50 GB packs; removing a pack or moving down is refused until the files fit. The hosted MCP connector at api.gemmein.com/mcp with OAuth and an approval in the dashboard; your AI reads Live overview, errors, usage, webhooks, emails and the Inbox, and can reply to a customer from a verified sender. An optional authenticator app for founders, asked at sign-in and for destructive Live actions. CLI sign-in by approval in the browser (npx gemmein login). Errors carry a docs link. llms.txt teaches all of it. Shim 0.23.0 carries the new pins. @gemmein/sdk 0.18.0, @gemmein/mcp 0.16.0 (wants sdk ^0.18.0), GemmeinSwift 0.18.0. Migrations: 24 before the API deploy, 1 after."
   }
  ]
 }
