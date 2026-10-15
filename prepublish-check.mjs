@@ -9,11 +9,14 @@
 //   git config gemmein.engine <path to the engine checkout>
 //
 // No setting, a path without the gate, or a failing gate: the publish stops.
+// GREEN AT <sha>: when the engine checkout's gate is already green for this
+// stage at its HEAD and its tree is clean (ops/process/greenStamp.mjs), the
+// gate is not run again — and the launcher says it skipped and why.
 
 import { spawnSync, execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 let engine = "";
@@ -31,6 +34,17 @@ const gate = join(root, "ops", "process", "gate.mjs");
 if (!existsSync(gate)) {
   console.error(`REFUSED: ${root} has no release gate (ops/process/gate.mjs). Point gemmein.engine at the engine checkout, then publish again.`);
   process.exit(1);
+}
+const stage = process.argv[2];
+const stamp = join(root, "ops", "process", "greenStamp.mjs");
+if (stage && existsSync(stamp)) {
+  const { greenSkip } = await import(pathToFileURL(stamp).href);
+  const green = greenSkip(root, { stage, target: process.argv[3] ?? "both" });
+  if (green.skip) {
+    console.log(`prepublish: skipped the ${stage} gate — ${green.why}.`);
+    process.exit(0);
+  }
+  console.log(`prepublish: running the ${stage} gate — ${green.why}.`);
 }
 const run = spawnSync(process.execPath, [gate, ...process.argv.slice(2)], { cwd: root, stdio: "inherit" });
 process.exit(run.status ?? 1);
