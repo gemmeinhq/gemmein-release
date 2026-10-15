@@ -340,6 +340,16 @@
    },
    "artifactFormat": "v1",
    "notes": "Pricing v2 and the hosted connector. A flat price per Live app: Launch $10, Live $40, Growing $100 a month, annual at 2 months off, people limits 1,000 / 5,000 / 15,000, storage 5 / 50 / 150 GB plus +50 GB packs; removing a pack or moving down is refused until the files fit. The hosted MCP connector at api.gemmein.com/mcp with OAuth and an approval in the dashboard; your AI reads Live overview, errors, usage, webhooks, emails and the Inbox, and can reply to a customer from a verified sender. An optional authenticator app for founders, asked at sign-in and for destructive Live actions. CLI sign-in by approval in the browser (npx gemmein login). Errors carry a docs link. llms.txt teaches all of it. Shim 0.23.0 carries the new pins. @gemmein/sdk 0.18.0, @gemmein/mcp 0.16.0 (wants sdk ^0.18.0), GemmeinSwift 0.18.0. Migrations: 24 before the API deploy, 1 after."
+  },
+  {
+   "version": "0.24.0",
+   "date": "2026-10-15",
+   "files": {
+    "gemmein.js": "568d6c16c694a57c0b9e3fd25d8116a6ecb6fb5804cf2cc268bbdf075e77e13c",
+    "llms.txt": "87da719f44c581c973188a9c7abe155ed0eb554cd4299757f92719f0dbd0d0d5"
+   },
+   "artifactFormat": "v1",
+   "notes": "Run the business from chat: status across the board, Development logs and relay runs, customer actions approved in the browser, customer text that never acts as an instruction. The emailed code only for dangerous changes; a 7-day CLI sign-in; Development keys made at once under the machine's approval and ending with it; test sessions are a key power."
   }
  ]
 }

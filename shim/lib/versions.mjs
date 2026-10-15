@@ -10,12 +10,12 @@
 // fails closed: the shim refuses to download anything until a real release
 // has been promoted.
 
-export const ENGINE_VERSION = "0.23.0";
+export const ENGINE_VERSION = "0.24.0";
 
 /** file name -> hex sha256 */
 export const ENGINE_FILES = {
-  "gemmein.js": "09842d39acfab8badba0798dd032436e7c7520065fd1809eda32ee95c92d646a",
-  "llms.txt": "ab71a94c4d932ac5eb75352589e4de6ab5bc258d2d688b8959d68f42ff171387",
+  "gemmein.js": "568d6c16c694a57c0b9e3fd25d8116a6ecb6fb5804cf2cc268bbdf075e77e13c",
+  "llms.txt": "87da719f44c581c973188a9c7abe155ed0eb554cd4299757f92719f0dbd0d0d5",
 };
 
 export const DOWNLOAD_BASE = "https://downloads.gemmein.com/engine";
