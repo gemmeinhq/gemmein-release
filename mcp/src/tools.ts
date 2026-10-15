@@ -500,7 +500,7 @@ const TOOLS: readonly ToolDefinition[] = [
         publicKey: { type: "string", description: "the app's public pk_ key" },
         privateCollection: { type: "string", description: "a collection with the `private` rule" },
         publicCollection: { type: "string", description: "optional: a community/public_read collection to confirm anonymous readability" },
-        secretKey: { type: "string", description: "optional: an sk_dev secret key holding the test-sessions power (npx gemmein keys create --capability test-sessions) — enables Tier B isolation proof (sk_live is refused)" },
+        secretKey: { type: "string", description: "optional: an sk_dev secret key holding the test-sessions power (npx gemmein keys create --name check --capability test-sessions) — enables Tier B isolation proof (sk_live is refused)" },
         apiUrl: { type: "string", description: "optional: API base URL override (local/dev API); omit for production Gemmein" },
         testUsers: { type: "array", items: { type: "string" }, minItems: 2, maxItems: 2, description: "optional: the two Tier-B test emails (default reaffirm-a/b@test.dev). Each is signed out of its earlier sessions, so name real development people only if signing them out is fine" },
         timeoutMs: { type: "number", description: "overall time budget, default 30000" },
