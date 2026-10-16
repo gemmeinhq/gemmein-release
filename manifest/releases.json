@@ -350,6 +350,16 @@
    },
    "artifactFormat": "v1",
    "notes": "Run the business from chat: status across the board, Development logs and relay runs, customer actions approved in the browser, customer text that never acts as an instruction. The emailed code only for dangerous changes; a 7-day CLI sign-in; Development keys made at once under the machine's approval and ending with it; test sessions are a key power."
+  },
+  {
+   "version": "0.25.0",
+   "date": "2026-10-16",
+   "files": {
+    "gemmein.js": "314ee6ee2e5e3adfab89aa49c58cdf32e6cb3bc3a3888276c82d28cce2e993f3",
+    "llms.txt": "ecf8fae7abcf19486ba0bbe9cfa5af129e45deaa92edd0a328f860bc1f6fdf38"
+   },
+   "artifactFormat": "v1",
+   "notes": "Host your app's site on Gemmein: every publish lands on a private preview you can share for 7 days; a version goes live only when you approve it; roll back, rebuild or pause, with every change in the site's history. Dashboard lists load a page at a time."
   }
  ]
 }
