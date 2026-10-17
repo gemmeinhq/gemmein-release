@@ -3,8 +3,8 @@
 The [Gemmein](https://gemmein.com) MCP server — gives your coding agent the
 whole Gemmein contract as tools, straight in the editor.
 
-Gemmein is the backend for web and mobile apps: sign-in, protected data, payments, AI tools and a dashboard to run your customers.
-Nine tools are read-only, and all but `guide` work offline: `guide` makes one
+Gemmein is the backend for web and mobile apps: hosting, sign-in, protected data, payments, AI tools and a dashboard to run your customers.
+Ten tools work without an account. Nine are read-only, and all but `guide` work offline: `guide` makes one
 read-only GET to `https://docs.gemmein.com/llms-dashboard.txt` for the
 dashboard section. `check_integration` runs live checks against your
 app; with a development secret key it also writes in the development

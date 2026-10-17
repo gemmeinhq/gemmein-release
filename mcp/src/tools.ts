@@ -150,6 +150,13 @@ const RULES: Record<string, { contract: string; rightFor: string; cautions: stri
     cautions:
       "NEVER present as private or encrypted chat (the owner's dashboard can read it). Plain text only. 403 reply_only = this collection only allows replying to someone who wrote first; 403 sends_disabled = the owner turned direct messages off for this collection.",
   },
+  app_only: {
+    contract:
+      "NO app session reads or writes it — not visitors, not signed-in users, not the owner signed in to their own app. Only the owner's Gemmein dashboard, the owner's server (a secret key) and relays reach it. Strictly narrower than admin_write.",
+    rightFor: "answers to hidden questions (quizzes, puzzles), scores and game state the server keeps so nobody can cheat, likes kept secret, anything the app computes and shows people only through another collection.",
+    cautions:
+      "Every app call (list, get, create, update, delete, count, stats, search, watch, expand, open fields, uploads) answers 403 app_only — never retry it; signing in changes nothing. The server creates its records with no person ({ for } is 400 invalid_person). To show people something from it, your server or a relay copies it into a collection they can read. Refused in its file: openFields, publishing, fields, directInitiation, unlockedBy (nothing opens it). Its files are sealed, never on a public link.",
+  },
 };
 
 const RULES_FOOTER =
@@ -158,6 +165,8 @@ const RULES_FOOTER =
   "Record fields always live under record.data; ownerUserId/version/published are server-derived and top-level. " +
   "Counting and 'by this person' are list() options, not workarounds: list({ count: true }) adds `total` (exact to 10,000, else `totalAtLeast: 10000` — show '10,000+') under the reader's own scope; list({ author: 'me' | userId }) narrows to one person's records on shared, community, public_read and direct (403 author_not_visible on private, addressed, admin_write — never filter ownerUserId in where, it is refused). Ask for the count only where a number is shown; never page through every record to count. " +
   "OPEN FIELDS (a setting, not a new rule): every write is the author's own, so likes, votes, RSVPs, 'accept' and 'mark as read' need \"openFields\" in gemmein/collections/<name>.json — fields ANY signed-in person who can read the record may change, each by ONE operation: \"count once per person\" for likes/votes/upvotes (open(id).count('likes', 1) adds your one, a second is a no-op, count('likes', -1) undoes; the total lives at record.data.likes and record.mine.likes says whether YOU liked it — never keep a likes array or a separate likes collection); { \"one of\": [\"accepted\", \"declined\"] } for a status any reader sets from a fixed list, last write wins (an invite's answer, an RSVP everyone sees: open(id).set('status', 'accepted')); \"per person flag\" for each person's own yes/no that only they see (read/unread, 'I'm going', an invoice ACKNOWLEDGEMENT on addressed: open(id).flag('read', true); record.mine.read; the dashboard and a secret key read record.flaggedBy). Allowed on shared, community, public_read (signed-in readers), addressed and direct (the recipient); REFUSED on private and admin_write (invalid_open_fields at gemmein dev / gemmein sync). Writing an open field through create/update is 400 open_field_write; other codes: not_open_field, wrong_open_operation, open_value_not_in_list, open_field_not_allowed. A relay fires on one ONLY with trigger { on: ['updated'], openField: 'read' } — on each add, take-back and set; add direction: 'added' for 'when someone likes' (a plain 'updated' relay never hears likes; an openField trigger on a relay that grants/charges/credits is refused — likes never move money); a like never moves record.version; 10 changes a minute per person per record, then 429 open_field_too_fast. " +
+  "SHOW / HIDE TIMES (an option, not a rule): create(data, { showFrom, showUntil }) / update(id, {}, { showUntil }) — ISO 8601 instants (or Dates; null clears on update), top-level on the record like published, never data fields. Outside its window a record is hidden from everyone but its author (the dashboard and a secret key always see it) in EVERY read, by the server's clock; a watcher gets it when showFrom arrives and its id in `deleted` when showUntil passes. Works on shared, community, public_read, admin_write, addressed and direct; 400 invalid_show_time on private/app_only, a bad instant or a window that never shows. " +
+  "RANKABLE NUMBERS (an option, not a rule): \"rankable\": [\"score\"] in gemmein/collections/<name>.json (up to 3; declared number fields on community/shared/direct) lets list({ sort: { by: 'score', order?: 'desc' | 'asc' } }) order by it, each record carrying `rank` (ties share: 1, 2, 2, 4) — only over what this person may already read, with where/search/count/cursor; records without a number there are left out. 400 not_rankable (not declared), invalid_sort (sort is 'newest' | 'oldest' | 'updated' | { by, order }), invalid_since (with since). A leaderboard's trust is who writes the number: admin_write, public_read or app_only written by your server or a relay — never a score each player writes. " +
   "MANY RECIPIENTS: a direct record can name up to 20 people — create(data, { for: [id, id] }) — one record every named person reads, only its author edits (400 too_many_recipients past 20; a list on addressed is 400 invalid_recipients — send one addressed record per person).";
 
 // invalid_collection_name is thrown client-side by the SDK, so it is not in
@@ -364,7 +373,7 @@ const TOOLS: readonly ToolDefinition[] = [
   {
     name: "guide",
     description:
-      "Returns the Gemmein build guide (llms.txt): the packaged contract — what code calls, matching the installed SDK. Useful before building an app on Gemmein, moving an existing app onto it, or deciding whether an app fits. The guide opens with two doors — starting from an idea with nothing built yet, or already holding an app — and both lead to the same fit assessment: the in-scope map, what Gemmein does not support, and the three possible outcomes (fits; fits except named gaps; doesn't fit). After that it is the full build contract: auth flow, the seven collection safety rules, record shapes, links/expand, uploads, contention patterns, payments (g.payments.products / g.subscriptions.plans to list what the app sells, which is not a collection; g.subscriptions.checkout / g.payments.buy), drafts, error philosophy, pricing, the keys (server · CLI · sync), `gemmein sync` and `sync --live`, go-live and promotion, relays, AI tools defined on the server and run with `g.ai.run`, and credits. The dashboard section (connecting Stripe, the dashboard's rooms, health checks) is appended live from docs.gemmein.com, because it changes with the dashboard; offline, a link to it takes its place. With `topic` (\"refund a payment\", \"free trial\") it returns only the docs-site sections that answer it, each a direct markdown link with its anchor (https://docs.gemmein.com/<page>.md#<section>); with no topic the guide ends with every docs page's markdown link, one page per topic.",
+      "Returns the Gemmein build guide (llms.txt): the packaged contract — what code calls, matching the installed SDK. Useful before building an app on Gemmein, moving an existing app onto it, or deciding whether an app fits. The guide opens with two doors — starting from an idea with nothing built yet, or already holding an app — and both lead to the same fit assessment: the in-scope map, what Gemmein does not support, and the three possible outcomes (fits; fits except named gaps; doesn't fit). After that it is the full build contract: auth flow, the eight collection safety rules (and the show/hide and rankable options), record shapes, links/expand, uploads, contention patterns, payments (g.payments.products / g.subscriptions.plans to list what the app sells, which is not a collection; g.subscriptions.checkout / g.payments.buy), drafts, error philosophy, pricing, the keys (server · CLI · sync), `gemmein sync` and `sync --live`, go-live and promotion, relays, AI tools defined on the server and run with `g.ai.run`, and credits. The dashboard section (connecting Stripe, the dashboard's rooms, health checks) is appended live from docs.gemmein.com, because it changes with the dashboard; offline, a link to it takes its place. With `topic` (\"refund a payment\", \"free trial\") it returns only the docs-site sections that answer it, each a direct markdown link with its anchor (https://docs.gemmein.com/<page>.md#<section>); with no topic the guide ends with every docs page's markdown link, one page per topic.",
     title: "Guide",
     // One read-only GET to a fixed docs.gemmein.com address (open world);
     // nothing is written.
@@ -417,7 +426,7 @@ const TOOLS: readonly ToolDefinition[] = [
   {
     name: "explain_rule",
     description:
-      "Explains one of the seven collection safety rules (private, shared, admin_write, public_read, community, addressed, direct): its exact access contract, what it is right for, and the mistakes that leak data. Useful when choosing a collection's rule, or when a rule refuses something at runtime. With no rule it returns the all-seven cheat-sheet plus the cross-cutting law, including what no rule supports (team/group/workspace scope, per-user visibility inside a rule) — an app that needs those shapes has a fit gap, and client-side filtering does not close it.",
+      "Explains one of the eight collection safety rules (private, shared, admin_write, public_read, community, addressed, direct, app_only): its exact access contract, what it is right for, and the mistakes that leak data. Useful when choosing a collection's rule, or when a rule refuses something at runtime. With no rule it returns the all-eight cheat-sheet plus the cross-cutting law and the two options beside a rule (show / hide times, rankable numbers), including what no rule supports (team/group/workspace scope, per-user visibility inside a rule) — an app that needs those shapes has a fit gap, and client-side filtering does not close it.",
     title: "Explain rule",
     annotations: { title: "Explain rule", readOnlyHint: true, openWorldHint: false },
     inputSchema: {
@@ -521,8 +530,8 @@ export const PUBLIC_TOOLS: readonly ToolDefinition[] = TOOLS;
 // content (packages/sdk/llms.txt).
 export const SERVER_INSTRUCTIONS =
   "Gemmein is the go-live system for AI-built web apps: passwordless auth, records " +
-  "under seven safety rules, Stripe-run subscriptions and one-off digital products. " +
-  "Nine tools are read-only. guide returns the packaged contract (what code calls) " +
+  "under eight safety rules, Stripe-run subscriptions and one-off digital products. " +
+  "Ten tools work without an account, and nine of them are read-only. guide returns the packaged contract (what code calls) " +
   "plus the dashboard section, read live from docs.gemmein.com (a link to it when " +
   "offline). check_integration runs live checks against the app; " +
   "with a development secret key it also writes in the development environment: it " +
@@ -536,7 +545,9 @@ export const SERVER_INSTRUCTIONS =
   "writing code; changes — what is new since a given release; validate_collection_name " +
   "and explain_rule — planning collections; explain_error — a refused call; " +
   "explain_relay — gemmein/relays/<name>.json; reaffirm_template and check_integration — " +
-  "proving the app's boundaries.";
+  "proving the app's boundaries. Founders without a technical background often name " +
+  "things in everyday words; the guide's section \"Two ways of speaking\" maps each " +
+  "phrase to what it means in Gemmein.";
 
 const text = (t: string): ToolAnswer => ({ content: [{ type: "text" as const, text: t }] });
 const errText = (t: string): ToolAnswer => ({ content: [{ type: "text" as const, text: t }], isError: true });
@@ -578,10 +589,10 @@ export async function callTool(host: ToolHost, name: string, args: Record<string
           const sheet = Object.entries(RULES)
             .map(([r, d]) => `- \`${r}\` — ${d.contract.split(".")[0]}. Right for: ${d.rightFor}`)
             .join("\n");
-          return text(`Gemmein's seven collection safety rules (each collection has exactly one):\n\n${sheet}\n\n${RULES_FOOTER}`);
+          return text(`Gemmein's eight collection safety rules (each collection has exactly one):\n\n${sheet}\n\n${RULES_FOOTER}`);
         }
         const d = RULES[rule];
-        if (!d) return errText(`Unknown rule "${rule}". The seven rules: ${Object.keys(RULES).join(", ")}.`);
+        if (!d) return errText(`Unknown rule "${rule}". The eight rules: ${Object.keys(RULES).join(", ")}.`);
         return text(`## \`${rule}\`\n\n**Contract:** ${d.contract}\n\n**Right for:** ${d.rightFor}\n\n**Cautions:** ${d.cautions}\n\n${RULES_FOOTER}`);
       }
       case "explain_error": {
