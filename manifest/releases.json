@@ -360,6 +360,16 @@
    },
    "artifactFormat": "v1",
    "notes": "Host your app's site on Gemmein: every publish lands on a private preview you can share for 7 days; a version goes live only when you approve it; roll back, rebuild or pause, with every change in the site's history. Dashboard lists load a page at a time."
+  },
+  {
+   "version": "0.26.0",
+   "date": "2026-10-18",
+   "files": {
+    "gemmein.js": "fd4863b0b36a0e9d36c90f3dfdd200ec532265d906145a2f497abf267ede0ba9",
+    "llms.txt": "562d8db726e0f6db6ad00c681ff49bffb9990924d22da62257242c01c2521a95"
+   },
+   "artifactFormat": "v1",
+   "notes": "Your own domain for the Live site, and taking it offline. Going live is your approval and the payment, with no code; a change to one customer is a browser approval, a change to how the business runs also asks your code. A new data rule, app_only; show and hide times on records; rankable numbers."
   }
  ]
 }
