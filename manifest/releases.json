@@ -370,6 +370,16 @@
    },
    "artifactFormat": "v1",
    "notes": "Your own domain for the Live site, and taking it offline. Going live is your approval and the payment, with no code; a change to one customer is a browser approval, a change to how the business runs also asks your code. A new data rule, app_only; show and hide times on records; rankable numbers."
+  },
+  {
+   "version": "0.27.0",
+   "date": "2026-10-21",
+   "files": {
+    "gemmein.js": "7e0af96c1c19e6f3f8e7aaebc5c96a594eb2556a8190da92629893a857fed374",
+    "llms.txt": "1c1642948228f9b62c3a85197a0cff1d4cd8ed85db15ab5575a807036c3644db"
+   },
+   "artifactFormat": "v1",
+   "notes": "Buy your plan before going live, from your AI, the CLI or Usage & billing; a failed payment is fixed by updating the card in Stripe. Followers-only posts, private accounts, circles and blocks on the same eight data rules. A share link on the preview's own address that anyone with the link opens, with a Preview link switch. Your AI tests a site before it publishes. One tool per Live action, and a map of every tool."
   }
  ]
 }
