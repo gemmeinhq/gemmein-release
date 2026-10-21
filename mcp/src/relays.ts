@@ -29,7 +29,8 @@ export type RelayTrigger =
   | { kind: "schedule"; every: ScheduleEvery; at?: string; on?: ScheduleWeekday }
   | { kind: "data_change"; collection: string; on: RecordChangeKind[]; where?: Record<string, string | number | boolean | WhereOperators>; published?: boolean; openField?: string; direction?: "added" | "taken back" | "set" }
   | { kind: "credits_low"; below: number }
-  | { kind: "run_started"; tool?: string };
+  | { kind: "run_started"; tool?: string }
+  | { kind: "app_call"; who?: "signed_in" | "anyone"; perMinute?: number };
 export type RelayAction =
   | { type: "write_record"; collection: string; data: Record<string, unknown>; to?: "person" }
   | { type: "grant_access"; entitlement: string; expiresAt?: string; reason?: string }
@@ -41,7 +42,8 @@ export type RelayAction =
   | { type: "revoke_access"; entitlement: string }
   | { type: "email_person"; subject: string; text: string; kind?: "event" | "account" }
   | { type: "call_url"; url: string }
-  | { type: "start_run"; tool: string; inputs?: Record<string, string> };
+  | { type: "start_run"; tool: string; inputs?: Record<string, string> }
+  | { type: "spend_credits"; amount: number; reason: string };
 export type RelayDefinition = { name: string; trigger: RelayTrigger; actions: RelayAction[] };
 
 export class RelayDefinitionError extends Error {
@@ -77,7 +79,17 @@ const DURATION_RE = /^(\d{1,4})([hdw])$/;
 const MAX_MAP_ENTRIES = 20;
 const MAX_WHEN_ENTRIES = 20;
 const RECORD_KINDS: readonly RecordChangeKind[] = ["created", "updated", "deleted"];
-const ACTION_TYPES = ["write_record", "grant_access", "revoke_access", "email_person", "call_url", "grant_credits", "fulfil_product", "refund_product", "grant_plan", "revoke_plan", "start_run"] as const;
+const ACTION_TYPES = ["write_record", "grant_access", "revoke_access", "email_person", "call_url", "grant_credits", "fulfil_product", "refund_product", "grant_plan", "revoke_plan", "start_run", "spend_credits"] as const;
+/** THREE JOBS (20 Oct 2026) — mirrors packages/core APP_CALL_CAPS.perPersonMinute and RELAY_SPEND_CREDITS_MAX. */
+const APP_CALL_PER_PERSON_MINUTE = 30;
+const RELAY_SPEND_CREDITS_MAX = 10_000;
+/** THREE JOBS — the engine's sentences (apps/api/src/relays/schema.ts), said again here. */
+const SPEND_CREDITS_APP_CALL_ONLY = "spend_credits charges the person who CALLS the relay, so it lives only on a relay whose trigger is { \"kind\": \"app_call\" } — the app calls it before anything is written. A relay that reacts (a payment, a record, a clock) has no caller to charge: if your server does paid work, make it a pipeline; if your server charges for something else, it spends through POST /server/people/:id/credits/spend";
+const SPEND_CREDITS_NEEDS_PAID_FOR = "spend_credits needs something it pays for — put the action that creates what the charge buys (a write_record: the booking, the unlocked post) after it. The charge stands once that is done; everything after it (an email, a call to your URL) is a follow-up that retries and never refunds";
+/** THREE JOBS — what a charge pays for (apps/api/src/relays/schema.ts PAID_FOR_ACTIONS). */
+const PAID_FOR_ACTIONS: ReadonlySet<string> = new Set(["write_record", "grant_access", "grant_plan", "fulfil_product", "grant_credits"]);
+const SPEND_CREDITS_RIGHT_BEFORE = "spend_credits charges right before what it pays for — put that action (the write_record) straight after it, and move anything else (an email, a call to your URL) after the write, where it is a follow-up";
+const SPEND_CREDITS_FIRST = "spend_credits must be the relay's first action — the charge comes before anything is written, so when the person has too few credits (402 credits_exhausted) nothing else runs";
 /** W9.5 — mirrors apps/api/src/relays/schema.ts. */
 const PRODUCT_NAME_RE = /^[a-z0-9][a-z0-9 _.-]{0,39}$/i;
 // W9.3: a relay may grant a person up to 10,000 credits per action.
@@ -86,7 +98,7 @@ const MAX_RELAY_CREDITS = 10_000;
 const MAX_GRANT_EXPIRES_DAYS = 3650;
 const CREDITS_LOW_MAX = 1_000_000_000;
 const SCHEMES = ["signature", "stripe", "svix", "shared_token"] as const;
-const PERSON_ACTIONS: ReadonlySet<string> = new Set(["grant_access", "grant_credits", "revoke_access", "email_person", "fulfil_product", "refund_product", "grant_plan", "revoke_plan", "start_run"]);
+const PERSON_ACTIONS: ReadonlySet<string> = new Set(["grant_access", "grant_credits", "revoke_access", "email_person", "fulfil_product", "refund_product", "grant_plan", "revoke_plan", "start_run", "spend_credits"]);
 /** W10 §1 E — mirrors apps/api/src/relays/schema.ts. */
 const PERSON_MAP_KEYS = ["person_email", "person_id", "person_token"] as const;
 const PERSON_KEYS_SENTENCE = "person_email (their address, which invites someone who has never signed in), person_id (a gemmein person id) or person_token (the store account token their app filed with a store)";
@@ -559,8 +571,16 @@ function validateTrigger(raw: unknown): RelayTrigger {
       if (typeof t.tool !== "string" || !/^[a-z0-9][a-z0-9-]{0,39}$/.test(t.tool)) refuse("trigger.tool must be the name of an AI tool (1-40 lowercase letters, numbers or hyphens) — or leave it out for every tool");
       return { kind: "run_started", tool: t.tool as string };
     }
+    case "app_call": {
+      rejectUnknownKeys(t, ["kind", "who", "perMinute"], "trigger");
+      if (t.who !== undefined && t.who !== "signed_in" && t.who !== "anyone") refuse(`trigger.who must be "signed_in" (the default — only a signed-in person can call it, and they are the event's person) or "anyone"`);
+      if (t.perMinute !== undefined && (typeof t.perMinute !== "number" || !Number.isInteger(t.perMinute) || t.perMinute < 1 || t.perMinute > APP_CALL_PER_PERSON_MINUTE)) {
+        refuse(`trigger.perMinute must be a whole number from 1 to ${APP_CALL_PER_PERSON_MINUTE} — the calls one person may make each minute`);
+      }
+      return { kind: "app_call", ...(t.who === "anyone" ? { who: "anyone" as const } : {}), ...(typeof t.perMinute === "number" ? { perMinute: t.perMinute } : {}) };
+    }
     default:
-      return refuse(`trigger.kind "${kind}" is not a trigger the engine has — use receiver (a provider's webhook), schedule (a clock), data_change (a record changing), credits_low (a person's credits falling under a number) or run_started (a person starting a run)`);
+      return refuse(`trigger.kind "${kind}" is not a trigger the engine has — use receiver (a provider's webhook), schedule (a clock), data_change (a record changing), credits_low (a person's credits falling under a number), run_started (a person starting a run) or app_call (your app calls it by name)`);
   }
 }
 
@@ -585,6 +605,7 @@ function validateAction(raw: unknown, index: number, triggerKind: RelayTrigger["
   if (!(ACTION_TYPES as readonly string[]).includes(type)) {
     refuse(`${what}.type "${type}" is not an action the engine has — the verbs are ${ACTION_TYPES.join(", ")}; anything else is compute, and compute runs on your own server behind call_url`);
   }
+  if (type === "spend_credits" && triggerKind !== "app_call") refuse(`${what}: ${SPEND_CREDITS_APP_CALL_ONLY}`);
   if (triggerKind === "schedule" && PERSON_ACTIONS.has(type)) {
     refuse(`${what}: a schedule has no person, so ${type} has no one to act on — trigger it from a receiver whose map names ${PERSON_KEYS_SENTENCE}, or from a data_change on a collection whose records have an owner`);
   }
@@ -720,6 +741,16 @@ function validateAction(raw: unknown, index: number, triggerKind: RelayTrigger["
       }
       return { type: "start_run", tool, ...(inputs ? { inputs } : {}) };
     }
+    case "spend_credits": {
+      rejectUnknownKeys(a, ["type", "amount", "reason"], what);
+      const amount = a.amount;
+      if (typeof amount !== "number" || !Number.isInteger(amount) || amount < 1 || amount > RELAY_SPEND_CREDITS_MAX) {
+        refuse(`${what}.amount must be a whole number from 1 to ${RELAY_SPEND_CREDITS_MAX.toLocaleString("en-GB")} credits — what one call costs the caller`);
+      }
+      const reason = requireString(a, "reason", what, 200).trim();
+      if (reason === "") refuse(`${what}.reason is required — one line saying what the credits paid for; it is what the person's ledger shows`);
+      return { type: "spend_credits", amount: amount as number, reason };
+    }
     case "call_url": {
       rejectUnknownKeys(a, ["type", "url"], what);
       const url = requireString(a, "url", what, 2048);
@@ -753,6 +784,7 @@ function grantTarget(action: { type: string } & Record<string, unknown>): string
     case "grant_access":
     case "revoke_access": return `access:${String(action.entitlement ?? "").trim().toLowerCase()}`;
     case "grant_credits": return "credits";
+    case "spend_credits": return "credits:spend";
     default: return null;
   }
 }
@@ -764,6 +796,7 @@ const TARGET_WORDS: Record<string, (target: string) => string> = {
   grant_access: (t) => `the access "${t.slice("access:".length)}"`,
   revoke_access: (t) => `the access "${t.slice("access:".length)}"`,
   grant_credits: () => "credits (one grant_credits per relay — write one with the summed amount)",
+  spend_credits: () => "the caller's credits (one spend_credits per relay — write one with the summed amount)",
 };
 function assertUniqueGrantTargets(actions: ReadonlyArray<{ type: string } & Record<string, unknown>>): void {
   const seen = new Map<string, number>();
@@ -795,6 +828,20 @@ export function validateRelayDefinition(input: unknown): RelayDefinition {
   }
   const unsigned = unsignedEventProblem({ trigger, actions: actions as RelayAction[] });
   if (unsigned !== null) refuse(unsigned);
+  // THREE JOBS (port of assertAppCallShape): spend first; no money on an app call but the
+  // caller's own spend; anyone has no caller.
+  const spendAt = actions.findIndex((a) => (a as { type: string }).type === "spend_credits");
+  if (spendAt > 0) refuse(`actions[${spendAt}]: ${SPEND_CREDITS_FIRST}`);
+  if (spendAt === 0 && !actions.some((a, i) => i > 0 && PAID_FOR_ACTIONS.has((a as { type: string }).type))) refuse(`actions[0]: ${SPEND_CREDITS_NEEDS_PAID_FOR}`);
+  if (spendAt === 0 && !PAID_FOR_ACTIONS.has((actions[1] as { type: string } | undefined)?.type ?? "")) refuse(`actions[1]: ${SPEND_CREDITS_RIGHT_BEFORE}`);
+  if (trigger.kind === "app_call") {
+    const money = actions.find((a) => APP_CALL_MONEY.has((a as { type: string }).type));
+    if (money) refuse(`${(money as { type: string }).type} can't run on an app_call relay — an app call can't grant or take what a person holds (access, plans, products, credits granted); money moves through payments and their relays. The one money verb an app call takes is spend_credits, the caller's own credits`);
+    if (trigger.who === "anyone") {
+      const personal = actions.find((a) => PERSON_ACTIONS.has((a as { type: string }).type));
+      if (personal) refuse(`${(personal as { type: string }).type} acts on the caller, and a relay anyone may call has no caller — use who: "signed_in"`);
+    }
+  }
   return { name, trigger, actions };
 }
 
@@ -848,6 +895,7 @@ export function describeRelay(def: RelayDefinition): string {
   else if (t.kind === "schedule") when = t.every === "1w" && t.on ? `Every ${t.on.charAt(0).toUpperCase()}${t.on.slice(1)} at ${t.at ?? "00:00"} UTC` : t.at ? `${EVERY_WORDS[t.every]} at ${t.at} UTC` : EVERY_WORDS[t.every];
   else if (t.kind === "credits_low") when = `When a person's credits fall under ${t.below.toLocaleString("en-GB")}`;
   else if (t.kind === "run_started") when = t.tool ? `When a person starts a ${t.tool} run` : "When a person starts a run";
+  else if (t.kind === "app_call") when = t.who === "anyone" ? `When the app calls ${def.name}` : `When a signed-in person calls ${def.name} from the app`;
   else when = `When ${article(t.collection)} ${t.collection} record is ${listWords(t.on)}${filterWords(t.where)}`;
   const actions = def.actions.map((a) => {
     switch (a.type) {
@@ -862,6 +910,7 @@ export function describeRelay(def: RelayDefinition): string {
       case "email_person": return "email the person";
       case "call_url": return `call ${a.url}`;
       case "start_run": return `start a ${a.tool} run for the person`;
+      case "spend_credits": return `charge the caller ${a.amount} ${a.amount === 1 ? "credit" : "credits"} (${a.reason})`;
     }
   });
   return `${when} → ${actions.join(", ")}`;
@@ -896,4 +945,7 @@ export const CLOUD_ONLY_NOTE =
 
 /** OPEN FIELDS: actions that grant, charge, take or credit — never triggered
  *  by a reader's like, choice or flag. */
-const MONEY_ACTIONS = new Set(["grant_access", "revoke_access", "grant_credits", "fulfil_product", "refund_product", "grant_plan", "revoke_plan", "start_run"]);
+const MONEY_ACTIONS = new Set(["grant_access", "revoke_access", "grant_credits", "fulfil_product", "refund_product", "grant_plan", "revoke_plan", "start_run", "spend_credits"]);
+/** THREE JOBS: what an app_call relay may not hold — every grant or take but the hold-exempt
+ *  two (start_run holds the person's own credits for a run; spend_credits is the caller's own). */
+const APP_CALL_MONEY = new Set(["grant_access", "revoke_access", "grant_credits", "fulfil_product", "refund_product", "grant_plan", "revoke_plan"]);

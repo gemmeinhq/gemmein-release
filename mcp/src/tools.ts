@@ -61,7 +61,8 @@ export type ToolDefinition = {
   inputSchema: Record<string, unknown>;
 };
 export type ToolAnswer = {
-  content: Array<{ type: "text"; text: string }>;
+  /** text, and (D4 site_test_result) a screenshot as an MCP image block */
+  content: Array<{ type: "text"; text: string } | { type: "image"; data: string; mimeType: string }>;
   structuredContent?: Record<string, unknown>;
   isError?: boolean;
 };
@@ -161,12 +162,15 @@ const RULES: Record<string, { contract: string; rightFor: string; cautions: stri
 
 const RULES_FOOTER =
   "Cross-cutting law: collections are created by the app owner in their dashboard, never by the SDK. " +
-  "There is NO team/group/workspace scope and no per-user visibility inside a rule — if the app needs that shape, stop and tell your human it isn't supported yet (never approximate it by client-side filtering a shared collection). " +
+  "There is NO team/group/workspace scope and no per-user visibility inside a rule beyond followers-only and circles (below) — if the app needs that shape, stop and tell your human it isn't supported yet (never approximate it by client-side filtering a shared collection). " +
   "Record fields always live under record.data; ownerUserId/version/published are server-derived and top-level. " +
   "Counting and 'by this person' are list() options, not workarounds: list({ count: true }) adds `total` (exact to 10,000, else `totalAtLeast: 10000` — show '10,000+') under the reader's own scope; list({ author: 'me' | userId }) narrows to one person's records on shared, community, public_read and direct (403 author_not_visible on private, addressed, admin_write — never filter ownerUserId in where, it is refused). Ask for the count only where a number is shown; never page through every record to count. " +
   "OPEN FIELDS (a setting, not a new rule): every write is the author's own, so likes, votes, RSVPs, 'accept' and 'mark as read' need \"openFields\" in gemmein/collections/<name>.json — fields ANY signed-in person who can read the record may change, each by ONE operation: \"count once per person\" for likes/votes/upvotes (open(id).count('likes', 1) adds your one, a second is a no-op, count('likes', -1) undoes; the total lives at record.data.likes and record.mine.likes says whether YOU liked it — never keep a likes array or a separate likes collection); { \"one of\": [\"accepted\", \"declined\"] } for a status any reader sets from a fixed list, last write wins (an invite's answer, an RSVP everyone sees: open(id).set('status', 'accepted')); \"per person flag\" for each person's own yes/no that only they see (read/unread, 'I'm going', an invoice ACKNOWLEDGEMENT on addressed: open(id).flag('read', true); record.mine.read; the dashboard and a secret key read record.flaggedBy). Allowed on shared, community, public_read (signed-in readers), addressed and direct (the recipient); REFUSED on private and admin_write (invalid_open_fields at gemmein dev / gemmein sync). Writing an open field through create/update is 400 open_field_write; other codes: not_open_field, wrong_open_operation, open_value_not_in_list, open_field_not_allowed. A relay fires on one ONLY with trigger { on: ['updated'], openField: 'read' } — on each add, take-back and set; add direction: 'added' for 'when someone likes' (a plain 'updated' relay never hears likes; an openField trigger on a relay that grants/charges/credits is refused — likes never move money); a like never moves record.version; 10 changes a minute per person per record, then 429 open_field_too_fast. " +
   "SHOW / HIDE TIMES (an option, not a rule): create(data, { showFrom, showUntil }) / update(id, {}, { showUntil }) — ISO 8601 instants (or Dates; null clears on update), top-level on the record like published, never data fields. Outside its window a record is hidden from everyone but its author (the dashboard and a secret key always see it) in EVERY read, by the server's clock; a watcher gets it when showFrom arrives and its id in `deleted` when showUntil passes. Works on shared, community, public_read, admin_write, addressed and direct; 400 invalid_show_time on private/app_only, a bad instant or a window that never shows. " +
   "RANKABLE NUMBERS (an option, not a rule): \"rankable\": [\"score\"] in gemmein/collections/<name>.json (up to 3; declared number fields on community/shared/direct) lets list({ sort: { by: 'score', order?: 'desc' | 'asc' } }) order by it, each record carrying `rank` (ties share: 1, 2, 2, 4) — only over what this person may already read, with where/search/count/cursor; records without a number there are left out. 400 not_rankable (not declared), invalid_sort (sort is 'newest' | 'oldest' | 'updated' | { by, order }), invalid_since (with since). A leaderboard's trust is who writes the number: admin_write, public_read or app_only written by your server or a relay — never a score each player writes. " +
+  "FOLLOWERS-ONLY (an option, not a rule): create(data, { visibility: 'followers' }) on community or shared — read by its author, the author's followers RIGHT NOW, the dashboard and a secret key; never anyone signed out or a non-follower; update(id, {}, { visibility: 'everyone' }) opens it back to the rule; 400 invalid_visibility on every other rule. " +
+  "PEOPLE — FOLLOWS AND BLOCKS (g.people, app-wide, not per collection): follow/unfollow are one-way; friends = people who follow each other (derived, never stored); list({ author: 'following' }) is the feed. A BLOCK works both ways: neither person reads the other's records in ANY collection (posts, profiles, messages — every read) while signed in, any follow between them ends, neither can follow or message the other (403 person_unavailable, one sentence whoever blocked); unblocking never restores a follow. A block can't hide a public post from someone signed out. Bounds: 5,000 follows / 1,000 blocks per person, 200 / 60 changes an hour (lower in cloud Development). Any app with community, shared or direct people content should show Block. " +
+  "PROFILES, PRIVATE ACCOUNTS AND CIRCLES: g.people.relationship(id) answers a person's counts { followers, following } to any signed-in person (null across a block); g.people.followersOf(id) / followingOf(id) list another person's, never anyone blocked with you. g.people.setPrivate(true): a follow becomes a request (never access) the person answers with accept(id) / decline(id) (requests() lists them); a private person's posts and files (community, shared, public_read, admin_write), their lists and followers-only posts reach only the people they accepted — never anyone signed out (403 person_private on lists); a circle post still reaches its circle, a direct message its people; setPrivate(false) makes them public and accepts every request waiting. CIRCLES (g.circles, no roles): create(name), add/remove (the creator only), list, get, members, leave(id, { transferTo }) (a creator names who takes over, or disbands — never orphaned), disband; post with create(data, { visibility: 'circle:' + circle.id }) on community or shared — read by the circle's CURRENT members only, its files uploaded with the same visibility; removing someone or their leaving ends it at once (New links stop at once; a link already opened stops working within 5 minutes.); posting to a circle you aren't in is 403 not_in_circle. Bounds: 50 members per circle (250 on Live, 1,000 on Growing), 100 circles per person, 500 requests waiting. A circle is people sharing posts, never a team workspace. " +
   "MANY RECIPIENTS: a direct record can name up to 20 people — create(data, { for: [id, id] }) — one record every named person reads, only its author edits (400 too_many_recipients past 20; a list on addressed is 400 invalid_recipients — send one addressed record per person).";
 
 // invalid_collection_name is thrown client-side by the SDK, so it is not in
@@ -377,7 +381,7 @@ const TOOLS: readonly ToolDefinition[] = [
     title: "Guide",
     // One read-only GET to a fixed docs.gemmein.com address (open world);
     // nothing is written.
-    annotations: { title: "Guide", readOnlyHint: true, openWorldHint: true },
+    annotations: { title: "Guide", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     inputSchema: {
       type: "object",
       properties: { topic: { type: "string", description: "optional: what you need (\"refund a payment\") — returns only the docs sections that answer it, as direct .md links" } },
@@ -391,7 +395,7 @@ const TOOLS: readonly ToolDefinition[] = [
     title: "What changed",
     // Offline: the feed is bundled at build (changes.generated.ts); nothing is
     // fetched and nothing is written.
-    annotations: { title: "What changed", readOnlyHint: true, openWorldHint: false },
+    annotations: { title: "What changed", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     inputSchema: {
       type: "object",
       properties: { since: { type: "string", description: "the Gemmein version you knew, e.g. 0.22.1 — returns every release after it; leave out for the last three" } },
@@ -403,7 +407,7 @@ const TOOLS: readonly ToolDefinition[] = [
     description:
       "Returns the @gemmein/sdk API reference (REFERENCE.md): every method, exact signature, return shape, and the stable error-code table. Useful while writing code against the SDK. With `topic` (a module or method: \"g.collection\", \"checkout\") it returns only the matching sections — the packaged text plus each section's direct link, https://docs.gemmein.com/reference.md#<section>. `guide` covers how the model works and whether an app fits; `search_docs` finds one fact in either document.",
     title: "Reference",
-    annotations: { title: "Reference", readOnlyHint: true, openWorldHint: false },
+    annotations: { title: "Reference", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     inputSchema: {
       type: "object",
       properties: { topic: { type: "string", description: "optional: a module or method — returns only its sections instead of the whole reference" } },
@@ -415,7 +419,7 @@ const TOOLS: readonly ToolDefinition[] = [
     description:
       "Searches the Gemmein docs for one term or phrase ('keyed create', 'ifVersion', 'addressed', 'expand') without reading a whole document. Returns the docs site's matching sections first, best first — each a direct markdown link with its anchor (https://docs.gemmein.com/<page>.md#<section>) and its opening words, so one section is read, not a page — then the matching passages of the packaged guide and API reference with 3 lines of context either side, at most 6 match blocks per document. Offline: the section index ships with this server. Search finds what the docs say, not what Gemmein does not support; the fit assessment is in `guide`.",
     title: "Search docs",
-    annotations: { title: "Search docs", readOnlyHint: true, openWorldHint: false },
+    annotations: { title: "Search docs", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     inputSchema: {
       type: "object",
       properties: { query: { type: "string", description: "term or phrase to find" } },
@@ -426,9 +430,9 @@ const TOOLS: readonly ToolDefinition[] = [
   {
     name: "explain_rule",
     description:
-      "Explains one of the eight collection safety rules (private, shared, admin_write, public_read, community, addressed, direct, app_only): its exact access contract, what it is right for, and the mistakes that leak data. Useful when choosing a collection's rule, or when a rule refuses something at runtime. With no rule it returns the all-eight cheat-sheet plus the cross-cutting law and the two options beside a rule (show / hide times, rankable numbers), including what no rule supports (team/group/workspace scope, per-user visibility inside a rule) — an app that needs those shapes has a fit gap, and client-side filtering does not close it.",
+      "Explains one of the eight collection safety rules (private, shared, admin_write, public_read, community, addressed, direct, app_only): its exact access contract, what it is right for, and the mistakes that leak data. Useful when choosing a collection's rule, or when a rule refuses something at runtime. With no rule it returns the all-eight cheat-sheet plus the cross-cutting law, the options beside a rule (show / hide times, rankable numbers, followers-only) and follows and blocks, including what no rule supports (team/group/workspace scope, per-user visibility inside a rule) — an app that needs those shapes has a fit gap, and client-side filtering does not close it.",
     title: "Explain rule",
-    annotations: { title: "Explain rule", readOnlyHint: true, openWorldHint: false },
+    annotations: { title: "Explain rule", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     inputSchema: {
       type: "object",
       properties: {
@@ -446,7 +450,7 @@ const TOOLS: readonly ToolDefinition[] = [
     description:
       "Explains a GemmeinError code (err.code: conflict, forbidden, unknown_collection, invalid_shape, html_not_allowed, …): what the code means and the exact next step — including whether the refusal is final (a forbidden repeats on retry; the approach changes, not the request). Parsed from the installed API reference, so codes match the SDK version the app runs. With no code it lists every stable code.",
     title: "Explain error",
-    annotations: { title: "Explain error", readOnlyHint: true, openWorldHint: false },
+    annotations: { title: "Explain error", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     inputSchema: {
       type: "object",
       properties: { code: { type: "string", description: "the err.code to explain; omit to list all" } },
@@ -458,7 +462,7 @@ const TOOLS: readonly ToolDefinition[] = [
     description:
       "Checks a collection name against the naming law: lowercase letters, numbers, underscores; starts with a letter; 2-63 characters. Useful while planning collections, before any g.collection(name) call is written: a bad name throws from g.collection(name) before any network call — at module load that blanks the whole app with no console error. An invalid name comes back with a suggested fix.",
     title: "Validate collection name",
-    annotations: { title: "Validate collection name", readOnlyHint: true, openWorldHint: false },
+    annotations: { title: "Validate collection name", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     inputSchema: {
       type: "object",
       properties: { name: { type: "string" } },
@@ -471,15 +475,15 @@ const TOOLS: readonly ToolDefinition[] = [
     description:
       "Returns reaffirm.mjs, the ready-to-edit harness that re-proves the app's boundaries against live Gemmein on every deploy (also shipped inside the @gemmein/sdk package): copied next to the app with its CONFIG block set, it runs in CI. Useful when wiring up the app's CI or handing over the finished app. check_integration runs the same checks once, with no file to install.",
     title: "Reaffirm template",
-    annotations: { title: "Reaffirm template", readOnlyHint: true, openWorldHint: false },
+    annotations: { title: "Reaffirm template", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
   },
   {
     name: "explain_relay",
     description:
-      "Validates a relay definition — the contents of gemmein/relays/<name>.json — offline, before `gemmein sync` carries it to the cloud. A relay is one trigger (receiver: a provider's webhook; schedule: a clock; data_change: a record changing) and up to ten actions in Gemmein's own verbs (write_record, grant_access, revoke_access, grant_credits, email_person, call_url, fulfil_product, refund_product, grant_plan, revoke_plan) — Gemmein runs it: receives the event, maps the fields, authorises, carries out the action. Takes the definition JSON; returns the English sentence the dashboard shows (\"When gocardless-paid receives an event where event_type is confirmed → grant Pro, email the person, call https://…\") or the one refusal sentence the cloud would answer, naming the field and the fix. Offline and read-only: nothing is created. Two checks run only in the cloud and are stated in the answer (the API's own hosts; the address's resolved network at call time).",
+      "Validates a relay definition — the contents of gemmein/relays/<name>.json — offline, before `gemmein sync` carries it to the cloud. A relay is the secure boundary for three jobs. React, nothing charged: a receiver (a provider's webhook), schedule (a clock), data_change (a record changing), credits_low or run_started trigger runs Gemmein's own verbs, and call_url sends a signed notice to the founder's server. Charge for an action, when the user's action costs credits (book a class, unlock, post): an app_call trigger — the app calls the relay by name with g.relays.call before anything is written — whose first action spend_credits takes the caller's own credits, or refuses with 402 credits_exhausted so nothing else runs, refunded if what it pays for (the first write) fails; once that is done the charge stands and later actions are follow-ups that retry. Charge for work the founder's own server does, AI or not: that is a pipeline, a tool on provider external (put_ai_tool), not call_url; a relay's start_run starts such a paid job from an event. One trigger and up to ten actions in Gemmein's own verbs (write_record, grant_access, revoke_access, grant_credits, spend_credits, email_person, call_url, start_run, fulfil_product, refund_product, grant_plan, revoke_plan) — Gemmein runs it: receives the event, maps the fields, authorises, carries out the action. Takes the definition JSON; returns the English sentence the dashboard shows (\"When gocardless-paid receives an event where event_type is confirmed → grant Pro, email the person, call https://…\") or the one refusal sentence the cloud would answer, naming the field and the fix. Offline and read-only: nothing is created. Two checks run only in the cloud and are stated in the answer (the API's own hosts; the address's resolved network at call time).",
     title: "Explain relay (validate offline)",
-    annotations: { title: "Explain relay (validate offline)", readOnlyHint: true, openWorldHint: false },
+    annotations: { title: "Explain relay (validate offline)", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     inputSchema: {
       type: "object",
       properties: {
@@ -522,6 +526,29 @@ const TOOLS: readonly ToolDefinition[] = [
 
 /** The ten tools, as tools/list states them — the same list on every door. */
 export const PUBLIC_TOOLS: readonly ToolDefinition[] = TOOLS;
+
+/** NO KEY IN A CHAT (21 Oct 2026, OpenAI's store review: no tool may ask the
+ *  model for a secret). On the hosted connector (connectorProof) Tier B is
+ *  prove_app — as the app's test members, on the server — so check_integration
+ *  is listed there with no secretKey, testUsers or apiUrl input, and a call
+ *  that sends one is refused before anything runs. The local server
+ *  (npx @gemmein/mcp, on the developer's own computer) keeps Tier B. */
+export const CONNECTOR_CHECK_INTEGRATION: ToolDefinition = (() => {
+  const base = TOOLS.find((t) => t.name === "check_integration")!;
+  const { secretKey: _k, testUsers: _u, apiUrl: _a, ...properties } = (base.inputSchema as { properties: Record<string, unknown> }).properties;
+  return {
+    ...base,
+    description: "Runs the reaffirm boundary checks live against the caller's own app on this Gemmein; returns structured pass/fail (structuredContent: checks, notes, failedCount, passed). Useful once the app is wired to Gemmein, when confirming it is done, and before go-live. It takes the app's public pk_ key only (public by design): the collection name is valid, anonymous reads and writes of a private collection are refused, an optional public collection reads as its rule intends — safe against any environment, live included. It writes nothing while the boundaries hold — but if a private collection is open to strangers, its anonymous test write succeeds and the record stays, in whatever environment the key names (live included), and the check fails, naming the collection. That one user can't read another's private records is proved by prove_app, as the app's test members on the server — no key ever passes through a chat. A failed check means the app's assumptions drifted from its rules.",
+    inputSchema: { ...(base.inputSchema as Record<string, unknown>), properties },
+    // Tier A only, against the Gemmein API this server runs on (pinnedApi):
+    // it may leave one anonymous probe record when a boundary is OPEN (not
+    // read-only), adds only — no session revoked, nothing deleted or
+    // overwritten (not destructive), probes again on every run (not
+    // idempotent), and reaches nothing beyond Gemmein (closed world).
+    annotations: { title: base.title, readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+  };
+})();
+export const CONNECTOR_NO_KEY = "check_integration takes no secret key here — a key never passes through a chat. It checks with the app's public pk_ key; prove_app proves one user can't read another's records, as the app's test members, on the server.";
 
 // Stated ONCE, server-wide, in the initialize result every client hands to
 // its model: what Gemmein is, what the tools write, and what each tool is for
@@ -638,6 +665,7 @@ export async function callTool(host: ToolHost, name: string, args: Record<string
       }
       case "check_integration": {
         const { fetchImpl: _never, connectorProof: _host, ...input } = args as IntegrationInput; // a fetch and the door are the host's, never an argument
+        if (host.connectorProof && (input.secretKey !== undefined || input.testUsers !== undefined)) return errText(CONNECTOR_NO_KEY);
         if (typeof input.publicKey !== "string" || !input.publicKey.startsWith("pk_")) {
           return errText("publicKey must be the app's public pk_ key (never an sk_ secret).");
         }
@@ -685,6 +713,16 @@ export const GEMMEIN_SERVER_ICONS = [
   { src: "https://gemmein.com/favicon.svg", mimeType: "image/svg+xml" },
 ];
 
+/** Every hint spelled out (18 Oct 2026, the ChatGPT directory scan): a
+ *  read-only tool states destructiveHint false and idempotentHint true instead
+ *  of leaving them to the spec's defaults (destructive true when omitted). The
+ *  definitions stay as written; only the listing fills what a read implies. */
+export function withExplicitHints<T extends { annotations?: Record<string, unknown> }>(tool: T): T {
+  const a = tool.annotations;
+  if (!a || a.readOnlyHint !== true) return tool;
+  return { ...tool, annotations: { destructiveHint: false, idempotentHint: true, ...a } };
+}
+
 /** The MCP server both doors connect: stdio (index.ts) and HTTP (the hosted
  *  connector). One server per connection; nothing is shared between them. */
 export function createGemmeinServer(host: ToolHost): Server {
@@ -695,7 +733,8 @@ export function createGemmeinServer(host: ToolHost): Server {
       instructions: host.extra?.instructions ? `${SERVER_INSTRUCTIONS}\n\n${host.extra.instructions}` : SERVER_INSTRUCTIONS,
     },
   );
-  const tools = [...TOOLS, ...(host.extra?.tools ?? [])];
+  const shared = host.connectorProof ? TOOLS.map((t) => (t.name === "check_integration" ? CONNECTOR_CHECK_INTEGRATION : t)) : TOOLS;
+  const tools = [...shared, ...(host.extra?.tools ?? [])].map(withExplicitHints);
   server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: tools as unknown as Array<{ name: string; inputSchema: { type: "object" } }> }));
   server.setRequestHandler(CallToolRequestSchema, async (req) => {
     const { name, arguments: args = {} } = req.params;
