@@ -380,6 +380,16 @@
    },
    "artifactFormat": "v1",
    "notes": "Buy your plan before going live, from your AI, the CLI or Usage & billing; a failed payment is fixed by updating the card in Stripe. Followers-only posts, private accounts, circles and blocks on the same eight data rules. A share link on the preview's own address that anyone with the link opens, with a Preview link switch. Your AI tests a site before it publishes. One tool per Live action, and a map of every tool."
+  },
+  {
+   "version": "0.29.0",
+   "date": "2026-10-25",
+   "files": {
+    "gemmein.js": "0fc85a9a237518049ca098cc27671680f7426e870347039f27752967b5d585bc",
+    "llms.txt": "860d38e449586c2cf91f3574270d2ecc9d6bd81a431b48f19b1825fb2f6781d3"
+   },
+   "artifactFormat": "v1",
+   "notes": "Your customer's own words carry the same provenance in the CLI's --json as they do in your AI's tools. Replace every key, in one action, after a real security concern — server keys, relay secrets, AI-tool secrets and the site preview link, Development and Live together. A Live server key is made and shown once in the browser, never read back by a machine. Every outside address your AI, your CLI or a function calls now belongs to one allowed-hosts list per app. A free account holds one app; paying for a plan raises it to 10, and a lapsed plan pauses every other app too, read-only, until it's active again."
   }
  ]
 }
