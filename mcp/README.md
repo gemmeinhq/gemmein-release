@@ -15,6 +15,12 @@ collection is open to strangers, the anonymous test write succeeds and its
 record stays, in whatever environment the key names (live included), and the
 check fails, naming the collection.
 
+Nine more tools act on a linked Gemmein app — `create_app` and the Views
+family (`put_view`, `dev_view`, `live_view`, `dev_delete_view`,
+`view_action`, `view_add`, `view_edit`, `view_reorder`). Link the project
+once with `npx gemmein login` (a browser approval, 7 days); without a link
+these refuse, naming that command — no key is ever asked for in the chat.
+
 ## Setup
 
 Claude Code:
@@ -81,6 +87,25 @@ On the hosted server, `check_integration` checks the API it runs on only.
   app right now: anonymous access refused where it must be, cross-user
   isolation proven with throwaway dev test sessions, structured pass/fail
   back. Never pass a live secret key — `sk_live` is refused by design.
+
+The following nine need a linked project (`npx gemmein login`):
+
+- **`create_app`** — ask to make another app on the same account, in
+  Development only. Your human approves it in their browser with the
+  emailed code.
+- **`put_view`** — create or update one Development view: a recipe over one
+  collection (filter, sort, columns, totals, layout, action buttons).
+- **`dev_view`** / **`live_view`** — read one view's rows, exactly as its
+  layout shows them, with totals and each row's open actions. `live_view`
+  needs the `live:read` grant.
+- **`dev_delete_view`** — delete a view's recipe from Development; the
+  collection and its records are untouched, and Live keeps its own copy for
+  good.
+- **`view_action`** — move one record one step along a view's own action
+  buttons. In Development it happens at once; with `env: "live"` your human
+  approves it in their browser (no emailed code).
+- **`view_add`** / **`view_edit`** / **`view_reorder`** — add, edit or
+  reorder a record through a view's own form, Development only.
 
 ## The companion SDK
 

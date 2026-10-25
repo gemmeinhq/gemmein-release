@@ -11,7 +11,8 @@
 import { createRequire } from "node:module";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { sdkFile } from "./dashboard.ts";
-import { createGemmeinServer } from "./tools.ts";
+import { createGemmeinServer, CLOUD_TOOLS } from "./tools.ts";
+import { callCloudTool, CLOUD_TOOLS_INSTRUCTIONS } from "./cloudTools.ts";
 
 const require = createRequire(import.meta.url);
 
@@ -21,6 +22,12 @@ const server = createGemmeinServer({
   version: (require("../package.json") as { version: string }).version,
   docs: sdkFile,
   sdk: () => import("@gemmein/sdk"),
+  // create_app and the Views family: listed always (the hosted connector
+  // lists its signed-in tools to anyone too — only the CALL needs
+  // credentials), answered against this project's own cloud link
+  // (cloudLink.ts) when one exists; without one, a call refuses, naming
+  // `npx gemmein login` (never a silent no-op, never asking for a key here).
+  extra: { tools: [...CLOUD_TOOLS], call: callCloudTool, instructions: CLOUD_TOOLS_INSTRUCTIONS },
 });
 
 await server.connect(new StdioServerTransport());

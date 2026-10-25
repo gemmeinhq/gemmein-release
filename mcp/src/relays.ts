@@ -43,6 +43,7 @@ export type RelayAction =
   | { type: "email_person"; subject: string; text: string; kind?: "event" | "account" }
   | { type: "call_url"; url: string }
   | { type: "start_run"; tool: string; inputs?: Record<string, string> }
+  | { type: "run_function"; function: string; input?: Record<string, string> }
   | { type: "spend_credits"; amount: number; reason: string };
 export type RelayDefinition = { name: string; trigger: RelayTrigger; actions: RelayAction[] };
 
@@ -79,7 +80,7 @@ const DURATION_RE = /^(\d{1,4})([hdw])$/;
 const MAX_MAP_ENTRIES = 20;
 const MAX_WHEN_ENTRIES = 20;
 const RECORD_KINDS: readonly RecordChangeKind[] = ["created", "updated", "deleted"];
-const ACTION_TYPES = ["write_record", "grant_access", "revoke_access", "email_person", "call_url", "grant_credits", "fulfil_product", "refund_product", "grant_plan", "revoke_plan", "start_run", "spend_credits"] as const;
+const ACTION_TYPES = ["write_record", "grant_access", "revoke_access", "email_person", "call_url", "grant_credits", "fulfil_product", "refund_product", "grant_plan", "revoke_plan", "start_run", "spend_credits", "run_function"] as const;
 /** THREE JOBS (20 Oct 2026) — mirrors packages/core APP_CALL_CAPS.perPersonMinute and RELAY_SPEND_CREDITS_MAX. */
 const APP_CALL_PER_PERSON_MINUTE = 30;
 const RELAY_SPEND_CREDITS_MAX = 10_000;
@@ -87,7 +88,9 @@ const RELAY_SPEND_CREDITS_MAX = 10_000;
 const SPEND_CREDITS_APP_CALL_ONLY = "spend_credits charges the person who CALLS the relay, so it lives only on a relay whose trigger is { \"kind\": \"app_call\" } — the app calls it before anything is written. A relay that reacts (a payment, a record, a clock) has no caller to charge: if your server does paid work, make it a pipeline; if your server charges for something else, it spends through POST /server/people/:id/credits/spend";
 const SPEND_CREDITS_NEEDS_PAID_FOR = "spend_credits needs something it pays for — put the action that creates what the charge buys (a write_record: the booking, the unlocked post) after it. The charge stands once that is done; everything after it (an email, a call to your URL) is a follow-up that retries and never refunds";
 /** THREE JOBS — what a charge pays for (apps/api/src/relays/schema.ts PAID_FOR_ACTIONS). */
-const PAID_FOR_ACTIONS: ReadonlySet<string> = new Set(["write_record", "grant_access", "grant_plan", "fulfil_product", "grant_credits"]);
+/** EDGE (Fable's ruling, 20 Oct): run_function may be what a charge pays for — only when the
+ *  run writes through the engine (the engine checks that at run time: paid_for_nothing_written). */
+const PAID_FOR_ACTIONS: ReadonlySet<string> = new Set(["write_record", "grant_access", "grant_plan", "fulfil_product", "grant_credits", "run_function"]);
 const SPEND_CREDITS_RIGHT_BEFORE = "spend_credits charges right before what it pays for — put that action (the write_record) straight after it, and move anything else (an email, a call to your URL) after the write, where it is a follow-up";
 const SPEND_CREDITS_FIRST = "spend_credits must be the relay's first action — the charge comes before anything is written, so when the person has too few credits (402 credits_exhausted) nothing else runs";
 /** W9.5 — mirrors apps/api/src/relays/schema.ts. */
@@ -603,7 +606,7 @@ function validateAction(raw: unknown, index: number, triggerKind: RelayTrigger["
   const a = requireObject(raw, what);
   const type = requireString(a, "type", what, 40);
   if (!(ACTION_TYPES as readonly string[]).includes(type)) {
-    refuse(`${what}.type "${type}" is not an action the engine has — the verbs are ${ACTION_TYPES.join(", ")}; anything else is compute, and compute runs on your own server behind call_url`);
+    refuse(`${what}.type "${type}" is not an action the engine has — the verbs are ${ACTION_TYPES.join(", ")}; anything else is compute — a run_function step (your hosted function), or your own server behind call_url`);
   }
   if (type === "spend_credits" && triggerKind !== "app_call") refuse(`${what}: ${SPEND_CREDITS_APP_CALL_ONLY}`);
   if (triggerKind === "schedule" && PERSON_ACTIONS.has(type)) {
@@ -740,6 +743,26 @@ function validateAction(raw: unknown, index: number, triggerKind: RelayTrigger["
         inputs = out;
       }
       return { type: "start_run", tool, ...(inputs ? { inputs } : {}) };
+    }
+    case "run_function": {
+      rejectUnknownKeys(a, ["type", "function", "input"], what);
+      const fn = requireString(a, "function", what, 40);
+      if (!/^[a-z][a-z0-9-]{1,39}$/.test(fn)) refuse(`${what}.function must be a function's name (2-40 lowercase letters, digits and hyphens) — never a template: the founder chose which code runs`);
+      let input: Record<string, string> | undefined;
+      if (a.input !== undefined && a.input !== null) {
+        const raw = requireObject(a.input, `${what}.input`);
+        const unsafe = findUnsafeKeys(raw);
+        if (unsafe.length > 0) refuse(`${what}.input names "${unsafe[0]}", which collides with a JavaScript built-in`);
+        const entries = Object.entries(raw);
+        if (entries.length > 20) refuse(`${what}.input carries more than 20 entries`);
+        input = {};
+        for (const [k, v] of entries) {
+          if (!/^[a-z][a-z0-9_]{0,63}$/.test(k)) refuse(`${what}.input names "${k}", which is not an input name (lowercase letters, digits, underscores, starting with a letter)`);
+          if (typeof v !== "string" || v.length > 4_000) refuse(`${what}.input.${k} must be text of up to 4,000 characters (a template)`);
+          input[k] = v;
+        }
+      }
+      return { type: "run_function", function: fn, ...(input ? { input } : {}) };
     }
     case "spend_credits": {
       rejectUnknownKeys(a, ["type", "amount", "reason"], what);
@@ -910,6 +933,7 @@ export function describeRelay(def: RelayDefinition): string {
       case "email_person": return "email the person";
       case "call_url": return `call ${a.url}`;
       case "start_run": return `start a ${a.tool} run for the person`;
+      case "run_function": return `run the function ${a.function} (custom code)`;
       case "spend_credits": return `charge the caller ${a.amount} ${a.amount === 1 ? "credit" : "credits"} (${a.reason})`;
     }
   });
