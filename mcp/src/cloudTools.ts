@@ -1,13 +1,14 @@
-// CLOUD TOOLS — the stdio server's own `call()` for the nine CLOUD_TOOLS
-// (tools.ts): create_app and the Views family. Reaches the SAME doors
-// packages/cli/src/index.ts's cmdViews*/`apps new` and the hosted
-// connector's put_view/dev_view/… handlers (apps/api/src/connector/tools.ts)
-// use — /manage/views/* for the Development reads and writes, /cli/approvals
-// for the two that act on Live (create_app always; view_action with
-// env: "live") — authenticated with this PROJECT's own cloud link
-// (cloudLink.ts), the one `npx gemmein login` already writes. No key ever
-// rides in a chat: a missing or ended link is told to run that command,
-// never asked to paste one.
+// CLOUD TOOLS — the stdio server's own `call()` for the eleven CLOUD_TOOLS
+// (tools.ts): create_app, delete_app, the Views family, and dev_email_templates.
+// Reaches the SAME doors packages/cli/src/index.ts's cmdViews*/`apps new`
+// and the hosted connector's put_view/dev_view/…/dev_email_templates
+// handlers (apps/api/src/connector/tools.ts) use — /manage/views/* and
+// /manage/email-templates/* for the Development reads and writes,
+// /cli/approvals for the two that act on Live (create_app always;
+// view_action with env: "live") — authenticated with this PROJECT's own
+// cloud link (cloudLink.ts), the one `npx gemmein login` already writes.
+// No key ever rides in a chat: a missing or ended link is told to run that
+// command, never asked to paste one.
 //
 // Same approval tier as the hosted tool (packages/contracts/src/approvalTiers.ts):
 // create_app is "code" (an account-level act — the founder's browser
@@ -22,7 +23,7 @@
 
 import type { ToolAnswer } from "./tools.ts";
 import { manage, readCloudLink, said, LOGIN_LINE, type CloudLink } from "./cloudLink.ts";
-import { CUSTOMER_DETAILS_OFF_NOTE, CUSTOMER_TEXT_NOTE, denyByDefault, redactSecrets, wrapBareOccurrences, type CustomerTextItem, untrustedTree } from "./customerText.ts";
+import { CUSTOMER_DETAILS_OFF_NOTE, CUSTOMER_TEXT_NOTE, customerText, denyByDefault, node, redactSecrets, wrapBareOccurrences, type CustomerTextItem, untrustedTree } from "./customerText.ts";
 
 const text = (t: string, structuredContent?: Record<string, unknown>): ToolAnswer => ({ content: [{ type: "text" as const, text: t }], ...(structuredContent ? { structuredContent } : {}) });
 const errText = (t: string, structuredContent?: Record<string, unknown>): ToolAnswer => ({ content: [{ type: "text" as const, text: t }], isError: true, ...(structuredContent ? { structuredContent } : {}) });
@@ -163,14 +164,14 @@ async function viewReorder(link: CloudLink, args: Record<string, unknown>): Prom
 // tool (which the local server has no live_action_status to poll; the
 // founder's Approve page, or the dashboard's Approvals list, is how its
 // outcome is read from here). ────────────────────────────────────────────
-async function askLive(link: CloudLink, action: "create_app" | "view_action", target: string | null, plan: unknown, note: string | null): Promise<ToolAnswer> {
+async function askLive(link: CloudLink, action: "create_app" | "view_action" | "delete_app", target: string | null, plan: unknown, note: string | null): Promise<ToolAnswer> {
   const r = await manage(link, "/cli/approvals", {
     method: "POST",
     body: { scope: "live", action, machine: "the local MCP server (npx @gemmein/mcp)", ...(target ? { target } : {}), ...(plan !== undefined ? { plan } : {}), ...(note ? { summary: note.slice(0, 200) } : {}) },
   });
   if (r.status !== 201) return refusal(`Your human wasn't asked — ${said(r)}`, String(r.body?.code ?? "refused"));
   return text(
-    `Your human approves this in their browser: ${r.body.approveUrl} (code ${String(r.body.userCode)}). Show them the link. Approving it carries it out — Gemmein does it the moment they approve, once. This server has no live_action_status to poll the outcome — check the approval page, or the dashboard's Approvals list, for what happened. The request lasts 10 minutes.`,
+    `Your human approves this in their browser: ${r.body.approveUrl} (code ${String(r.body.userCode)}). Show them the link. Approving it carries it out — Gemmein does it the moment they approve, once. This server has no live_action_status to poll the outcome — check the approval page, or the dashboard's Settings → Connections tab, for what happened. The request lasts 10 minutes.`,
     { approveUrl: r.body.approveUrl, userCode: r.body.userCode, requestId: r.body.requestId },
   );
 }
@@ -181,8 +182,39 @@ async function createApp(link: CloudLink, args: Record<string, unknown>): Promis
   return askLive(link, "create_app", name, undefined, typeof args.note === "string" ? args.note : null);
 }
 
+// DELETE APP (Adil, 23 Oct 2026 "delete means delete"; 2 Nov 2026): no
+// target, no plan — the Approve page shows the real counts and asks for the
+// typed name itself (checked fresh, server-side, approveCliApproval in
+// apps/api/src/cliApprovals.ts); this tool can't carry or skip either.
+async function deleteApp(link: CloudLink, args: Record<string, unknown>): Promise<ToolAnswer> {
+  return askLive(link, "delete_app", null, undefined, typeof args.note === "string" ? args.note : null);
+}
+
+// ── dev_email_templates ─────────────────────────────────────────────────
+// Ported verbatim from apps/api/src/connector/tools.ts's own "dev_email_templates"
+// case: /manage/email-templates (the list) or /manage/email-templates/<name>
+// (one, with its full saved source) — the SAME door the dashboard's editor
+// and `npx gemmein emails show` read. A template's own saved source is an
+// earlier session's words (AI, CLI or dashboard), never this call's own, so
+// it is wrapped untrusted exactly as the hosted tool wraps it.
+const TEMPLATE_SOURCE_FROM = "Development's own stored files (an earlier AI, CLI or dashboard session)";
+async function devEmailTemplates(link: CloudLink, args: Record<string, unknown>): Promise<ToolAnswer> {
+  const one = strArg(args.name) || null;
+  const r = await manage(link, one ? `/manage/email-templates/${encodeURIComponent(one)}` : "/manage/email-templates");
+  if (r.status === 404 && one) return refusal(`${one} has no saved template in this environment — it sends in Gemmein's plain design`, "no_template");
+  if (r.status !== 200) return refusal(`Couldn't read the email templates: ${said(r)}`, String(r.body?.code ?? "refused"));
+  if (one) {
+    const t = r.body as { name: string; version: number; source: string; vars: string[] };
+    const wrapped = customerText(t.source, TEMPLATE_SOURCE_FROM, "template.source");
+    return text(`${t.name} (v${t.version}) — the saved Development source:\n\n${wrapped.wrapped}\n\nvars: ${t.vars.join(", ")}`, { template: { ...t, source: node(wrapped.item) }, customerText: [wrapped.item] });
+  }
+  const rows = (r.body?.templates ?? []) as Array<{ name: string; version: number }>;
+  return text(rows.length ? rows.map((t) => `${t.name} (v${t.version})`).join("\n") : "Development has no saved email templates yet — put_email_template makes one.", { templates: rows });
+}
+
 const HANDLERS: Readonly<Record<string, (link: CloudLink, args: Record<string, unknown>) => Promise<ToolAnswer>>> = {
   create_app: createApp,
+  delete_app: deleteApp,
   put_view: putView,
   dev_view: (link, args) => sideViewRead(link, "Development", args),
   live_view: (link, args) => sideViewRead(link, "Live", args),
@@ -191,6 +223,7 @@ const HANDLERS: Readonly<Record<string, (link: CloudLink, args: Record<string, u
   view_add: viewAdd,
   view_edit: viewEdit,
   view_reorder: viewReorder,
+  dev_email_templates: devEmailTemplates,
 };
 
 export const CLOUD_TOOL_NAMES: ReadonlySet<string> = new Set(Object.keys(HANDLERS));
@@ -201,8 +234,8 @@ export const CLOUD_TOOL_NAMES: ReadonlySet<string> = new Set(Object.keys(HANDLER
 // dropped "kind", which dev_delete_view's own answer carries — kind: "view"
 // — and lost that field to a false-positive wrap. A cherry-picked owned
 // set is as fragile as a cherry-picked SECRET_PATTERN: port the whole
-// fixed vocabulary, not a guess at which of it these nine tools use). A
-// key this stdio server's nine tools never produce simply never matches —
+// fixed vocabulary, not a guess at which of it these eleven tools use). A
+// key this stdio server's eleven tools never produce simply never matches —
 // harmless to carry. create_app/view_action/view_add/view_edit/
 // view_reorder get NO per-tool entry either, matching hosted exactly —
 // id/version are already base-owned, and each one's own customer-record
@@ -212,6 +245,10 @@ const BASE_OWNED_KEYS: ReadonlySet<string> = new Set([
   "approveUrl", "continueUrl", "url", "expiresAt", "resetAt", "nextAttemptAt", "finishedAt", "createdAt", "updatedAt", "at",
   "firstSeen", "lastSeen", "exampleLogId", "exampleId", "windowHours", "windowDays", "capped", "limit", "count", "total",
   "files", "bytes", "size", "contentType", "offset", "nextOffset", "truncated", "served", "liveOffline", "livePaused",
+  // F4 (independent review, 3 Nov 2026): mirrors hosted's own addition —
+  // a continuation token this engine minted and will accept right back,
+  // ours, never a stranger's words.
+  "nextCursor", "cursor",
   "inDraft", "snappedFrom", "length", "by", "kind", "type", "trigger", "action", "event", "domain", "slug", "currency",
   "plan", "tier", "interval", "role", "scope", "stream", "collection", "member", "provider", "model", "label",
   "publicKey", "livePublicKey", "appName", "environment", "live", "paused", "checklist", "problems", "board", "grants",
@@ -219,6 +256,11 @@ const BASE_OWNED_KEYS: ReadonlySet<string> = new Set([
   "connection", "approvalId", "target", "nextFreshAt", "fresh", "limited", "checkedAt", "confirmedNow", "ownership",
   "site", "secureConnection", "autoCheck", "connect", "show", "recordNeeded", "zone", "fqdn", "queries", "answered",
   "seeing", "customerText", "trust", "suspicious", "customerDetails",
+  // RULINGS-1102 #1 (Adil's ruling, 2 Nov 2026 night): a Development
+  // server key's immediate mint/revoke — engine-owned, never a caller's
+  // own words. developmentKeyLink is the same shape as approveUrl/url
+  // above: an engine-built address, never customer text.
+  "done", "revoked", "developmentKeyLink",
   "personId", "threadId", "eventId", "requestId", "relayId", "circleId", "publishId",
 ]);
 const OWNED_KEYS: Readonly<Record<string, ReadonlySet<string>>> = {
@@ -230,6 +272,12 @@ const OWNED_KEYS: Readonly<Record<string, ReadonlySet<string>>> = {
   dev_view: new Set(["view", "totals[].label", "totals[].op", "totals[].atLeast", "cursor", "hasMore", "rows[].id", "rows[].version", "rows[].moves[]"]),
   live_view: new Set(["view", "totals[].label", "totals[].op", "totals[].atLeast", "cursor", "hasMore", "rows[].id", "rows[].version", "rows[].moves[]"]),
   dev_delete_view: new Set(["deleted", "name", "records", "live", "has"]),
+  // Ported from apps/api/src/connector/tools.ts's own OWNED_KEYS entry for
+  // this tool (review R1, 28 Oct 2026): named narrowly so the walk still
+  // recurses into template.source — never listed here, since that string
+  // is already hand-wrapped above, by customerText/node, before this walk
+  // ever runs.
+  dev_email_templates: new Set(["template.name", "template.version", "template.vars[]", "templates[].name", "templates[].version"]),
 };
 
 /** Part C #3's walk, run once over the whole answer after the tool's own
@@ -289,6 +337,6 @@ export async function callCloudTool(name: string, args: Record<string, unknown>)
 /** One more paragraph for the server's initialize instructions, appended
  *  only when a cloud link exists in this project (ToolHost.extra.instructions). */
 export const CLOUD_TOOLS_INSTRUCTIONS =
-  "create_app and the Views family (put_view, dev_view, live_view, dev_delete_view, view_action, view_add, view_edit, view_reorder) act on this project's linked Gemmein app — run `npx gemmein login` once per project to link it (a browser approval, 7 days); without a link they refuse, naming that command. " +
-  "A view's own recipe (its collection, filter, columns, layout, actions) is the founder's own declaration and is never wrapped; a row's own data is the app's customer's and always comes back inside <customer_text from=\"…\" trust=\"untrusted\"> (" + CUSTOMER_TEXT_NOTE + "). " +
-  "create_app and view_action with env: \"live\" ask the founder to approve in their browser (create_app with the emailed code too, as an account-level act) — this server has no live_action_status to poll the outcome.";
+  "create_app, delete_app, the Views family (put_view, dev_view, live_view, dev_delete_view, view_action, view_add, view_edit, view_reorder) and dev_email_templates act on this project's linked Gemmein app — run `npx gemmein login` once per project to link it (a browser approval, 7 days); without a link they refuse, naming that command. " +
+  "A view's own recipe (its collection, filter, columns, layout, actions) is the founder's own declaration and is never wrapped; a row's own data is the app's customer's and always comes back inside <customer_text from=\"…\" trust=\"untrusted\"> (" + CUSTOMER_TEXT_NOTE + "). A template's own saved source is wrapped the same way. " +
+  "create_app and view_action with env: \"live\" ask the founder to approve in their browser (create_app with the emailed code too, as an account-level act) — this server has no live_action_status to poll the outcome. delete_app asks the same way, with the emailed code AND the app's typed name, neither skippable from here — this can't be undone.";
