@@ -191,7 +191,7 @@ export function redactSecrets<T>(value: T): T {
 /** 3b E3: what every read that carries customers' details says about the
  *  owner's switch — the same text as packages/contracts/src/customerDetails.ts
  *  (not imported: that package isn't one of @gemmein/mcp's npm dependencies). */
-export const CUSTOMER_DETAILS_OFF_NOTE = "Customer details are off for this app — the owner's Settings → AI assistants on the dashboard (off by default; changed only there). Counts and masked addresses only: no names, messages or record contents. Turning it on needs the owner to confirm two things first: a privacy policy that says they use AI assistants, and data protection terms (a DPA) with their AI provider — see https://docs.gemmein.com/console/ai-assistants.";
+export const CUSTOMER_DETAILS_OFF_NOTE = "Customer details are off for this app — the owner's Settings → Connections on the dashboard (off by default; changed only there). Counts and masked addresses only: no names, messages or record contents. Turning it on needs the owner to confirm two things first: a privacy policy that says they use AI assistants, and data protection terms (a DPA) with their AI provider — see https://docs.gemmein.com/console/connections#what-do-i-need.";
 
 // ── THE DEFAULT-DENY WALK (20x review SHOULD-FIX, 23 Oct 2026) — ported
 // from apps/api/src/connector/tools.ts's denyByDefault/isTrustedNode/

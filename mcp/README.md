@@ -15,11 +15,12 @@ collection is open to strangers, the anonymous test write succeeds and its
 record stays, in whatever environment the key names (live included), and the
 check fails, naming the collection.
 
-Nine more tools act on a linked Gemmein app — `create_app` and the Views
-family (`put_view`, `dev_view`, `live_view`, `dev_delete_view`,
-`view_action`, `view_add`, `view_edit`, `view_reorder`). Link the project
-once with `npx gemmein login` (a browser approval, 7 days); without a link
-these refuse, naming that command — no key is ever asked for in the chat.
+Eleven more tools act on a linked Gemmein app — `create_app`, `delete_app`,
+the Views family (`put_view`, `dev_view`, `live_view`, `dev_delete_view`,
+`view_action`, `view_add`, `view_edit`, `view_reorder`) and
+`dev_email_templates`. Link the project once with `npx gemmein login` (a
+browser approval, 7 days); without a link these refuse, naming that
+command — no key is ever asked for in the chat.
 
 ## Setup
 
@@ -50,7 +51,7 @@ On the hosted server, `check_integration` checks the API it runs on only.
 - **`guide`** — call first: it opens with two doors — an idea with nothing
   built yet, or an app that already exists — and both reach the same fit
   assessment (FITS / FITS EXCEPT / DOESN'T FIT — the verdict an agent
-  delivers before any install), then the full builder's guide (auth flow, the seven collection
+  delivers before any install), then the full builder's guide (auth flow, the eight collection
   safety rules, record shapes, links, uploads, contention patterns, payments,
   credits, AI tools, relays, mobile). The guide is the packaged contract —
   what code calls, matching the installed SDK. The dashboard section
@@ -72,13 +73,14 @@ On the hosted server, `check_integration` checks the API it runs on only.
   error codes it added or removed. Bundled, offline — call it when what you
   remember may be older than the installed release.
 - **`explain_rule`** — any safety rule's contract, what it's right for, and
-  the mistakes to avoid (or a cheat-sheet of all seven).
+  the mistakes to avoid (or a cheat-sheet of all eight).
 - **`explain_error`** — what a `GemmeinError` code means and exactly what to
   do, with the code's own page (https://docs.gemmein.com/errors/<code>).
-- **`explain_relay`** — how a relay is written: its trigger, the ten action
-  verbs (write_record, grant_access, revoke_access, grant_credits,
-  email_person, call_url, fulfil_product, refund_product, grant_plan,
-  revoke_plan), templates, and the refusals the engine answers.
+- **`explain_relay`** — how a relay is written: its trigger, the thirteen
+  action verbs (write_record, grant_access, revoke_access, grant_credits,
+  email_person, call_url, run_function, start_run, spend_credits,
+  fulfil_product, refund_product, grant_plan, revoke_plan), templates, and
+  the refusals the engine answers.
 - **`validate_collection_name`** — catch a bad collection name at planning
   time (a bad name throws synchronously and can blank an app silently).
 - **`reaffirm_template`** — the ready-to-edit CI harness that proves an app's
@@ -88,11 +90,17 @@ On the hosted server, `check_integration` checks the API it runs on only.
   isolation proven with throwaway dev test sessions, structured pass/fail
   back. Never pass a live secret key — `sk_live` is refused by design.
 
-The following nine need a linked project (`npx gemmein login`):
+The following eleven need a linked project (`npx gemmein login`):
 
 - **`create_app`** — ask to make another app on the same account, in
   Development only. Your human approves it in their browser with the
   emailed code.
+- **`delete_app`** — ask to permanently delete this app: every record,
+  customer, file, site, domain, relay, AI tool and key goes, and every
+  active customer subscription is cancelled in Stripe at once. Your human
+  approves it in their browser, types the app's name and enters the
+  emailed code — this can't be undone, and no caller of this tool can skip
+  either check.
 - **`put_view`** — create or update one Development view: a recipe over one
   collection (filter, sort, columns, totals, layout, action buttons).
 - **`dev_view`** / **`live_view`** — read one view's rows, exactly as its
@@ -106,6 +114,9 @@ The following nine need a linked project (`npx gemmein login`):
   approves it in their browser (no emailed code).
 - **`view_add`** / **`view_edit`** / **`view_reorder`** — add, edit or
   reorder a record through a view's own form, Development only.
+- **`dev_email_templates`** — list Development's saved email templates
+  (name, version, which `{{vars}}` each takes), or, with `name`, one
+  template's own full saved source for editing on the fly.
 
 ## The companion SDK
 
