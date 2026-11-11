@@ -400,6 +400,16 @@
    },
    "artifactFormat": "v1",
    "notes": "Edge functions are switched on: your own code, hosted on Cloudflare, that a relay's run_function action starts."
+  },
+  {
+   "version": "0.30.0",
+   "date": "2026-11-11",
+   "files": {
+    "gemmein.js": "f269171f2c09fc53e51838b2ee642757fd8d6a5a6c070120856e1da2aec0eacf",
+    "llms.txt": "b62b4f408aba7fc1a69b01d8f824200810f3f8a2cb245ffd9bb779f4fb05b631"
+   },
+   "artifactFormat": "v1",
+   "notes": "A rebuilt dashboard, Google sign-in for you and your customers, permanent app deletion, and fields only your business can set. Your AI and the CLI reach the same actions as the dashboard."
   }
  ]
 }
