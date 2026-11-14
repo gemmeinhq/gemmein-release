@@ -1,0 +1,5 @@
+Gemmein release repository — licensing
+
+The root LICENSE (MIT) covers the source in this repository: shim/, mcp/, plugins/, manifest/ and the repository tooling.
+
+The Gemmein engine files under staging/ are NOT covered by the MIT licence. They are licensed under the Gemmein Engine License: staging/LICENSE.md (the same text as LICENSE-ENGINE.md at the root, and at https://downloads.gemmein.com/engine/LICENSE).

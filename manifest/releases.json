@@ -1,0 +1,415 @@
+{
+ "_doc": "Engine release history — the source of truth for what users can fetch. Each entry: version, date, files (name -> sha256), artifactFormat (v1 = carved minified js; v2 = sealed binary), notes. Hashes here must match shim/lib/versions.mjs for the pinned version.",
+ "releases": [
+  {
+   "version": "0.1.0",
+   "date": "2026-07-24",
+   "files": {
+    "gemmein.js": "6dc0ad751f0f2023039d58f1f44a80824ec4b44d67bca57b44c097729a65936f",
+    "llms.txt": "1aa0989dd1624e93014122a451e22043659caa02e32a5b096da90d2b1cff6217"
+   },
+   "artifactFormat": "v1",
+   "notes": "First real engine release: a local runtime with guided init, a sync/go-live cloud handshake, an additive promote flow, and a feedback command."
+  },
+  {
+   "version": "0.1.1",
+   "date": "2026-07-25",
+   "files": {
+    "gemmein.js": "e47f4032b62df38016f62ae1c022628647ddc7cad9f4397abeec3a607eb8918b",
+    "llms.txt": "1aa0989dd1624e93014122a451e22043659caa02e32a5b096da90d2b1cff6217"
+   },
+   "artifactFormat": "v1",
+   "notes": "`init` now hands off cleanly when run non-interactively instead of crashing, and every prompt is pipe-safe; an unknown command exits with an error instead of hanging. The shim adds a Node 18+ check and fixes a harmless re-parse warning."
+  },
+  {
+   "version": "0.1.2",
+   "date": "2026-07-25",
+   "files": {
+    "gemmein.js": "c0594178518eea5b20401312396982cee351afde4454132b638d58ead884d47a",
+    "llms.txt": "1aa0989dd1624e93014122a451e22043659caa02e32a5b096da90d2b1cff6217"
+   },
+   "artifactFormat": "v1",
+   "notes": "Agent handoff after `init` now points at `gemmein dev` and its local docs instead of a path that never existed. Running a command without a project now says so plainly. Local key recognition accepts both `pk_local_` and `pk_test` keys, `init` requires a real owner email, and a busy port is reported instead of failing silently."
+  },
+  {
+   "version": "0.2.0",
+   "date": "2026-07-29",
+   "files": {
+    "gemmein.js": "86d04f50f9d158832cba0e4022e34d905172f5878bb21445f780fb0af4ce739b",
+    "llms.txt": "61ba69af983b90c0e5a61ad03574b333235d59f494d2c882e4fd49a8f4e83aeb"
+   },
+   "artifactFormat": "v1",
+   "notes": "Sealed file uploads now use the same reference contract as production: `upload()` returns a reference, not a URL, and `/files/{ref}/link` mints a delivery link signed the same way production signs them. Breaking change for `@gemmein/sdk` below 0.3.0; pairs with SDK 0.3.0. The guide now covers paid access rules and selling digital products with sealed delivery."
+  },
+  {
+   "version": "0.3.0",
+   "date": "2026-07-30",
+   "files": {
+    "gemmein.js": "bd58ca3a82bce5d06ac3c1321d83bf522a92a116780e017daa7348c0e8f26429",
+    "llms.txt": "a6c6cb07ecca71a8ac60be961e933725a621dcd53aee3170a41cc65fc099de04"
+   },
+   "artifactFormat": "v1",
+   "notes": "Downloadable products can now be sold with purchase-authorized delivery links, a wider range of accepted file types, and a 100MB upload cap, metered by a per-person storage ceiling. The local dev file server now rejects oversized uploads with a clear error instead of truncating them. Pairs with SDK 0.4.0."
+  },
+  {
+   "version": "0.4.0",
+   "date": "2026-08-01",
+   "files": {
+    "gemmein.js": "0ecb346f290c5305d15c95f3c74a63587b8c6145658010af11a4512a0e86b6f5",
+    "llms.txt": "6ad4b1e69c2e58d50975babd3f7c13248025f7b1cbae9b98851b771d79b7d8ac"
+   },
+   "artifactFormat": "v1",
+   "notes": "`gemmein dev` now starts in an empty project directory and picks up your config file once it appears, instead of running an interactive setup interview. Every example command printed can be copied and run as-is. The guide is rewritten as a front door: a fit check first, then a guided getting-started flow."
+  },
+  {
+   "version": "0.4.1",
+   "date": "2026-08-22",
+   "files": {
+    "gemmein.js": "dcc1ba00f8306b759d529c47608d3b6fa063fa4b6b934ba09efc63c9fe16fd3c",
+    "llms.txt": "7ce2465c992b1c62ce939ce5eb05a0ebe9ca946387fb300d3868bedbb0fb3031"
+   },
+   "artifactFormat": "v1",
+   "notes": "Fixes a CORS issue that broke browser writes carrying `x-collection-intent` locally. Plans and products can now unlock collections by name instead of by key, and the name survives a rename. The support inbox and replies now work locally the same way they do in the cloud. Email domain ownership and sender verification are enforced before go-live, and the guide is rewritten to teach plan names instead of keys."
+  },
+  {
+   "version": "0.4.2",
+   "date": "2026-08-22",
+   "files": {
+    "gemmein.js": "006f4ec539bd6816576ca6e22c9ef11951b3837fc40a80acb0d9549d697bae3f",
+    "llms.txt": "6d7bd30169eca6832cfa730157610d87aeae58d8c34559f19f48fa8acb8d049f"
+   },
+   "artifactFormat": "v1",
+   "notes": "Collections can now declare which plans or products unlock them, by name; `gemmein dev` applies the lock on create and on file changes, and `gemmein check` verifies each lock by testing it as a free member would. A simulated purchase now correctly grants the plan's access. A collection with no learned fields is no longer sealed by mistake, and terms consent now behaves the same locally and in the cloud."
+  },
+  {
+   "version": "0.4.3",
+   "date": "2026-08-23",
+   "files": {
+    "gemmein.js": "9bdba431ca038e2afe18a990ee55a47d5a890f1a23711d512c839d355b4d98e2",
+    "llms.txt": "c2327295821276ccd18b98f566147af3ebccdcaabaf8f85312e79d8fa9c9c8bb"
+   },
+   "artifactFormat": "v1",
+   "notes": "Usage ceilings are a notification with a grace window, not a hard stop — crossing one never refuses a request, and storage allows up to double its ceiling before refusing further writes. Founder alerts (over-limit usage, a stalled inbox, a failed payment, a broken domain, full storage) now print in the `gemmein dev` terminal the same way sign-in codes do."
+  },
+  {
+   "version": "0.4.4",
+   "date": "2026-08-23",
+   "files": {
+    "gemmein.js": "3fcb05377b1d2bb82c51b3fd4fd8a087b0d57e457b0d9233a3e7515003d55a75",
+    "llms.txt": "74a68e4e04b89e5af8628378a850d182868617e5b5ab73a5b45c3a4a83fd6922"
+   },
+   "artifactFormat": "v1",
+   "notes": "Uploads now accept documents (PDF, ZIP, EPUB) alongside images, up to 25MB per file (previously 10MB, images only), with the file's real content verified rather than trusted from its name. Downloads are served under a fixed filename the uploader can't override, and an upload with no detectable file type is reported clearly."
+  },
+  {
+   "version": "0.4.5",
+   "date": "2026-08-25",
+   "files": {
+    "gemmein.js": "6469fdef2a61ba85a9eafc746e6c4ac925a0dfd72a12a05ad767c018183339b3",
+    "llms.txt": "1a1acbafacf5c5ea0eb5fd8aeaee93e92f597554574ef6b3651ef37510619ff3"
+   },
+   "artifactFormat": "v1",
+   "notes": "`list` now accepts `?since=<ISO 8601>` to return everything changed or deleted after that moment, oldest first, for polling without re-fetching everything. The SDK adds `list({ since })` and a `watch()` helper that polls on an interval, pausing in a hidden tab and resyncing on focus."
+  },
+  {
+   "version": "0.4.6",
+   "date": "2026-08-25",
+   "files": {
+    "gemmein.js": "ce9c3c3cc1527dcaec8c07a37d36ccf5569623142060fa1689b3984cab79f205",
+    "llms.txt": "ea87514a1a6adc3d416f2810146268f11a81cb2388051cf9d97d2d4b6d421dd0"
+   },
+   "artifactFormat": "v1",
+   "notes": "A new server-side `notify` call lets your app email one of its own verified customers by person id, never a raw address. Sends are rate-limited per person and per app, with a failed send refunding its limit, and each notify email lands as an Inbox thread so replies are visible. Locally, `gemmein dev` prints the notification instead of sending real email."
+  },
+  {
+   "version": "0.4.7",
+   "date": "2026-08-26",
+   "files": {
+    "gemmein.js": "d3c6d496c7a45f6ef026c3ca97a3d2961884c482225dd21d48c1ab8232f4b0b2",
+    "llms.txt": "ac87d3d87d1126e27ec3fb00f47b7d09031304e472838eb64955f05b726fe37a"
+   },
+   "artifactFormat": "v1",
+   "notes": "A file can now name one other person, besides its owner, who is allowed to read it — for direct messages and shared attachments. Collections can require a field to hold a file of a specific kind (image or document), and an invalid or missing file is reported clearly rather than silently accepted."
+  },
+  {
+   "version": "0.4.8",
+   "date": "2026-08-26",
+   "files": {
+    "gemmein.js": "edad025b6462a0ef2f4f608354844ea09c41453c7e85801127997f76c4d00628",
+    "llms.txt": "c7b6063bc6b9fa8f7ca5db85917f8e1188b4560ac5e731fc86ea4144892e140d"
+   },
+   "artifactFormat": "v1",
+   "notes": "File references are now validated everywhere a collection can hold one, not just in a few places: any field storing a file reference confirms the file is real and readable before it saves. A dashboard edit that happens to touch an already-broken file reference is no longer blocked by it. Founder alert emails now send from `alerts@gemmein.com`."
+  },
+  {
+   "version": "0.5.0",
+   "date": "2026-09-01",
+   "files": {
+    "gemmein.js": "c24bbeca84bf8ae4c2e62278aa877ba715d12ac357b38cd45f8065975cdb68b9",
+    "llms.txt": "6503c3ff755b1f47f90e993fc95f8798dc88fdacece90e4de4a129e895779376"
+   },
+   "artifactFormat": "v1",
+   "notes": "Adding a field to a collection that's already live now asks one plain question — a blank default, or a value served to existing records that never set it — instead of guessing silently, and field presence is enforced consistently everywhere a collection's shape is checked. Reserved JavaScript names (like `constructor` or `toString`) are refused as field or collection names."
+  },
+  {
+   "version": "0.6.0",
+   "date": "2026-09-03",
+   "files": {
+    "gemmein.js": "d862ff130c6c376f4ebd83a3b6cd88701a7f2ba1403b7c7f889642107f788ed5",
+    "llms.txt": "86bde47361f9e180b8db8caede26fc47db1727151b9f4b413387c890bc15be2b"
+   },
+   "artifactFormat": "v1",
+   "notes": "Adds a compute permission layer: verify a session, check or grant access, and track per-key usage on the server. Session refusals now state why, and the local engine supports the same checks as production."
+  },
+  {
+   "version": "0.7.0",
+   "date": "2026-09-04",
+   "files": {
+    "gemmein.js": "25fc57dc094c18863f6cad4c858cae48b2d03380a05ab965964d603ec413aa23",
+    "llms.txt": "049e2a8b6ac081b08b461c75d42f7228dd11f9497b48c35eddc4f5d3d94f06b6"
+   },
+   "artifactFormat": "v1",
+   "notes": "Relays: react to an incoming webhook from any provider that signs its requests, a schedule, or a record change, and run actions — write a record, grant or revoke access, email a person, or call your own URL — reliably, with retries and replay. Adds an invite endpoint for adding people, and clearer errors for invalid list limits."
+  },
+  {
+   "version": "0.8.0",
+   "date": "2026-09-04",
+   "files": {
+    "gemmein.js": "33fec411999a2ed8174f0c31deb2cfe1591b52284d4a83f3ee5fd7b45fda4ac1",
+    "llms.txt": "f4cb6738f7a10f7b841e4e5760353ed0c5af99bb9a28c4c55877ce004e7af9dc"
+   },
+   "artifactFormat": "v1",
+   "notes": "Adds credits: a general-purpose balance you can grant on a product purchase and claw back on a full refund, readable from the browser and spendable on the server. Adds an AI route that calls OpenAI, Anthropic or Google on your own provider key, billed in credits. Relays can now grant credits."
+  },
+  {
+   "version": "0.9.0",
+   "date": "2026-09-05",
+   "files": {
+    "gemmein.js": "74e0546918f4c58a30a009b02b4b8f9e09a79c6b0c0c92d6231543b403bd416b",
+    "llms.txt": "62f30ef73d74eb2fac3538b263901fe6f0a7dea841266b6422d15554c8fe88eb"
+   },
+   "artifactFormat": "v1",
+   "notes": "Products can now be sold via a Stripe Payment Link or via any provider's webhook through a relay. Adds AI tools: a named AI operation you price in credits and can gate behind an access rule, callable from the browser without exposing your price or model. Person lookup by email is now case-insensitive."
+  },
+  {
+   "version": "0.10.0",
+   "date": "2026-09-07",
+   "files": {
+    "gemmein.js": "be7333b4f11c7a15140d6fd4d1fe7681c9574f4a0f57de0251d21b0745fb9ec0",
+    "llms.txt": "ad8bbfe4c98f4cff51a6e3bff17bbd2d7473c47797301d484b05d0731d6ee3f1"
+   },
+   "artifactFormat": "v1",
+   "notes": "Keys are now scoped to what they do: a dedicated CLI key for running and syncing your app, and a short-lived production sync key for pushing relays and AI tools live. AI tools are now defined on the server and called by name; raw provider calls from the browser are off by default, and every AI call is recorded per person."
+  },
+  {
+   "version": "0.11.0",
+   "date": "2026-09-08",
+   "files": {
+    "gemmein.js": "0bb749d4fbedee13a5b46c4421b638d54b986d688e0419e3ed6f001aa04cf02b",
+    "llms.txt": "3d2fa60d6b2766523969aa8ca69466fcb69919dd7cc48dd022464aefb71e4745"
+   },
+   "artifactFormat": "v1",
+   "notes": "Mobile support: the SDK gains an Expo entry point, and GemmeinSwift is the native Swift SDK, kept in step with the JS SDK. Relays can target a person by email, id or store token. Sign-in volume is now tracked and shown on Usage, and pricing is based on monthly active people."
+  },
+  {
+   "version": "0.12.0",
+   "date": "2026-09-15",
+   "files": {
+    "gemmein.js": "b39277a634627a2ba7ba5be3abdff8c17e590dbcd9b43ed1bb5ada43eecfdde7",
+    "llms.txt": "297d855f1ed891ee799d022242d275df0519b113290868aea6f5e14cac6ace39"
+   },
+   "artifactFormat": "v1",
+   "notes": "Credits can now be granted by a pack, a plan period, a comp, a promo, or a refund, and metered per unit so a tool priced per call or per token reserves a ceiling and settles against real usage. Adds background runs for long jobs (like generation or transcription) with status, results and cancellation, plus query operators (`gt`, `lt`, `in`, etc.) and count/stats endpoints, and more AI providers across images, speech, transcription and video."
+  },
+  {
+   "version": "0.13.0",
+   "date": "2026-09-19",
+   "files": {
+    "gemmein.js": "8e8dcbb16148ca5e777ea3c7175debe5a8bd5698184c54e93940a71f44cda8d5",
+    "llms.txt": "9c6bb89e20f8639e9ea8ebf81c74b745ff8fce5d62baf78fb660f6ca3715ca88"
+   },
+   "artifactFormat": "v1",
+   "notes": "A tool can now run on your own server: Gemmein signs the request, your server does the work, and calls back with progress and a result. Relays can start a run, and a plan can include a tool or price one in credits."
+  },
+  {
+   "version": "0.14.0",
+   "date": "2026-09-25",
+   "files": {
+    "gemmein.js": "4af6bf46eba69c7f6f623faa62f44d75fb0306fa0489eb2bd5d2a3fd58193840",
+    "llms.txt": "289168dbee26ce0c89164fd80c2159608af09460a692fb4b358da4e460921a37"
+   },
+   "artifactFormat": "v1",
+   "notes": "Signing in to your own app now makes you an ordinary customer rather than an admin — admin access goes through the dashboard or the CLI key. Secret keys can write and delete under any rule; `gemmein check` can scan a built frontend for exposed secret keys, and `gemmein go-live` refuses to ship one unless explicitly overridden. The free plan can now include a one-time or recurring credit allowance."
+  },
+  {
+   "version": "0.15.0",
+   "date": "2026-09-25",
+   "files": {
+    "gemmein.js": "641aa102417b9412641eb9bd5cf3de3f3562d09ae9602ac1f65640e6d92c8bfc",
+    "llms.txt": "78f22e5475f69d17b37994cc9c4ccb388f51e32cb14de40f72b56e4516bd78a2"
+   },
+   "artifactFormat": "v1",
+   "notes": "A new cloud app starts with no collections — create one with `gemmein collection add` or in the dashboard, then `gemmein sync`. Syncing now picks up your app's real name from its config instead of leaving it as the default."
+  },
+  {
+   "version": "0.16.0",
+   "date": "2026-09-26",
+   "files": {
+    "gemmein.js": "4cd2e9e09605646c78ce4b0773693844d655ff735fec6d8877ab14c8ea307d3d",
+    "llms.txt": "a68f4998321e53ebbe8a62b76421d657ea3eccea38b6392f6897a0f3efdc492b"
+   },
+   "artifactFormat": "v1",
+   "notes": "A disallowed page origin now explains why (no key, a secret key used client-side, an unknown key, or a domain not yet added) instead of a bare refusal, and local pages work on localhost before go-live."
+  },
+  {
+   "version": "0.17.0",
+   "date": "2026-09-27",
+   "files": {
+    "gemmein.js": "1b8a6bc62de9c16af6baf995b681680fae2bf46bbefb30905661253c169c6313",
+    "llms.txt": "669f7db061636cb07b9116767d58ed5950c060210f9f93dcae911bc87b207408"
+   },
+   "artifactFormat": "v1",
+   "notes": "Payments are now configured per environment — Development and Live each have their own Stripe webhook and signing secret — so a sale routes correctly and a missing configuration is reported clearly. Going live copies your plans and products into Live without carrying over Payment Links or secrets."
+  },
+  {
+   "version": "0.18.0",
+   "date": "2026-09-28",
+   "files": {
+    "gemmein.js": "6e1c2e348b18eab87a48538b875aa34d7f3135ba29108fe6b526e4b1db04407a",
+    "llms.txt": "be2dbd2dd26f80cfd88d3a1c9e18abe384350ffdcfc8ad16616e53537e84f7b6"
+   },
+   "artifactFormat": "v1",
+   "notes": "`gemmein go-live` and the dashboard now enforce the same go-live checklist. A mobile-only app can go live without a domain, with an explicit confirmation that no secret key ships inside it, backed by a build scan."
+  },
+  {
+   "version": "0.19.0",
+   "date": "2026-10-03",
+   "files": {
+    "gemmein.js": "a4a846146b0b306669f8db27f315ccd63b531d82fd6cd2cba02f853c977b41f6",
+    "llms.txt": "1a8960e0939bde0bad201187c1b97066753e77d43fd31547efc17d61a25f4963"
+   },
+   "artifactFormat": "v1",
+   "notes": "`gemmein go-live` now copies your Live payments configuration the same way the dashboard's promote step does, with a dry run and a clear diff if something changed in between. The SDK guide is now split: a package guide for code, and a separate dashboard guide on the docs site."
+  },
+  {
+   "version": "0.20.0",
+   "date": "2026-10-04",
+   "files": {
+    "gemmein.js": "de6a9ffaf495e30c09b2c903c447566f3622993f255260b4e363d5f3d94e912a",
+    "llms.txt": "697b8db0fcfbb8f0dfed3d18f9858e6cb3b33315ac35aff2cda4abd41a5b8915"
+   },
+   "artifactFormat": "v1",
+   "notes": "Adds a public `/catalog` endpoint that answers exactly what your publishable key is allowed to sell right now — products, plans and the free tier — without exposing internal references. Every product now carries the correct Stripe tax code automatically."
+  },
+  {
+   "version": "0.21.0",
+   "date": "2026-10-04",
+   "files": {
+    "gemmein.js": "ac85761c598e6257db70d50becf7e756ac5813cee98294baa395df1bae5c68d8",
+    "llms.txt": "fd2defdc2fd879d147b5c198aac57e8983a06d2b70549a174dc6c4057b785b23"
+   },
+   "artifactFormat": "v1",
+   "notes": "Adds free trials and in-place plan switching, with subscribers managing their own plan, cancellation or card through your Stripe customer portal. Relays now run within seconds, go-live payment is a Stripe pop-up that states the exact charge, AI can write the HTML for purchase emails and replies, and domains can be connected in one click via Cloudflare."
+  },
+  {
+   "version": "0.22.0",
+   "date": "2026-10-08",
+   "files": {
+    "gemmein.js": "a879aa0134b26111b291ec3cd06190dabe43d54729eba993c8943a8f398cc23b",
+    "llms.txt": "a50c1e81b3717cbb1c37a31ceec0ecc41441eb3548cda855091941558b65adfd"
+   },
+   "artifactFormat": "v1",
+   "notes": "Collections and products now support audio and video, and AI tools can take image, audio, video and document inputs. Storage on Live is now the larger of 100GB or 50MB per active person. Adds community publishing, open fields, and direct records to up to 20 recipients. Sign-in rate limits are now per visitor, and the CLI now works offline for local commands."
+  },
+  {
+   "version": "0.22.1",
+   "date": "2026-10-10",
+   "files": {
+    "gemmein.js": "cf015214b36468cf047c0810a6d69dfd6c425c3e478699d69bfb95e2e0993609",
+    "llms.txt": "c10af7f35c60c88c931c4745be22d018880648fc5a3971fc644ee4cb17d58d8d"
+   },
+   "artifactFormat": "v1",
+   "notes": "Adds a full data export for your customers: everything your app holds about them, as one document, available once every 30 days. Adds group file attachments — one upload up to 20 named people can open. AI call history no longer exposes the prompt or parameters to the customer who made the call."
+  },
+  {
+   "version": "0.23.0",
+   "date": "2026-10-14",
+   "files": {
+    "gemmein.js": "09842d39acfab8badba0798dd032436e7c7520065fd1809eda32ee95c92d646a",
+    "llms.txt": "ab71a94c4d932ac5eb75352589e4de6ab5bc258d2d688b8959d68f42ff171387"
+   },
+   "artifactFormat": "v1",
+   "notes": "New flat pricing per Live app (Launch, Live, Growing), with annual billing at 2 months off. Adds a hosted MCP connector so your AI can read Live overview, errors, usage, webhooks and the Inbox, and reply to a customer from a verified sender, with dashboard approval. Adds an optional authenticator app for extra protection on sign-in and destructive Live actions, and CLI sign-in now happens through a browser approval."
+  },
+  {
+   "version": "0.24.0",
+   "date": "2026-10-15",
+   "files": {
+    "gemmein.js": "568d6c16c694a57c0b9e3fd25d8116a6ecb6fb5804cf2cc268bbdf075e77e13c",
+    "llms.txt": "87da719f44c581c973188a9c7abe155ed0eb554cd4299757f92719f0dbd0d0d5"
+   },
+   "artifactFormat": "v1",
+   "notes": "Run the business from chat: status across the board, Development logs and relay runs, customer actions approved in the browser, customer text that never acts as an instruction. The emailed code only for dangerous changes; a 7-day CLI sign-in; Development keys made at once under the machine's approval and ending with it; test sessions are a key power."
+  },
+  {
+   "version": "0.25.0",
+   "date": "2026-10-16",
+   "files": {
+    "gemmein.js": "314ee6ee2e5e3adfab89aa49c58cdf32e6cb3bc3a3888276c82d28cce2e993f3",
+    "llms.txt": "ecf8fae7abcf19486ba0bbe9cfa5af129e45deaa92edd0a328f860bc1f6fdf38"
+   },
+   "artifactFormat": "v1",
+   "notes": "Host your app's site on Gemmein: every publish lands on a private preview you can share for 7 days; a version goes live only when you approve it; roll back, rebuild or pause, with every change in the site's history. Dashboard lists load a page at a time."
+  },
+  {
+   "version": "0.26.0",
+   "date": "2026-10-18",
+   "files": {
+    "gemmein.js": "fd4863b0b36a0e9d36c90f3dfdd200ec532265d906145a2f497abf267ede0ba9",
+    "llms.txt": "562d8db726e0f6db6ad00c681ff49bffb9990924d22da62257242c01c2521a95"
+   },
+   "artifactFormat": "v1",
+   "notes": "Your own domain for the Live site, and taking it offline. Going live is your approval and the payment, with no code; a change to one customer is a browser approval, a change to how the business runs also asks your code. A new data rule, app_only; show and hide times on records; rankable numbers."
+  },
+  {
+   "version": "0.27.0",
+   "date": "2026-10-21",
+   "files": {
+    "gemmein.js": "7e0af96c1c19e6f3f8e7aaebc5c96a594eb2556a8190da92629893a857fed374",
+    "llms.txt": "1c1642948228f9b62c3a85197a0cff1d4cd8ed85db15ab5575a807036c3644db"
+   },
+   "artifactFormat": "v1",
+   "notes": "Buy your plan before going live, from your AI, the CLI or Usage & billing; a failed payment is fixed by updating the card in Stripe. Followers-only posts, private accounts, circles and blocks on the same eight data rules. A share link on the preview's own address that anyone with the link opens, with a Preview link switch. Your AI tests a site before it publishes. One tool per Live action, and a map of every tool."
+  },
+  {
+   "version": "0.29.0",
+   "date": "2026-10-25",
+   "files": {
+    "gemmein.js": "0fc85a9a237518049ca098cc27671680f7426e870347039f27752967b5d585bc",
+    "llms.txt": "860d38e449586c2cf91f3574270d2ecc9d6bd81a431b48f19b1825fb2f6781d3"
+   },
+   "artifactFormat": "v1",
+   "notes": "Your customer's own words carry the same provenance in the CLI's --json as they do in your AI's tools. Replace every key, in one action, after a real security concern — server keys, relay secrets, AI-tool secrets and the site preview link, Development and Live together. A Live server key is made and shown once in the browser, never read back by a machine. Every outside address your AI, your CLI or a function calls now belongs to one allowed-hosts list per app. A free account holds one app; paying for a plan raises it to 10, and a lapsed plan pauses every other app too, read-only, until it's active again."
+  },
+  {
+   "version": "0.29.1",
+   "date": "2026-10-26",
+   "files": {
+    "gemmein.js": "2329c5c1ab1ba107dcdb64668d2c6640d472caad61b052fa2b8080b3fae27874",
+    "llms.txt": "b811607d1cb82974e04f799b131cd4594d4304f2ba9d15d96e827bb138ad4dcc"
+   },
+   "artifactFormat": "v1",
+   "notes": "Edge functions are switched on: your own code, hosted on Cloudflare, that a relay's run_function action starts."
+  },
+  {
+   "version": "0.30.0",
+   "date": "2026-11-11",
+   "files": {
+    "gemmein.js": "f269171f2c09fc53e51838b2ee642757fd8d6a5a6c070120856e1da2aec0eacf",
+    "llms.txt": "b62b4f408aba7fc1a69b01d8f824200810f3f8a2cb245ffd9bb779f4fb05b631"
+   },
+   "artifactFormat": "v1",
+   "notes": "A rebuilt dashboard, Google sign-in for you and your customers, permanent app deletion, and fields only your business can set. Your AI and the CLI reach the same actions as the dashboard."
+  }
+ ]
+}

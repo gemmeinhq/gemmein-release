@@ -1,0 +1,38 @@
+# Releases ship from this workflow only, triggered by tags from main.
+
+name: publish
+on:
+  push:
+    tags:
+      - "engine-v*"
+      - "shim-v*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - name: shim tests + publish gate
+        run: cd shim && npm test
+      - name: upload engine artifact
+        if: startsWith(github.ref_name, 'engine-v')
+        run: |
+          VERSION="${GITHUB_REF_NAME#engine-v}"
+          test -d "staging/engine/$VERSION" || { echo "no staged artifact for $VERSION"; exit 1; }
+          aws s3 cp "staging/engine/$VERSION/" "s3://gemmein-downloads/engine/$VERSION/"             --recursive --endpoint-url "https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com"
+          aws s3 cp LICENSE-ENGINE.md "s3://gemmein-downloads/engine/LICENSE"             --content-type "text/markdown; charset=utf-8"             --endpoint-url "https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: publish shim to npm
+        if: startsWith(github.ref_name, 'shim-v')
+        run: cd shim && npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
