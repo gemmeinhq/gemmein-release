@@ -5,6 +5,7 @@
     "moduleResolution": "bundler",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "declaration": false,
+    "removeComments": true,
     "outDir": "dist",
     "strict": true,
     "allowImportingTsExtensions": true,
