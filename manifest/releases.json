@@ -410,6 +410,16 @@
    },
    "artifactFormat": "v1",
    "notes": "A rebuilt dashboard, Google sign-in for you and your customers, permanent app deletion, and fields only your business can set. Your AI and the CLI reach the same actions as the dashboard."
+  },
+  {
+   "version": "0.30.1",
+   "date": "2026-11-15",
+   "files": {
+    "gemmein.js": "064de5607caea0038fcc23c15c66401845d11c5670e9eef8c82a30779dbe8901",
+    "llms.txt": "65f58315ad86b7cdf2b9c3342ac78230350b5f3db7b3303068c1e7e68cccd727"
+   },
+   "artifactFormat": "v1",
+   "notes": "Corrections to the guide your AI reads (CLI approvals in Development last 7 days, Functions run inside relays, Live server keys are shown once in the browser, ChatGPT's plugin route, one support reply time on every plan) and clearer wording in a few messages. No behaviour change."
   }
  ]
 }
